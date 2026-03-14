@@ -248,6 +248,26 @@
     .result-section-head h4{margin:0;font-size:.95rem;letter-spacing:.1em;text-transform:uppercase}
     .footer-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin-top:16px}
     .close-x{min-width:auto;width:46px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:1.2rem}
+    .reset-panel{border-color:rgba(255,94,69,.18)}
+    .reset-stack{display:grid;gap:12px}
+    .reset-action-btn{width:100%;min-height:52px;font-size:.98rem}
+    .checkbox-stack{display:grid;gap:10px}
+    .check-card{display:flex;align-items:flex-start;gap:10px;padding:12px 13px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.18)}
+    .check-card input[type="checkbox"]{width:18px;height:18px;margin:1px 0 0;accent-color:var(--red-2);flex:0 0 auto;padding:0}
+    .check-copy{display:grid;gap:3px;min-width:0}
+    .check-title{font-size:.84rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text)}
+    .check-hint{font-size:.8rem;color:var(--muted);line-height:1.4}
+    .reset-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .reset-status{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+    .btn-ghost{min-height:38px;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);color:var(--muted);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+    .btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,.14)}
+    .confirm-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(3,4,6,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:10000;padding:18px}
+    .confirm-modal.open{display:flex}
+    .confirm-dialog{width:min(560px,100%);background:linear-gradient(180deg, rgba(17,19,23,.96), rgba(11,12,16,.98));border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:20px;box-shadow:0 28px 80px rgba(0,0,0,.55)}
+    .confirm-head{display:grid;gap:8px;margin-bottom:14px}
+    .confirm-title{margin:0;font-size:clamp(1.1rem,2vw,1.45rem);letter-spacing:.08em;text-transform:uppercase}
+    .confirm-text{margin:0;color:#d6dae0;line-height:1.55}
+    .confirm-actions{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin-top:16px}
     @media (max-width: 1480px){
       .grid{grid-template-columns:1fr}
       .right-layout{grid-template-columns:minmax(0,1.2fr) minmax(360px,1fr)}
@@ -402,6 +422,36 @@
               </div>
             </section>
 
+            <section class="panel reset-panel">
+              <div class="panel-title">
+                <h2 id="resetTitle">Neuen Fight starten</h2>
+                <span class="tag" id="resetTag">Reset</span>
+              </div>
+              <div class="reset-stack">
+                <button class="btn-danger reset-action-btn" id="startNewFightBtn">Neuen Fight starten</button>
+                <div class="checkbox-stack">
+                  <label class="check-card" for="keepBettorsCheckbox">
+                    <input type="checkbox" id="keepBettorsCheckbox">
+                    <span class="check-copy">
+                      <span class="check-title" id="keepBettorsLabel">Wettende Personen beibehalten</span>
+                      <span class="check-hint" id="keepBettorsHint">Behält nur die Namen der Wettenden. Tipps, Einsätze und Ergebnisse werden zurückgesetzt.</span>
+                    </span>
+                  </label>
+                  <label class="check-card" for="keepFightersCheckbox">
+                    <input type="checkbox" id="keepFightersCheckbox">
+                    <span class="check-copy">
+                      <span class="check-title" id="keepFightersLabel">Fighter beibehalten</span>
+                      <span class="check-hint" id="keepFightersHint">Behält nur die Fighter-Namen. Quoten, Sieger und Berechnungen werden zurückgesetzt.</span>
+                    </span>
+                  </label>
+                </div>
+                <div class="reset-footer">
+                  <span class="reset-status" id="resetDialogStatus">Bestätigungsdialog aktiv</span>
+                  <button class="btn-ghost" type="button" id="reactivateResetDialogBtn">Bestätigungsdialog wieder aktivieren</button>
+                </div>
+              </div>
+            </section>
+
             <section class="panel">
               <div class="panel-title">
                 <h2 id="aggregateTitle">Gesamtabrechnung</h2>
@@ -421,6 +471,26 @@
             </section>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="confirm-modal" id="confirmResetModal" aria-hidden="true">
+    <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="resetConfirmTitle" aria-describedby="resetConfirmText">
+      <div class="confirm-head">
+        <h3 class="confirm-title" id="resetConfirmTitle">Neuen Fight starten?</h3>
+        <p class="confirm-text" id="resetConfirmText">Möchtest du wirklich einen neuen Fight starten und alle aktuellen Daten zurücksetzen?</p>
+      </div>
+      <label class="check-card" for="skipResetConfirmCheckbox">
+        <input type="checkbox" id="skipResetConfirmCheckbox">
+        <span class="check-copy">
+          <span class="check-title" id="skipResetConfirmLabelText">Nicht erneut anzeigen</span>
+          <span class="check-hint" id="skipResetConfirmHintText">Der Bestätigungsdialog wird bei zukünftigen Klicks auf „Neuen Fight starten“ übersprungen.</span>
+        </span>
+      </label>
+      <div class="confirm-actions">
+        <button class="btn-secondary" type="button" id="cancelResetBtn">Abbrechen</button>
+        <button class="btn-danger" type="button" id="confirmResetBtn">Jetzt zurücksetzen</button>
       </div>
     </div>
   </div>
@@ -545,7 +615,32 @@
       unnamedBettor: 'Unbekannt',
       feeWithPercent: '{money} ({percent} %)',
       oddsUnavailable: '—',
-      invalidManualOdds: 'Bitte für alle Fighter eine gültige manuelle Quote größer als 1,00 eingeben.'
+      invalidManualOdds: 'Bitte für alle Fighter eine gültige manuelle Quote größer als 1,00 eingeben.',
+      resetTitle: 'Neuen Fight starten',
+      resetTag: 'Reset',
+      keepBettorsLabel: 'Wettende Personen beibehalten',
+      keepBettorsHint: 'Behält nur die Namen der Wettenden. Tipps, Einsätze und Ergebnisse werden zurückgesetzt.',
+      keepFightersLabel: 'Fighter beibehalten',
+      keepFightersHint: 'Behält nur die Fighter-Namen. Quoten, Sieger und Berechnungen werden zurückgesetzt.',
+      resetDialogStatusEnabled: 'Bestätigungsdialog aktiv',
+      resetDialogStatusDisabled: 'Bestätigungsdialog deaktiviert',
+      reactivateResetDialogBtn: 'Bestätigungsdialog wieder aktivieren',
+      resetConfirmTitle: 'Neuen Fight starten?',
+      resetConfirmText: 'Möchtest du wirklich einen neuen Fight starten und alle aktuellen Daten zurücksetzen?',
+      resetConfirmTextKeepNone: 'Möchtest du wirklich einen neuen Fight starten und alle Daten einschließlich Fighter und Wettenden zurücksetzen?',
+      resetConfirmTextKeepBettors: 'Möchtest du wirklich einen neuen Fight starten? Fighter und alle Wett-Daten werden zurückgesetzt, die wettenden Personen bleiben erhalten.',
+      resetConfirmTextKeepFighters: 'Möchtest du wirklich einen neuen Fight starten? Wettende Personen und alle Wett-Daten werden zurückgesetzt, die Fighter bleiben erhalten.',
+      resetConfirmTextKeepBoth: 'Möchtest du wirklich einen neuen Fight starten? Alle Fight-Daten werden zurückgesetzt, Fighter und wettende Personen bleiben erhalten.',
+      resetConfirmSkipLabel: 'Nicht erneut anzeigen',
+      resetConfirmSkipHint: 'Der Bestätigungsdialog wird bei zukünftigen Klicks auf „Neuen Fight starten“ übersprungen.',
+      resetConfirmCancel: 'Abbrechen',
+      resetConfirmConfirm: 'Jetzt zurücksetzen',
+      skipResetConfirmLabel: 'Nicht erneut anzeigen',
+      skipResetConfirmHint: 'Der Bestätigungsdialog wird bei zukünftigen Klicks auf „Neuen Fight starten“ übersprungen.',
+      cancelResetBtn: 'Abbrechen',
+      confirmResetBtn: 'Jetzt zurücksetzen',
+      resetDoneMessage: 'Aktueller Fight wurde zurückgesetzt.',
+      resetDialogReenabled: 'Bestätigungsdialog wurde wieder aktiviert.'
     },
     en: {
       eyebrowText: 'Bookmaker · Fight Summary',
@@ -621,7 +716,32 @@
       unnamedBettor: 'Unknown',
       feeWithPercent: '{money} ({percent}%)',
       oddsUnavailable: '—',
-      invalidManualOdds: 'Please enter valid manual odds greater than 1.00 for all fighters.'
+      invalidManualOdds: 'Please enter valid manual odds greater than 1.00 for all fighters.',
+      resetTitle: 'Start new fight',
+      resetTag: 'Reset',
+      keepBettorsLabel: 'Keep bettors',
+      keepBettorsHint: 'Only keeps bettor names. Picks, stakes and results will be reset.',
+      keepFightersLabel: 'Keep fighters',
+      keepFightersHint: 'Only keeps fighter names. Odds, winner and calculations will be reset.',
+      resetDialogStatusEnabled: 'Confirmation dialog enabled',
+      resetDialogStatusDisabled: 'Confirmation dialog disabled',
+      reactivateResetDialogBtn: 'Re-enable confirmation dialog',
+      resetConfirmTitle: 'Start a new fight?',
+      resetConfirmText: 'Do you really want to start a new fight and reset all current data?',
+      resetConfirmTextKeepNone: 'Do you really want to start a new fight and reset all data including fighters and bettors?',
+      resetConfirmTextKeepBettors: 'Do you really want to start a new fight? Fighters and all betting data will be reset, bettors will be kept.',
+      resetConfirmTextKeepFighters: 'Do you really want to start a new fight? Bettors and all betting data will be reset, fighters will be kept.',
+      resetConfirmTextKeepBoth: 'Do you really want to start a new fight? All fight data will be reset, fighters and bettors will be kept.',
+      resetConfirmSkipLabel: 'Do not show again',
+      resetConfirmSkipHint: 'The confirmation dialog will be skipped on future clicks on “Start new fight”.',
+      resetConfirmCancel: 'Cancel',
+      resetConfirmConfirm: 'Reset now',
+      skipResetConfirmLabel: 'Do not show again',
+      skipResetConfirmHint: 'The confirmation dialog will be skipped on future clicks on “Start new fight”.',
+      cancelResetBtn: 'Cancel',
+      confirmResetBtn: 'Reset now',
+      resetDoneMessage: 'Current fight has been reset.',
+      resetDialogReenabled: 'Confirmation dialog has been enabled again.'
     }
   };
 
@@ -659,11 +779,24 @@
     resultStakeStat: document.getElementById('resultStakeStat'),
     resultFeeStat: document.getElementById('resultFeeStat'),
     resultPayoutStat: document.getElementById('resultPayoutStat'),
-    resultLines: document.getElementById('resultLines')
+    resultLines: document.getElementById('resultLines'),
+    startNewFightBtn: document.getElementById('startNewFightBtn'),
+    keepBettorsCheckbox: document.getElementById('keepBettorsCheckbox'),
+    keepFightersCheckbox: document.getElementById('keepFightersCheckbox'),
+    reactivateResetDialogBtn: document.getElementById('reactivateResetDialogBtn'),
+    resetDialogStatus: document.getElementById('resetDialogStatus'),
+    confirmResetModal: document.getElementById('confirmResetModal'),
+    confirmResetBtn: document.getElementById('confirmResetBtn'),
+    cancelResetBtn: document.getElementById('cancelResetBtn'),
+    skipResetConfirmCheckbox: document.getElementById('skipResetConfirmCheckbox'),
+    skipResetConfirmLabelText: document.getElementById('skipResetConfirmLabelText'),
+    skipResetConfirmHintText: document.getElementById('skipResetConfirmHintText'),
+    resetConfirmTitle: document.getElementById('resetConfirmTitle'),
+    resetConfirmText: document.getElementById('resetConfirmText')
   };
 
   const defaultState = () => ({
-    settings: { lang: 'de', currency: '$', feePercent: 8, oddsMode: 'auto' },
+    settings: { lang: 'de', currency: '$', feePercent: 8, oddsMode: 'auto', confirmReset: true, keepBettorsOnReset: false, keepFightersOnReset: false },
     fighters: [
       { id: uid(), key: 'A', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9 },
       { id: uid(), key: 'B', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9 }
@@ -709,6 +842,9 @@
       merged.settings = { ...merged.settings, ...(parsed.settings || {}) };
       merged.settings.feePercent = sanitizeFee(merged.settings.feePercent);
       merged.settings.oddsMode = merged.settings.oddsMode === 'manual' ? 'manual' : 'auto';
+      merged.settings.confirmReset = merged.settings.confirmReset !== false;
+      merged.settings.keepBettorsOnReset = Boolean(merged.settings.keepBettorsOnReset);
+      merged.settings.keepFightersOnReset = Boolean(merged.settings.keepFightersOnReset);
       merged.fighters = parsed.fighters.map((f, idx) => ({
         id: f.id || uid(),
         key: f.key || letters[idx] || String(idx + 1),
@@ -887,6 +1023,99 @@
     return { totalStake, totalBetsCount, feePercent, feeAmount, netPool, stakesByFighter, openingOddsByFighter, poolOddsByFighter, oddsByFighter, payoutByFighter, bookieResultByFighter, historyBiasByFighter, marketWeight, worstCaseResult, mode };
   }
 
+
+  function createDefaultFighters(){
+    return [
+      { id: uid(), key: 'A', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9 },
+      { id: uid(), key: 'B', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9 }
+    ];
+  }
+
+  function createDefaultBetRows(){
+    return [{ id: uid(), name: '', fighterId: '', stake: 50 }];
+  }
+
+  function applyResetDialogPreference(skipFutureDialogs){
+    state.settings.confirmReset = !skipFutureDialogs;
+  }
+
+  function syncResetControls(){
+    if(els.keepBettorsCheckbox) els.keepBettorsCheckbox.checked = Boolean(state.settings.keepBettorsOnReset);
+    if(els.keepFightersCheckbox) els.keepFightersCheckbox.checked = Boolean(state.settings.keepFightersOnReset);
+    if(els.resetDialogStatus) els.resetDialogStatus.textContent = t(state.settings.confirmReset ? 'resetDialogStatusEnabled' : 'resetDialogStatusDisabled');
+    if(els.reactivateResetDialogBtn){
+      els.reactivateResetDialogBtn.textContent = t('reactivateResetDialogBtn');
+      els.reactivateResetDialogBtn.disabled = Boolean(state.settings.confirmReset);
+      els.reactivateResetDialogBtn.style.opacity = state.settings.confirmReset ? '.5' : '1';
+      els.reactivateResetDialogBtn.style.cursor = state.settings.confirmReset ? 'default' : 'pointer';
+    }
+    if(els.skipResetConfirmCheckbox) els.skipResetConfirmCheckbox.checked = false;
+  }
+
+  function getResetConfirmMessage(){
+    const keepBettors = Boolean(state.settings.keepBettorsOnReset);
+    const keepFighters = Boolean(state.settings.keepFightersOnReset);
+    if(keepBettors && keepFighters) return t('resetConfirmTextKeepBoth');
+    if(keepBettors) return t('resetConfirmTextKeepBettors');
+    if(keepFighters) return t('resetConfirmTextKeepFighters');
+    return t('resetConfirmTextKeepNone');
+  }
+
+  function openResetConfirm(){
+    if(els.skipResetConfirmCheckbox) els.skipResetConfirmCheckbox.checked = false;
+    if(els.resetConfirmText) els.resetConfirmText.textContent = getResetConfirmMessage();
+    els.confirmResetModal.classList.add('open');
+    els.confirmResetModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeResetConfirm(){
+    els.confirmResetModal.classList.remove('open');
+    els.confirmResetModal.setAttribute('aria-hidden', 'true');
+    if(els.skipResetConfirmCheckbox) els.skipResetConfirmCheckbox.checked = false;
+  }
+
+  function resetCurrentFight(){
+    const keepBettors = Boolean(state.settings.keepBettorsOnReset);
+    const keepFighters = Boolean(state.settings.keepFightersOnReset);
+    const defaultFighters = createDefaultFighters();
+    const nextFighters = keepFighters
+      ? state.fighters.map((fighter, idx) => ({
+          id: uid(),
+          key: letters[idx] || String(idx + 1),
+          name: String(fighter.name || ''),
+          removable: idx >= 2,
+          manualOdds: 1.9,
+          openingOdds: 1.9
+        }))
+      : defaultFighters;
+
+    const firstFighterId = nextFighters[0]?.id || '';
+    const nextBets = keepBettors
+      ? (state.bets.length ? state.bets : createDefaultBetRows()).map(bet => ({
+          id: uid(),
+          name: String(bet.name || ''),
+          fighterId: firstFighterId,
+          stake: 0
+        }))
+      : createDefaultBetRows().map(bet => ({ ...bet, fighterId: firstFighterId }));
+
+    state.fighters = nextFighters;
+    state.bets = nextBets;
+    state.winnerId = '';
+    state.lastSettlementSignature = '';
+    closeResults();
+    closeResetConfirm();
+    renderAll();
+  }
+
+  function handleStartNewFight(){
+    if(state.settings.confirmReset === false){
+      resetCurrentFight();
+      return;
+    }
+    openResetConfirm();
+  }
+
   function applyStaticTexts(){
     const ids = [
       'eyebrowText','heroTitle','heroSub','langLabel','fightersTitle','fighterCountLabel','addFighterBtn',
@@ -895,12 +1124,19 @@
       'summaryBetsLabel','summaryStakeLabel','summaryFeeLabel','summaryPayoutLabel','summaryWinnerLabel','summaryWorstCaseLabel','summaryMarketWeightLabel',
       'aggregateTitle','aggregateTotalStakeLabel','aggregateTotalPayoutLabel','resultTitle',
       'resultWinnerStatLabel','resultStakeStatLabel','resultFeeStatLabel','resultPayoutStatLabel',
-      'resultLinesTitle','resultLinesTag'
+      'resultLinesTitle','resultLinesTag','resetTitle','resetTag','keepBettorsLabel','keepBettorsHint','keepFightersLabel','keepFightersHint',
+      'reactivateResetDialogBtn','resetConfirmTitle'
     ];
     ids.forEach(id => {
       const el = document.getElementById(id);
       if(el) el.textContent = t(id);
     });
+    if(els.resetConfirmTitle) els.resetConfirmTitle.textContent = t('resetConfirmTitle');
+    if(els.resetConfirmText) els.resetConfirmText.textContent = getResetConfirmMessage();
+    if(els.skipResetConfirmLabelText) els.skipResetConfirmLabelText.textContent = t('resetConfirmSkipLabel');
+    if(els.skipResetConfirmHintText) els.skipResetConfirmHintText.textContent = t('resetConfirmSkipHint');
+    if(els.cancelResetBtn) els.cancelResetBtn.textContent = t('resetConfirmCancel');
+    if(els.confirmResetBtn) els.confirmResetBtn.textContent = t('resetConfirmConfirm');
     document.getElementById('feeAmountLabel').textContent = t('feeAmountLabel', { currency: state.settings.currency });
     els.finishNote.textContent = t(state.settings.oddsMode === 'manual' ? 'finishNoteManual' : 'finishNoteAuto');
     els.aggregateFightCount.textContent = t('aggregateFightCount', { count: state.history.length });
@@ -909,6 +1145,7 @@
     [...els.oddsModeRadios].forEach(r => r.checked = r.value === state.settings.oddsMode);
     els.closeResultBtn.setAttribute('aria-label', currentLang() === 'de' ? 'Schließen' : 'Close');
     els.closeResultBtnBottom.textContent = 'OK';
+    syncResetControls();
     const marketInfo = document.getElementById('marketPressureInfo');
     if(marketInfo){
       const help = t('marketPressureHelp');
@@ -1316,6 +1553,18 @@
       renderAll();
       return;
     }
+    if(target === els.keepBettorsCheckbox){
+      state.settings.keepBettorsOnReset = target.checked;
+      saveState();
+      syncResetControls();
+      return;
+    }
+    if(target === els.keepFightersCheckbox){
+      state.settings.keepFightersOnReset = target.checked;
+      saveState();
+      syncResetControls();
+      return;
+    }
     if(target.name === 'oddsMode'){
       state.settings.oddsMode = target.value === 'manual' ? 'manual' : 'auto';
       renderOdds();
@@ -1388,6 +1637,20 @@
     if(btn === els.addFighterBtn){ addFighters(els.fighterAddCount.value); return; }
     if(btn === els.addBetBtn){ addBets(els.betAddCount.value); return; }
     if(btn === els.finishFightBtn){ openResults(); return; }
+    if(btn === els.startNewFightBtn){ handleStartNewFight(); return; }
+    if(btn === els.confirmResetBtn){
+      applyResetDialogPreference(Boolean(els.skipResetConfirmCheckbox?.checked));
+      resetCurrentFight();
+      return;
+    }
+    if(btn === els.cancelResetBtn){ closeResetConfirm(); return; }
+    if(btn === els.reactivateResetDialogBtn){
+      if(state.settings.confirmReset) return;
+      state.settings.confirmReset = true;
+      saveState();
+      syncResetControls();
+      return;
+    }
     if(btn === els.closeResultBtn || btn === els.closeResultBtnBottom){ closeResults(); return; }
     if(role === 'remove-fighter' && id){ removeFighter(id); return; }
     if(role === 'remove-bet' && id){ removeBet(id); return; }
@@ -1396,6 +1659,19 @@
 
   els.resultModal.addEventListener('click', (e) => {
     if(e.target === els.resultModal) closeResults();
+  });
+
+  els.confirmResetModal.addEventListener('click', (e) => {
+    if(e.target === els.confirmResetModal) closeResetConfirm();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key !== 'Escape') return;
+    if(els.confirmResetModal.classList.contains('open')){
+      closeResetConfirm();
+      return;
+    }
+    if(els.resultModal.classList.contains('open')) closeResults();
   });
 
   if(!state.bets.length) addBets(1);
