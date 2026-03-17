@@ -64,30 +64,24 @@
     .wrap{width:min(100%,2080px);max-width:2080px;margin:0 auto;padding:12px 18px 18px;position:relative;z-index:1}
     .hero{
       position:relative;
-      border:1px solid rgba(255,255,255,.08);
-      background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
-      border-radius:28px;
-      padding:16px 18px 14px;
-      overflow:hidden;
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(var(--blur));
-      -webkit-backdrop-filter:blur(var(--blur));
+      padding:6px 0 4px;
+      overflow:visible;
+      background:none;
+      border:none;
+      border-radius:0;
+      box-shadow:none;
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
     }
-    .hero::before{
-      content:"";
-      position:absolute; inset:0;
-      background:
-        linear-gradient(90deg, rgba(212,58,47,.15), transparent 35%, transparent 65%, rgba(239,177,76,.08)),
-        linear-gradient(180deg, rgba(255,255,255,.04), transparent 30%),
-        repeating-linear-gradient(0deg, transparent 0 22px, rgba(255,255,255,.015) 22px 23px);
-      pointer-events:none;
-    }
-    .hero-top{display:flex;gap:18px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+    .hero::before{display:none}
+    .hero-top{display:flex;justify-content:center;align-items:center;position:relative;min-height:auto;padding:44px 220px 4px 20px}
+    .hero-brand{flex:0 1 auto;display:flex;justify-content:center;align-items:center;min-width:0;width:100%}
+    .hero-logo{display:block;width:min(100%,560px);max-width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 10px 26px rgba(255,94,69,.12))}
     .brand{max-width:900px}
     .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:#f5b9ae}
     h1{margin:14px 0 10px;font-size:clamp(1.7rem,4vw,3.3rem);line-height:1.02;letter-spacing:.02em;text-transform:uppercase}
     .sub{max-width:920px;color:var(--muted);font-size:1rem;line-height:1.55;margin:0}
-    .lang-switch{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+    .lang-switch{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:flex-end;gap:8px;justify-content:flex-start;z-index:5}
     .lang-switch .lang-label{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
     .lang-switch select{min-width:150px}
     .grid{display:grid;grid-template-columns:minmax(700px,1.02fr) minmax(1080px,1.42fr);gap:18px;margin-top:14px;align-items:start}
@@ -371,11 +365,15 @@
     }
     @media (max-width: 760px){
       .wrap{padding:10px}
-      .hero{padding:14px}
+      .hero{padding:4px 0 2px}
       .panel{padding:12px}
       .fighters-grid,.summary-grid,.bet-row,.odds-row,.winner-row,.config-grid,.result-grid,.result-line,.aggregate-row,.leaderboard-row,.right-layout{grid-template-columns:1fr}
       .bet-list,.fighters-grid,.aggregate-scroll{max-height:none}
-      .hero-top{flex-direction:column}
+      .hero-top{padding:54px 0 4px 0}
+      .hero-brand{width:100%}
+      .hero-logo{width:min(100%,420px)}
+      .lang-switch{top:0;right:0;gap:6px}
+      .lang-switch select{min-width:132px;max-width:150px}
       .result-line-financials{justify-items:start;text-align:left}
       .aggregate-financial,.result-line-financial{justify-items:start}
       .aggregate-value{text-align:left}
@@ -386,10 +384,8 @@
   <div class="wrap">
     <section class="hero">
       <div class="hero-top">
-        <div class="brand">
-          <span class="eyebrow" id="eyebrowText">Bookmaker · Fight Summary</span>
-          <h1 id="heroTitle">Bookie Bet Tool</h1>
-          <p class="sub" id="heroSub"></p>
+        <div class="hero-brand">
+          <img src="bbt_logo.png" alt="Bookie Bet Tool" class="hero-logo" />
         </div>
         <div class="lang-switch">
           <span class="lang-label" id="langLabel">Sprache</span>
