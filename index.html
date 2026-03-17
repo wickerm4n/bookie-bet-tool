@@ -278,11 +278,88 @@
     .btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,.14)}
     .confirm-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(3,4,6,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:10000;padding:18px}
     .confirm-modal.open{display:flex}
+    #confirmLeaderboardResetModal{z-index:10020}
     .confirm-dialog{width:min(560px,100%);background:linear-gradient(180deg, rgba(17,19,23,.96), rgba(11,12,16,.98));border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:20px;box-shadow:0 28px 80px rgba(0,0,0,.55)}
     .confirm-head{display:grid;gap:8px;margin-bottom:14px}
     .confirm-title{margin:0;font-size:clamp(1.1rem,2vw,1.45rem);letter-spacing:.08em;text-transform:uppercase}
     .confirm-text{margin:0;color:#d6dae0;line-height:1.55}
     .confirm-actions{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin-top:16px}
+
+    .summary-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
+    .leaderboard-trigger{width:100%}
+    .leaderboard-modal{
+      position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+      background:rgba(3,4,6,.72); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+      z-index:10001; padding:18px; opacity:0;
+    }
+    .leaderboard-modal.open{display:flex}
+    .leaderboard-dialog{
+      width:min(980px,100%);
+      max-height:min(90vh,920px);
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(17,19,23,.96), rgba(11,12,16,.98));
+      border:1px solid rgba(255,255,255,.09);
+      border-radius:24px;
+      padding:18px;
+      box-shadow:0 28px 80px rgba(0,0,0,.55);
+      position:relative;
+      opacity:0;
+      transform:translateY(10px) scale(.975);
+      transform-origin:center;
+    }
+    .leaderboard-body{display:grid;gap:14px}
+    .leaderboard-scroll{
+      max-height:min(68vh,680px);
+      overflow:auto;
+      padding-right:4px;
+      scrollbar-gutter:stable;
+    }
+    .leaderboard-scroll::-webkit-scrollbar{width:10px}
+    .leaderboard-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:999px}
+    .leaderboard-scroll::-webkit-scrollbar-track{background:transparent}
+    .leaderboard-list{display:grid;gap:12px}
+    .leaderboard-row{
+      display:grid;
+      grid-template-columns:auto minmax(0,1.2fr) minmax(170px,.72fr) auto;
+      gap:12px;
+      align-items:end;
+      padding:12px;
+      border-radius:16px;
+      background:rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.06);
+    }
+    .leaderboard-rank{
+      min-width:58px;
+      align-self:stretch;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 12px;
+      border-radius:14px;
+      background:linear-gradient(180deg, rgba(255,94,69,.18), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.08);
+      font-weight:800;
+      font-size:1.04rem;
+      letter-spacing:.04em;
+    }
+    .leaderboard-rank.top-rank{
+      box-shadow:0 0 0 1px rgba(255,255,255,.05) inset, 0 0 22px rgba(255,94,69,.12);
+    }
+    .leaderboard-empty{
+      padding:18px;
+      border-radius:16px;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.06);
+      color:var(--muted);
+    }
+    .leaderboard-footer-actions{
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .leaderboard-footer-actions > button{
+      min-width:180px;
+    }
+
     @media (max-width: 1480px){
       .grid{grid-template-columns:1fr}
       .right-layout{grid-template-columns:minmax(0,1.2fr) minmax(360px,1fr)}
@@ -296,7 +373,7 @@
       .wrap{padding:10px}
       .hero{padding:14px}
       .panel{padding:12px}
-      .fighters-grid,.summary-grid,.bet-row,.odds-row,.winner-row,.config-grid,.result-grid,.result-line,.aggregate-row,.right-layout{grid-template-columns:1fr}
+      .fighters-grid,.summary-grid,.bet-row,.odds-row,.winner-row,.config-grid,.result-grid,.result-line,.aggregate-row,.leaderboard-row,.right-layout{grid-template-columns:1fr}
       .bet-list,.fighters-grid,.aggregate-scroll{max-height:none}
       .hero-top{flex-direction:column}
       .result-line-financials{justify-items:start;text-align:left}
@@ -435,6 +512,9 @@
                   <div class="v" id="summaryMarketWeight">0 %</div>
                 </div>
               </div>
+              <div class="summary-actions">
+                <button class="btn-primary leaderboard-trigger" id="openLeaderboardBtn">Bestenliste anzeigen</button>
+              </div>
             </section>
 
             <section class="panel reset-panel">
@@ -522,6 +602,44 @@
     </div>
   </div>
 
+  <div class="leaderboard-modal" id="leaderboardModal" aria-hidden="true">
+    <div class="leaderboard-dialog" role="dialog" aria-modal="true" aria-labelledby="leaderboardTitle">
+      <div class="result-head">
+        <div>
+          <h3 class="result-title" id="leaderboardTitle">Bestenliste</h3>
+        </div>
+        <button class="btn-secondary close-x" id="closeLeaderboardBtn" aria-label="Schließen">×</button>
+      </div>
+      <div class="leaderboard-body">
+        <div class="leaderboard-scroll">
+          <div class="leaderboard-list" id="leaderboardList"></div>
+        </div>
+        <div class="footer-actions leaderboard-footer-actions">
+          <button class="btn-primary" id="importLeaderboardBtn">Bestenliste importieren</button>
+          <button class="btn-action-green" id="exportLeaderboardBtn">Bestenliste exportieren</button>
+          <button class="btn-danger" id="resetLeaderboardBtn">Bestenliste zurücksetzen</button>
+          <button class="btn-secondary" id="closeLeaderboardBtnBottom">Schließen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="leaderboardImportInput" accept="application/json,.json" hidden>
+  <datalist id="fighterSuggestions"></datalist>
+
+  <div class="confirm-modal" id="confirmLeaderboardResetModal" aria-hidden="true">
+    <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="leaderboardResetTitle" aria-describedby="leaderboardResetText" tabindex="-1">
+      <div class="confirm-head">
+        <h3 class="confirm-title" id="leaderboardResetTitle">Bestenliste zurücksetzen?</h3>
+        <p class="confirm-text" id="leaderboardResetText">Möchtest du wirklich die gesamte Bestenliste löschen? Alle gespeicherten Fighter aus der Historie werden dauerhaft entfernt.</p>
+      </div>
+      <div class="confirm-actions">
+        <button class="btn-secondary" type="button" id="cancelLeaderboardResetBtn">Abbrechen</button>
+        <button class="btn-danger" type="button" id="confirmLeaderboardResetBtn">Bestenliste löschen</button>
+      </div>
+    </div>
+  </div>
+
   <div class="result-modal" id="resultModal" aria-hidden="true">
     <div class="result-dialog">
       <div class="result-head">
@@ -588,6 +706,7 @@
       finishFightBtn: 'Fight abschließen',
       finishNoteManual: 'Manuell: Auszahlungen werden mit deinen festen Quoten berechnet.',
       quickSummaryTitle: 'Schnellübersicht',
+      openLeaderboardBtn: 'Bestenliste anzeigen',
       summaryFightersLabel: 'Fighter gesamt',
       summaryBetsLabel: 'Wetten gesamt',
       summaryStakeLabel: 'Gesamteinsätze',
@@ -670,7 +789,26 @@
       resetDialogReenabled: 'Bestätigungsdialog wurde wieder aktiviert.',
       noWinnerDialogTitle: 'Sieger fehlt',
       noWinnerDialogText: 'Bitte wähle zuerst einen Sieger aus, bevor du den Fight abschließen kannst.',
-      noWinnerDialogClose: 'Verstanden'
+      noWinnerDialogClose: 'Verstanden',
+      leaderboardTitle: 'Bestenliste',
+      leaderboardClose: 'Schließen',
+      leaderboardRank: 'Platz',
+      leaderboardQuote: 'Aktuelle Quote',
+      leaderboardNoFighters: 'Noch keine Fighter vorhanden.',
+      importLeaderboardBtn: 'Bestenliste importieren',
+      exportLeaderboardBtn: 'Bestenliste exportieren',
+      resetLeaderboardBtn: 'Bestenliste zurücksetzen',
+      leaderboardResetTitle: 'Bestenliste zurücksetzen?',
+      leaderboardResetText: 'Möchtest du wirklich die gesamte Bestenliste löschen? Alle gespeicherten Fighter aus der Historie werden dauerhaft entfernt.',
+      confirmLeaderboardResetBtn: 'Bestenliste löschen',
+      cancelLeaderboardResetBtn: 'Abbrechen',
+      leaderboardExportFilename: 'bestenliste',
+      leaderboardExportSuccess: 'Bestenliste wurde erfolgreich exportiert.',
+      leaderboardImportSuccess: '{count} Fighter wurden importiert bzw. aktualisiert.',
+      leaderboardImportInvalid: 'Die ausgewählte Datei enthält keine gültige Bestenliste.',
+      leaderboardImportReadError: 'Die JSON-Datei konnte nicht gelesen werden.',
+      leaderboardImportNoFile: 'Bitte wähle eine JSON-Datei aus.',
+      leaderboardResetDone: 'Die gespeicherte Bestenlisten-Historie wurde gelöscht.'
     },
     en: {
       eyebrowText: 'Bookmaker · Fight Summary',
@@ -692,6 +830,7 @@
       finishFightBtn: 'Finish fight',
       finishNoteManual: 'Manual: payouts use your fixed odds.',
       quickSummaryTitle: 'Quick overview',
+      openLeaderboardBtn: 'Show leaderboard',
       summaryFightersLabel: 'Total fighters',
       summaryBetsLabel: 'Total bets',
       summaryStakeLabel: 'Total stakes',
@@ -774,7 +913,26 @@
       resetDialogReenabled: 'Confirmation dialog has been enabled again.',
       noWinnerDialogTitle: 'Winner missing',
       noWinnerDialogText: 'Please choose a winner before you can finish the fight.',
-      noWinnerDialogClose: 'Understood'
+      noWinnerDialogClose: 'Understood',
+      leaderboardTitle: 'Leaderboard',
+      leaderboardClose: 'Close',
+      leaderboardRank: 'Rank',
+      leaderboardQuote: 'Current odds',
+      leaderboardNoFighters: 'No fighters available yet.',
+      importLeaderboardBtn: 'Import leaderboard',
+      exportLeaderboardBtn: 'Export leaderboard',
+      resetLeaderboardBtn: 'Reset leaderboard',
+      leaderboardResetTitle: 'Reset leaderboard?',
+      leaderboardResetText: 'Do you really want to delete the entire leaderboard? All saved fighters from the history will be removed permanently.',
+      confirmLeaderboardResetBtn: 'Delete leaderboard',
+      cancelLeaderboardResetBtn: 'Cancel',
+      leaderboardExportFilename: 'leaderboard',
+      leaderboardExportSuccess: 'Leaderboard exported successfully.',
+      leaderboardImportSuccess: '{count} fighters were imported or updated.',
+      leaderboardImportInvalid: 'The selected file does not contain a valid leaderboard.',
+      leaderboardImportReadError: 'The JSON file could not be read.',
+      leaderboardImportNoFile: 'Please choose a JSON file.',
+      leaderboardResetDone: 'The saved leaderboard history has been deleted.'
     }
   };
 
@@ -829,7 +987,22 @@
     warningModal: document.getElementById('warningModal'),
     warningModalTitle: document.getElementById('warningModalTitle'),
     warningModalText: document.getElementById('warningModalText'),
-    closeWarningModalBtn: document.getElementById('closeWarningModalBtn')
+    closeWarningModalBtn: document.getElementById('closeWarningModalBtn'),
+    openLeaderboardBtn: document.getElementById('openLeaderboardBtn'),
+    leaderboardModal: document.getElementById('leaderboardModal'),
+    leaderboardList: document.getElementById('leaderboardList'),
+    closeLeaderboardBtn: document.getElementById('closeLeaderboardBtn'),
+    closeLeaderboardBtnBottom: document.getElementById('closeLeaderboardBtnBottom'),
+    importLeaderboardBtn: document.getElementById('importLeaderboardBtn'),
+    exportLeaderboardBtn: document.getElementById('exportLeaderboardBtn'),
+    resetLeaderboardBtn: document.getElementById('resetLeaderboardBtn'),
+    leaderboardImportInput: document.getElementById('leaderboardImportInput'),
+    fighterSuggestions: document.getElementById('fighterSuggestions'),
+    confirmLeaderboardResetModal: document.getElementById('confirmLeaderboardResetModal'),
+    leaderboardResetTitle: document.getElementById('leaderboardResetTitle'),
+    leaderboardResetText: document.getElementById('leaderboardResetText'),
+    confirmLeaderboardResetBtn: document.getElementById('confirmLeaderboardResetBtn'),
+    cancelLeaderboardResetBtn: document.getElementById('cancelLeaderboardResetBtn')
   };
 
   const defaultState = () => ({
@@ -855,6 +1028,18 @@
   }
   function fighterFallback(f){ return t('unnamedFighter', { letter: f.key }); }
   function fighterDisplayName(f){ return (f.name || '').trim() || fighterFallback(f); }
+  function isPlaceholderLikeFighterName(name){
+    const trimmed = String(name || '').trim();
+    if(!trimmed) return true;
+    const template = String(t('fighterNamePlaceholder', { name: '__NAME__' }) || '').trim();
+    if(!template.includes('__NAME__')) return false;
+    const [prefix, suffix] = template.split('__NAME__');
+    return trimmed.startsWith(prefix) && trimmed.endsWith(suffix);
+  }
+  function hasValidFighterName(value){
+    const trimmed = String(value || '').trim();
+    return Boolean(trimmed) && !isPlaceholderLikeFighterName(trimmed);
+  }
   function formatMoney(value){
     const lang = currentLang() === 'de' ? 'de-DE' : 'en-US';
     return `${Number(value || 0).toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${state.settings.currency}`;
@@ -900,7 +1085,13 @@
         stake: Math.max(0, Number(b.stake) || 0)
       }));
       merged.winnerId = String(parsed.winnerId || '');
-      merged.history = Array.isArray(parsed.history) ? parsed.history : [];
+      merged.history = Array.isArray(parsed.history)
+        ? parsed.history.map(fight => ({
+            ...fight,
+            fighters: Array.isArray(fight?.fighters) ? fight.fighters : [],
+            lines: Array.isArray(fight?.lines) ? fight.lines : []
+          }))
+        : [];
       merged.lastSettlementSignature = String(parsed.lastSettlementSignature || '');
       return merged;
     }catch{
@@ -1101,26 +1292,23 @@
   function openResetConfirm(){
     if(els.skipResetConfirmCheckbox) els.skipResetConfirmCheckbox.checked = false;
     if(els.resetConfirmText) els.resetConfirmText.textContent = getResetConfirmMessage();
-    els.confirmResetModal.classList.add('open');
-    els.confirmResetModal.setAttribute('aria-hidden', 'false');
+    animateModalOpen(els.confirmResetModal, els.confirmResetModal?.querySelector('.confirm-dialog'));
   }
 
   function closeResetConfirm(){
-    els.confirmResetModal.classList.remove('open');
-    els.confirmResetModal.setAttribute('aria-hidden', 'true');
-    if(els.skipResetConfirmCheckbox) els.skipResetConfirmCheckbox.checked = false;
+    animateModalClose(els.confirmResetModal, els.confirmResetModal?.querySelector('.confirm-dialog'), () => {
+      if(els.skipResetConfirmCheckbox) els.skipResetConfirmCheckbox.checked = false;
+    });
   }
 
   function openWarningModal(title, textValue){
     if(els.warningModalTitle) els.warningModalTitle.textContent = title;
     if(els.warningModalText) els.warningModalText.textContent = textValue;
-    els.warningModal.classList.add('open');
-    els.warningModal.setAttribute('aria-hidden', 'false');
+    animateModalOpen(els.warningModal, els.warningModal?.querySelector('.confirm-dialog'));
   }
 
   function closeWarningModal(){
-    els.warningModal.classList.remove('open');
-    els.warningModal.setAttribute('aria-hidden', 'true');
+    animateModalClose(els.warningModal, els.warningModal?.querySelector('.confirm-dialog'));
   }
 
   function resetCurrentFight(){
@@ -1169,7 +1357,7 @@
     const ids = [
       'eyebrowText','heroTitle','heroSub','langLabel','fightersTitle','fighterCountLabel','addFighterBtn',
       'betsTitle','betCountLabel','addBetBtn','oddsTitle','oddsModeAutoLabel','oddsModeManualLabel',
-      'feePercentLabel','winnerLabel','finishFightBtn','quickSummaryTitle','summaryFightersLabel',
+      'feePercentLabel','winnerLabel','finishFightBtn','quickSummaryTitle','openLeaderboardBtn','summaryFightersLabel',
       'summaryBetsLabel','summaryStakeLabel','summaryFeeLabel','summaryPayoutLabel','summaryWinnerLabel','summaryWorstCaseLabel','summaryMarketWeightLabel',
       'aggregateTitle','aggregateTotalStakeLabel','aggregateTotalPayoutLabel','resultTitle',
       'resultWinnerStatLabel','resultStakeStatLabel','resultFeeStatLabel','resultPayoutStatLabel',
@@ -1198,6 +1386,16 @@
     [...els.oddsModeRadios].forEach(r => r.checked = r.value === state.settings.oddsMode);
     els.closeResultBtn.setAttribute('aria-label', currentLang() === 'de' ? 'Schließen' : 'Close');
     els.closeResultBtnBottom.textContent = 'OK';
+    if(document.getElementById('leaderboardTitle')) document.getElementById('leaderboardTitle').textContent = t('leaderboardTitle');
+    if(els.closeLeaderboardBtn) els.closeLeaderboardBtn.setAttribute('aria-label', t('leaderboardClose'));
+    if(els.closeLeaderboardBtnBottom) els.closeLeaderboardBtnBottom.textContent = t('leaderboardClose');
+    if(els.importLeaderboardBtn) els.importLeaderboardBtn.textContent = t('importLeaderboardBtn');
+    if(els.exportLeaderboardBtn) els.exportLeaderboardBtn.textContent = t('exportLeaderboardBtn');
+    if(els.resetLeaderboardBtn) els.resetLeaderboardBtn.textContent = t('resetLeaderboardBtn');
+    if(els.leaderboardResetTitle) els.leaderboardResetTitle.textContent = t('leaderboardResetTitle');
+    if(els.leaderboardResetText) els.leaderboardResetText.textContent = t('leaderboardResetText');
+    if(els.confirmLeaderboardResetBtn) els.confirmLeaderboardResetBtn.textContent = t('confirmLeaderboardResetBtn');
+    if(els.cancelLeaderboardResetBtn) els.cancelLeaderboardResetBtn.textContent = t('cancelLeaderboardResetBtn');
     syncResetControls();
     const marketInfo = document.getElementById('marketPressureInfo');
     if(marketInfo){
@@ -1219,7 +1417,7 @@
         </div>
         <div class="field">
           <label>${t('fighterNameLabel', { name: fighterFallback(f) })}</label>
-          <input type="text" data-role="fighter-name" data-id="${f.id}" placeholder="${t('fighterNamePlaceholder', { name: fighterFallback(f) })}" value="${escapeHtml(f.name)}">
+          <input type="text" data-role="fighter-name" data-id="${f.id}" placeholder="${t('fighterNamePlaceholder', { name: fighterFallback(f) })}" value="${escapeHtml(f.name)}" list="fighterSuggestions" autocomplete="off">
         </div>
         ${f.removable ? `<button class="icon-remove-btn" type="button" data-role="remove-fighter" data-id="${f.id}" title="${t('remove')}" aria-label="${t('remove')}"><span>✕</span></button>` : ''}
       `;
@@ -1391,6 +1589,463 @@
     });
   }
 
+
+  function getFightFighterResolvedOdds(fighter, mode){
+    if(!fighter) return Number.NaN;
+    const autoOdds = Number(fighter.liveOdds || fighter.openingOdds || 0);
+    const manualOdds = Number(fighter.manualOdds || 0);
+    if(mode === 'manual'){
+      return Number.isFinite(manualOdds) && manualOdds > 0
+        ? manualOdds
+        : (Number.isFinite(autoOdds) && autoOdds > 0 ? autoOdds : Number.NaN);
+    }
+    return Number.isFinite(autoOdds) && autoOdds > 0
+      ? autoOdds
+      : (Number.isFinite(manualOdds) && manualOdds > 0 ? manualOdds : Number.NaN);
+  }
+
+  function getKnownFighterRows(){
+    return getLeaderboardRows();
+  }
+
+  function getKnownFighterMap(){
+    const map = new Map();
+    getKnownFighterRows().forEach(row => {
+      const key = normalizeKey(row.name || row.rawName);
+      if(!key) return;
+      map.set(key, row);
+    });
+    return map;
+  }
+
+  function getKnownFighterQuote(name){
+    const key = normalizeKey(name);
+    if(!key) return null;
+    const row = getKnownFighterMap().get(key);
+    const odds = Number(row?.odds);
+    return Number.isFinite(odds) && odds > 1 ? odds : null;
+  }
+
+  function applyKnownQuoteToFighter(fighter, name){
+    if(!fighter) return false;
+    const knownOdds = getKnownFighterQuote(name);
+    if(!knownOdds) return false;
+    fighter.manualOdds = sanitizeManualOdds(knownOdds);
+    fighter.openingOdds = sanitizeManualOdds(knownOdds);
+    return true;
+  }
+
+  function refreshFighterSuggestions(){
+    if(!els.fighterSuggestions) return;
+    const names = [];
+    const seen = new Set();
+    getKnownFighterRows().forEach(row => {
+      const display = String(row.rawName || row.name || '').trim();
+      const key = normalizeKey(display || row.name);
+      if(!display || !key || seen.has(key)) return;
+      seen.add(key);
+      names.push(display);
+    });
+    els.fighterSuggestions.innerHTML = names
+      .sort((a, b) => a.localeCompare(b, currentLang()))
+      .map(name => `<option value="${escapeHtml(name)}"></option>`)
+      .join('');
+  }
+
+  function exportLeaderboard(){
+    const rows = getKnownFighterRows().map(row => ({
+      name: String(row.rawName || row.name || '').trim() || String(row.name || '').trim(),
+      odds: Number.isFinite(Number(row.odds)) ? Number(Number(row.odds).toFixed(4)) : null,
+      appearances: Number(row.appearances || 0),
+      exportedAt: new Date().toISOString()
+    })).filter(row => row.name);
+    const payload = {
+      type: 'bookie-bet-tool-leaderboard',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      fighters: rows
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    a.href = url;
+    a.download = `${t('leaderboardExportFilename')}-${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function normalizeImportedFighters(data){
+    if(Array.isArray(data)) return data;
+    if(Array.isArray(data?.fighters)) return data.fighters;
+    if(Array.isArray(data?.leaderboard)) return data.leaderboard;
+    return null;
+  }
+
+  function mergeImportedLeaderboard(data){
+    const fighters = normalizeImportedFighters(data);
+    if(!Array.isArray(fighters) || !fighters.length) return 0;
+    const importedAt = new Date().toISOString();
+    let mergedCount = 0;
+    fighters.forEach((entry, index) => {
+      const rawName = String(entry?.name || entry?.fighter || '').trim();
+      const key = normalizeKey(rawName);
+      if(!key) return;
+      const oddsCandidate = Number(entry?.odds ?? entry?.quote ?? entry?.liveOdds ?? entry?.manualOdds ?? entry?.openingOdds ?? 1.9);
+      const resolvedOdds = sanitizeManualOdds(Number.isFinite(oddsCandidate) ? oddsCandidate : 1.9);
+      const existingImport = (Array.isArray(state.history) ? state.history : []).find(fight => fight?.imported === true && normalizeKey(fight?.importKey) === key);
+      const payload = {
+        createdAt: importedAt,
+        winner: rawName,
+        matchupKey: buildMatchupKey([rawName]),
+        roundNo: 1,
+        totalStake: 0,
+        feeAmount: 0,
+        feePercent: 0,
+        totalPayout: 0,
+        bookieNet: 0,
+        mode: 'manual',
+        imported: true,
+        importKey: key,
+        fighters: [{
+          name: rawName,
+          stake: 0,
+          won: false,
+          openingOdds: resolvedOdds,
+          liveOdds: resolvedOdds,
+          manualOdds: resolvedOdds
+        }],
+        lines: []
+      };
+      if(existingImport){
+        Object.assign(existingImport, payload);
+      }else{
+        state.history.push(payload);
+      }
+      state.fighters.forEach(fighter => {
+        if(normalizeKey(fighterDisplayName(fighter)) === key){
+          fighter.name = rawName;
+          fighter.manualOdds = resolvedOdds;
+          fighter.openingOdds = resolvedOdds;
+        }
+      });
+      mergedCount += 1;
+    });
+    return mergedCount;
+  }
+
+  let lastFocusedElementBeforeTopConfirm = null;
+
+  function openLeaderboardResetConfirm(){
+    if(els.leaderboardResetTitle) els.leaderboardResetTitle.textContent = t('leaderboardResetTitle');
+    if(els.leaderboardResetText) els.leaderboardResetText.textContent = t('leaderboardResetText');
+    lastFocusedElementBeforeTopConfirm = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if(els.leaderboardModal){
+      els.leaderboardModal.setAttribute('aria-hidden', 'true');
+      els.leaderboardModal.inert = true;
+    }
+    animateModalOpen(els.confirmLeaderboardResetModal, els.confirmLeaderboardResetModal?.querySelector('.confirm-dialog'));
+    requestAnimationFrame(() => {
+      const preferredTarget = els.cancelLeaderboardResetBtn || els.confirmLeaderboardResetBtn || els.confirmLeaderboardResetModal?.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if(preferredTarget && typeof preferredTarget.focus === 'function') preferredTarget.focus({ preventScroll: true });
+    });
+  }
+
+  function closeLeaderboardResetConfirm(){
+    animateModalClose(els.confirmLeaderboardResetModal, els.confirmLeaderboardResetModal?.querySelector('.confirm-dialog'), () => {
+      if(els.leaderboardModal){
+        els.leaderboardModal.setAttribute('aria-hidden', els.leaderboardModal.classList.contains('open') ? 'false' : 'true');
+        els.leaderboardModal.inert = false;
+      }
+      if(lastFocusedElementBeforeTopConfirm && typeof lastFocusedElementBeforeTopConfirm.focus === 'function'){
+        lastFocusedElementBeforeTopConfirm.focus({ preventScroll: true });
+      }
+    });
+  }
+
+  function resetLeaderboardHistory(){
+    state.history = [];
+    state.lastSettlementSignature = '';
+    renderAll();
+    closeLeaderboardResetConfirm();
+  }
+
+  function getHistoricalLeaderboardRows(){
+    const historyRows = new Map();
+    (Array.isArray(state.history) ? state.history : []).forEach((fight, fightIndex) => {
+      const fightTime = new Date(fight?.createdAt || 0).getTime() || fightIndex;
+      (Array.isArray(fight?.fighters) ? fight.fighters : []).forEach((fighter, fighterIndex) => {
+        const displayName = String(fighter?.name || '').trim();
+        if(!hasValidFighterName(displayName)) return;
+        const nameKey = normalizeKey(displayName);
+        if(!nameKey) return;
+        const resolvedOdds = getFightFighterResolvedOdds(fighter, fight?.mode);
+        const previous = historyRows.get(nameKey);
+        if(!previous){
+          historyRows.set(nameKey, {
+            key: nameKey,
+            name: displayName,
+            rawName: displayName,
+            odds: Number.isFinite(resolvedOdds) && resolvedOdds > 0 ? resolvedOdds : Number.POSITIVE_INFINITY,
+            appearances: 1,
+            latestSeenAt: fightTime,
+            sortIndex: fightIndex * 1000 + fighterIndex,
+            currentIds: [],
+            currentRemovables: [],
+            isHistorical: true
+          });
+          return;
+        }
+        previous.appearances += 1;
+        if(fightTime >= previous.latestSeenAt){
+          previous.name = displayName || previous.name;
+          previous.rawName = displayName || previous.rawName;
+          if(Number.isFinite(resolvedOdds) && resolvedOdds > 0) previous.odds = resolvedOdds;
+          previous.latestSeenAt = fightTime;
+          previous.sortIndex = fightIndex * 1000 + fighterIndex;
+        }
+      });
+    });
+    return historyRows;
+  }
+
+  function getLeaderboardRows(){
+    const stats = getPoolStats();
+    const rows = getHistoricalLeaderboardRows();
+
+    state.fighters.forEach((fighter, fighterIndex) => {
+      const displayName = String(fighter?.name || '').trim();
+      if(!hasValidFighterName(displayName)) return;
+      const nameKey = normalizeKey(displayName);
+      if(!nameKey) return;
+      const oddsValue = Number(stats.oddsByFighter[fighter.id]);
+      const fallbackOdds = state.settings.oddsMode === 'manual'
+        ? sanitizeManualOdds(fighter.manualOdds || 1.9)
+        : sanitizeManualOdds(fighter.openingOdds || 1.9);
+      const resolvedOdds = Number.isFinite(oddsValue) && oddsValue > 0 ? oddsValue : fallbackOdds;
+      const currentRow = rows.get(nameKey);
+      if(!currentRow){
+        rows.set(nameKey, {
+          key: nameKey,
+          name: displayName,
+          rawName: String(fighter.name || ''),
+          odds: resolvedOdds,
+          appearances: 0,
+          latestSeenAt: Number.MAX_SAFE_INTEGER - fighterIndex,
+          sortIndex: -1 + (fighterIndex / 1000),
+          currentIds: [fighter.id],
+          currentRemovables: [Boolean(fighter.removable)],
+          isHistorical: false
+        });
+        return;
+      }
+      currentRow.name = displayName;
+      currentRow.rawName = String(fighter.name || '');
+      currentRow.odds = resolvedOdds;
+      currentRow.currentIds.push(fighter.id);
+      currentRow.currentRemovables.push(Boolean(fighter.removable));
+      currentRow.isHistorical = currentRow.isHistorical || false;
+      currentRow.latestSeenAt = Number.MAX_SAFE_INTEGER - fighterIndex;
+      currentRow.sortIndex = -1 + (fighterIndex / 1000);
+    });
+
+    return [...rows.values()].map((row, rowIndex) => ({
+      rowKey: `${row.key}-${rowIndex}`,
+      historyKey: row.key,
+      name: row.name,
+      rawName: row.rawName,
+      odds: row.odds,
+      currentIds: Array.isArray(row.currentIds) ? row.currentIds : [],
+      removable: row.currentIds.length
+        ? row.currentRemovables.every(Boolean)
+        : true,
+      sortIndex: row.sortIndex,
+      latestSeenAt: row.latestSeenAt,
+      appearances: row.appearances,
+      isHistoricalOnly: !row.currentIds.length
+    })).sort((a, b) => {
+      const aOdds = Number.isFinite(a.odds) ? a.odds : Number.POSITIVE_INFINITY;
+      const bOdds = Number.isFinite(b.odds) ? b.odds : Number.POSITIVE_INFINITY;
+      if(aOdds !== bOdds) return aOdds - bOdds;
+      if(a.name !== b.name) return a.name.localeCompare(b.name, currentLang());
+      if(a.latestSeenAt !== b.latestSeenAt) return b.latestSeenAt - a.latestSeenAt;
+      return a.sortIndex - b.sortIndex;
+    });
+  }
+
+  function renameFighterAcrossState(historyKey, nextName){
+    const lookupValue = String(historyKey || '').trim();
+    const targetKey = normalizeKey(lookupValue);
+    const trimmedName = String(nextName || '').trim();
+    if(!lookupValue && !targetKey) return;
+
+    let matchedCurrentFighter = false;
+    state.fighters.forEach(fighter => {
+      if(fighter.id === lookupValue){
+        fighter.name = nextName;
+        matchedCurrentFighter = true;
+        return;
+      }
+      if(targetKey && normalizeKey(fighterDisplayName(fighter)) === targetKey){
+        fighter.name = nextName;
+        matchedCurrentFighter = true;
+      }
+    });
+
+    if(!targetKey || !trimmedName) return;
+
+    (Array.isArray(state.history) ? state.history : []).forEach(fight => {
+      (Array.isArray(fight.fighters) ? fight.fighters : []).forEach(fighter => {
+        if(normalizeKey(fighter?.name) === targetKey){
+          fighter.name = trimmedName;
+        }
+      });
+      if(normalizeKey(fight?.winner) === targetKey){
+        fight.winner = trimmedName;
+      }
+      (Array.isArray(fight.lines) ? fight.lines : []).forEach(line => {
+        if(normalizeKey(line?.fighter) === targetKey){
+          line.fighter = trimmedName;
+        }
+      });
+      const updatedNames = (Array.isArray(fight.fighters) ? fight.fighters : [])
+        .map(fighter => String(fighter?.name || '').trim())
+        .filter(Boolean);
+      if(updatedNames.length){
+        fight.matchupKey = buildMatchupKey(updatedNames);
+      } else if(matchedCurrentFighter){
+        fight.matchupKey = '';
+      }
+    });
+  }
+
+  function removeFighterFromHistory(historyKey){
+    const targetKey = normalizeKey(historyKey);
+    if(!targetKey) return;
+    (Array.isArray(state.history) ? state.history : []).forEach(fight => {
+      if(Array.isArray(fight.fighters)){
+        fight.fighters = fight.fighters.filter(fighter => normalizeKey(fighter?.name) !== targetKey);
+      }
+      if(Array.isArray(fight.lines)){
+        fight.lines = fight.lines.filter(line => normalizeKey(line?.fighter) !== targetKey);
+      }
+      if(normalizeKey(fight?.winner) === targetKey){
+        fight.winner = '—';
+      }
+      const updatedNames = (Array.isArray(fight.fighters) ? fight.fighters : [])
+        .map(fighter => String(fighter?.name || '').trim())
+        .filter(Boolean);
+      fight.matchupKey = updatedNames.length ? buildMatchupKey(updatedNames) : '';
+    });
+  }
+
+  function removeLeaderboardFighter(historyKey){
+    const targetKey = normalizeKey(historyKey);
+    if(!targetKey) return;
+
+    const activeMatches = state.fighters.filter(fighter => normalizeKey(fighterDisplayName(fighter)) === targetKey);
+    const removableActiveIds = activeMatches.filter(fighter => fighter.removable).map(fighter => fighter.id);
+    if(removableActiveIds.length){
+      state.fighters = state.fighters.filter(fighter => !removableActiveIds.includes(fighter.id));
+      state.fighters.forEach((fighter, idx) => {
+        fighter.key = letters[idx] || String(idx + 1);
+        fighter.removable = idx >= 2;
+      });
+      const fallbackId = state.fighters[0]?.id || '';
+      state.bets = state.bets
+        .filter(bet => !removableActiveIds.includes(bet.fighterId))
+        .map(bet => ({ ...bet, fighterId: state.fighters.some(fighter => fighter.id === bet.fighterId) ? bet.fighterId : fallbackId }));
+      if(removableActiveIds.includes(state.winnerId)) state.winnerId = '';
+    }
+
+    removeFighterFromHistory(targetKey);
+    renderAll();
+  }
+
+  function renderLeaderboard(){
+    if(!els.leaderboardList) return;
+    const rows = getLeaderboardRows();
+
+    els.leaderboardList.innerHTML = '';
+    if(!rows.length){
+      const empty = document.createElement('div');
+      empty.className = 'leaderboard-empty';
+      empty.textContent = t('leaderboardNoFighters');
+      els.leaderboardList.appendChild(empty);
+      return;
+    }
+
+    rows.forEach((row, index) => {
+      const item = document.createElement('div');
+      item.className = 'leaderboard-row';
+      item.dataset.rowKey = row.rowKey;
+      item.innerHTML = `
+        <div class="leaderboard-rank ${index === 0 ? 'top-rank' : ''}">${index + 1}.</div>
+        <div class="field">
+          <label>${t('fighterNameLabel', { name: row.name })}</label>
+          <input type="text" data-role="fighter-name" data-key="${escapeHtml(row.historyKey)}" placeholder="${t('fighterNamePlaceholder', { name: row.name })}" value="${escapeHtml(row.rawName)}" list="fighterSuggestions" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>${t('leaderboardQuote')}</label>
+          <input type="text" readonly value="${Number.isFinite(row.odds) && row.odds > 0 ? row.odds.toFixed(2) : t('oddsUnavailable')}">
+        </div>
+        <button class="icon-remove-btn" type="button" data-role="remove-fighter" data-key="${escapeHtml(row.historyKey)}" title="${t('remove')}" aria-label="${t('remove')}" ${row.removable ? '' : 'disabled'}><span>✕</span></button>
+      `;
+      els.leaderboardList.appendChild(item);
+    });
+  }
+
+  function animateModalOpen(modal, dialog){
+    if(!modal || !dialog) return;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    modal.animate(
+      [{ opacity: 0 }, { opacity: 1 }],
+      { duration: 180, easing: 'ease-out', fill: 'forwards' }
+    );
+    dialog.animate(
+      [
+        { opacity: 0, transform: 'translateY(10px) scale(0.975)' },
+        { opacity: 1, transform: 'translateY(0) scale(1)' }
+      ],
+      { duration: 220, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' }
+    );
+  }
+
+  function animateModalClose(modal, dialog, done){
+    if(!modal || !dialog){
+      done?.();
+      return;
+    }
+    const overlayAnim = modal.animate(
+      [{ opacity: getComputedStyle(modal).opacity || 1 }, { opacity: 0 }],
+      { duration: 160, easing: 'ease-in', fill: 'forwards' }
+    );
+    dialog.animate(
+      [
+        { opacity: getComputedStyle(dialog).opacity || 1, transform: 'translateY(0) scale(1)' },
+        { opacity: 0, transform: 'translateY(8px) scale(0.985)' }
+      ],
+      { duration: 170, easing: 'ease-in', fill: 'forwards' }
+    );
+    overlayAnim.onfinish = () => {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      done?.();
+    };
+  }
+
+  function openLeaderboard(){
+    renderLeaderboard();
+    animateModalOpen(els.leaderboardModal, els.leaderboardModal?.querySelector('.leaderboard-dialog'));
+  }
+
+  function closeLeaderboard(){
+    animateModalClose(els.leaderboardModal, els.leaderboardModal?.querySelector('.leaderboard-dialog'));
+  }
+
   function renderAll(){
     applyStaticTexts();
     renderFighters();
@@ -1398,6 +2053,8 @@
     renderOdds();
     renderQuickSummary();
     renderAggregate();
+    renderLeaderboard();
+    refreshFighterSuggestions();
     saveState();
   }
 
@@ -1480,19 +2137,23 @@
       bets: validBets.map(b => ({ name: (b.name || '').trim(), fighterId: b.fighterId, stake: Number(b.stake) }))
     });
 
-    return {
-      signature,
-      winner,
-      lines,
-      matchupKey: buildMatchupKey(state.fighters.map(f => fighterDisplayName(f))),
-      fighters: state.fighters.map(f => ({
-        name: fighterDisplayName(f),
+    const validNamedFighters = state.fighters
+      .filter(f => hasValidFighterName(f?.name))
+      .map(f => ({
+        name: String(f.name || '').trim(),
         stake: Number(stats.stakesByFighter[f.id] || 0),
         won: f.id === state.winnerId,
         openingOdds: Number(stats.openingOddsByFighter[f.id] || 0),
         liveOdds: Number(stats.oddsByFighter[f.id] || 0),
         manualOdds: Number(sanitizeManualOdds(f.manualOdds || stats.oddsByFighter[f.id] || 1.9))
-      })),
+      }));
+
+    return {
+      signature,
+      winner,
+      lines,
+      matchupKey: buildMatchupKey(validNamedFighters.map(f => f.name)),
+      fighters: validNamedFighters,
       totalStake: stats.totalStake,
       feeAmount: stats.feeAmount,
       feePercent: stats.feePercent,
@@ -1531,6 +2192,7 @@
     if(!result) return;
     persistFightResult(result);
     renderAggregate();
+    renderLeaderboard();
 
     els.resultWinnerStat.textContent = fighterDisplayName(result.winner);
     els.resultStakeStat.textContent = formatMoney(result.totalStake);
@@ -1553,13 +2215,11 @@
       `;
       els.resultLines.appendChild(item);
     });
-    els.resultModal.classList.add('open');
-    els.resultModal.setAttribute('aria-hidden', 'false');
+    animateModalOpen(els.resultModal, els.resultModal?.querySelector('.result-dialog'));
   }
 
   function closeResults(){
-    els.resultModal.classList.remove('open');
-    els.resultModal.setAttribute('aria-hidden', 'true');
+    animateModalClose(els.resultModal, els.resultModal?.querySelector('.result-dialog'));
   }
 
   function escapeHtml(str){
@@ -1570,18 +2230,31 @@
     const target = e.target;
     const role = target.dataset.role;
     const id = target.dataset.id;
+    const key = target.dataset.key;
 
     if(target === els.feePercent){
       return;
     }
 
-    if(!role || !id) return;
+    if(!role || (!id && !key)) return;
     if(role === 'fighter-name'){
-      const fighter = state.fighters.find(f => f.id === id);
-      if(fighter) fighter.name = target.value;
+      renameFighterAcrossState(key || id, target.value);
+      if(id){
+        const fighter = state.fighters.find(f => f.id === id);
+        if(fighter) applyKnownQuoteToFighter(fighter, target.value);
+      } else if(key){
+        state.fighters.forEach(fighter => {
+          if(normalizeKey(fighterDisplayName(fighter)) === normalizeKey(target.value) || normalizeKey(fighterDisplayName(fighter)) === normalizeKey(key)){
+            applyKnownQuoteToFighter(fighter, target.value);
+          }
+        });
+      }
       renderOdds();
       renderBets();
       renderQuickSummary();
+      renderAggregate();
+      renderLeaderboard();
+      refreshFighterSuggestions();
       saveState();
       return;
     }
@@ -1622,6 +2295,7 @@
       state.settings.oddsMode = target.value === 'manual' ? 'manual' : 'auto';
       renderOdds();
       renderQuickSummary();
+      renderLeaderboard();
       saveState();
       return;
     }
@@ -1635,7 +2309,38 @@
       state.settings.feePercent = sanitizeFee(String(target.value).replace(',', '.'));
       renderOdds();
       renderQuickSummary();
+      renderLeaderboard();
       saveState();
+      return;
+    }
+    if(target === els.leaderboardImportInput){
+      const file = target.files && target.files[0];
+      if(!file){
+        openWarningModal(t('leaderboardTitle'), t('leaderboardImportNoFile'));
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const parsed = JSON.parse(String(reader.result || '{}'));
+          const count = mergeImportedLeaderboard(parsed);
+          if(!count){
+            openWarningModal(t('leaderboardTitle'), t('leaderboardImportInvalid'));
+            target.value = '';
+            return;
+          }
+          renderAll();
+          openWarningModal(t('leaderboardTitle'), t('leaderboardImportSuccess', { count }));
+        }catch{
+          openWarningModal(t('leaderboardTitle'), t('leaderboardImportReadError'));
+        }
+        target.value = '';
+      };
+      reader.onerror = () => {
+        openWarningModal(t('leaderboardTitle'), t('leaderboardImportReadError'));
+        target.value = '';
+      };
+      reader.readAsText(file, 'utf-8');
       return;
     }
     if(role === 'manual-odds' && id){
@@ -1643,6 +2348,7 @@
       if(fighter) fighter.manualOdds = sanitizeManualOdds(String(target.value).replace(',', '.'));
       renderOdds();
       renderQuickSummary();
+      renderLeaderboard();
       saveState();
       return;
     }
@@ -1651,6 +2357,7 @@
       if(fighter) fighter.openingOdds = sanitizeManualOdds(String(target.value).replace(',', '.'));
       renderOdds();
       renderQuickSummary();
+      renderLeaderboard();
       saveState();
       return;
     }
@@ -1659,6 +2366,7 @@
       if(bet) bet.stake = Math.max(0, Number(String(target.value).replace(',', '.')) || 0);
       renderOdds();
       renderQuickSummary();
+      renderLeaderboard();
       saveState();
       return;
     }
@@ -1667,6 +2375,7 @@
       if(bet) bet.fighterId = target.value;
       renderOdds();
       renderQuickSummary();
+      renderLeaderboard();
       saveState();
       return;
     }
@@ -1689,6 +2398,7 @@
 
     if(btn === els.addFighterBtn){ addFighters(els.fighterAddCount.value); return; }
     if(btn === els.addBetBtn){ addBets(els.betAddCount.value); return; }
+    if(btn === els.openLeaderboardBtn){ openLeaderboard(); return; }
     if(btn === els.finishFightBtn){ openResults(); return; }
     if(btn === els.startNewFightBtn){ handleStartNewFight(); return; }
     if(btn === els.confirmResetBtn){
@@ -1706,7 +2416,17 @@
       return;
     }
     if(btn === els.closeResultBtn || btn === els.closeResultBtnBottom){ closeResults(); return; }
-    if(role === 'remove-fighter' && id){ removeFighter(id); return; }
+    if(btn === els.closeLeaderboardBtn || btn === els.closeLeaderboardBtnBottom){ closeLeaderboard(); return; }
+    if(btn === els.exportLeaderboardBtn){ exportLeaderboard(); return; }
+    if(btn === els.importLeaderboardBtn){ els.leaderboardImportInput?.click(); return; }
+    if(btn === els.resetLeaderboardBtn){ openLeaderboardResetConfirm(); return; }
+    if(btn === els.cancelLeaderboardResetBtn){ closeLeaderboardResetConfirm(); return; }
+    if(btn === els.confirmLeaderboardResetBtn){ resetLeaderboardHistory(); return; }
+    if(role === 'remove-fighter' && (id || key)){
+      if(key){ removeLeaderboardFighter(key); return; }
+      removeFighter(id);
+      return;
+    }
     if(role === 'remove-bet' && id){ removeBet(id); return; }
     if(role === 'remove-aggregate' && key){ removeAggregateEntry(key); return; }
   });
@@ -1715,8 +2435,16 @@
     if(e.target === els.resultModal) closeResults();
   });
 
+  els.leaderboardModal.addEventListener('click', (e) => {
+    if(e.target === els.leaderboardModal) closeLeaderboard();
+  });
+
   els.confirmResetModal.addEventListener('click', (e) => {
     if(e.target === els.confirmResetModal) closeResetConfirm();
+  });
+
+  els.confirmLeaderboardResetModal?.addEventListener('click', (e) => {
+    if(e.target === els.confirmLeaderboardResetModal) closeLeaderboardResetConfirm();
   });
 
   els.warningModal.addEventListener('click', (e) => {
@@ -1724,6 +2452,24 @@
   });
 
   document.addEventListener('keydown', (e) => {
+    if(e.key === 'Tab' && els.confirmLeaderboardResetModal?.classList.contains('open')){
+      const focusables = Array.from(els.confirmLeaderboardResetModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+        .filter(el => !el.disabled && el.offsetParent !== null);
+      if(focusables.length){
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if(e.shiftKey && document.activeElement === first){
+          e.preventDefault();
+          last.focus({ preventScroll: true });
+          return;
+        }
+        if(!e.shiftKey && document.activeElement === last){
+          e.preventDefault();
+          first.focus({ preventScroll: true });
+          return;
+        }
+      }
+    }
     if(e.key !== 'Escape') return;
     if(els.confirmResetModal.classList.contains('open')){
       closeResetConfirm();
@@ -1731,6 +2477,14 @@
     }
     if(els.warningModal.classList.contains('open')){
       closeWarningModal();
+      return;
+    }
+    if(els.confirmLeaderboardResetModal?.classList.contains('open')){
+      closeLeaderboardResetConfirm();
+      return;
+    }
+    if(els.leaderboardModal.classList.contains('open')){
+      closeLeaderboard();
       return;
     }
     if(els.resultModal.classList.contains('open')) closeResults();
