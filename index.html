@@ -197,6 +197,10 @@
     .summary-card{padding:14px;border-radius:16px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.06);min-width:0;overflow:hidden}
     .summary-card .k{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.11em;line-height:1.18;overflow-wrap:anywhere;word-break:break-word}
     .summary-card .v{font-size:clamp(1.1rem,1.2vw + .55rem,1.9rem);font-weight:800;margin-top:8px;text-align:left;line-height:1.08;overflow-wrap:anywhere;word-break:break-word}
+    .summary-subnote{margin-top:8px;font-size:.78rem;line-height:1.42;color:var(--muted);overflow-wrap:anywhere;word-break:break-word}
+    .summary-subnote.pos{color:#9be6b5}
+    .summary-subnote.neg{color:#ffb0a6}
+    .summary-subnote.zero{color:#d6dae0}
     .note-box{
       padding:12px 14px;border-left:4px solid rgba(255,94,69,.8);border-radius:12px;background:rgba(255,255,255,.04);color:#d6dae0;line-height:1.5
     }
@@ -537,8 +541,9 @@
                   <div class="v" id="summaryWinner">—</div>
                 </div>
                 <div class="summary-card">
-                  <div class="k" id="summaryWorstCaseLabel">Schlechtester Bookie-Fall</div>
+                  <div class="k" id="summaryWorstCaseLabel">Schlechtestes mögliches Bookie-Ergebnis</div>
                   <div class="v" id="summaryWorstCase">0,00 $</div>
+                  <div class="summary-subnote" id="summaryWorstCaseHint">Negativer Wert = möglicher Verlust für den Bookie/Fightclub.</div>
                 </div>
                 <div class="summary-card">
                   <div class="k label-with-info"><span id="summaryMarketWeightLabel">Marktdruck</span><span class="info-dot" id="marketPressureInfo" tabindex="0" aria-label="Info" title="">i</span></div>
@@ -769,7 +774,10 @@
       summaryFeeLabel: 'Bookie-Anteil',
       summaryPayoutLabel: 'Gesamtauszahlung',
       summaryWinnerLabel: 'Ausgewählter Sieger',
-      summaryWorstCaseLabel: 'Schlechtester Bookie-Fall',
+      summaryWorstCaseLabel: 'Schlechtestes mögliches Bookie-Ergebnis',
+      summaryWorstCaseHintNegative: 'Negativer Wert = möglicher Verlust für den Bookie/Fightclub.',
+      summaryWorstCaseHintPositive: 'Positiver Wert = möglicher Gewinn für den Bookie/Fightclub.',
+      summaryWorstCaseHintZero: '0,00 bedeutet: weder Gewinn noch Verlust für den Bookie/Fightclub.',
       summaryMarketWeightLabel: 'Marktdruck',
       marketPressureHelp: 'Marktdruck zeigt, wie stark die Live-Quote von den aktuellen Einsätzen, der Bookie-Haftung und der Historie weg von der Eröffnungsquote gedrückt wird. Je höher der Wert, desto stärker reagiert die Quote auf den aktuellen Markt.',
       aggregateTitle: 'Gesamtabrechnung',
@@ -896,7 +904,10 @@
       summaryFeeLabel: 'Bookie share',
       summaryPayoutLabel: 'Total payout',
       summaryWinnerLabel: 'Selected winner',
-      summaryWorstCaseLabel: 'Worst bookie case',
+      summaryWorstCaseLabel: 'Worst possible bookie result',
+      summaryWorstCaseHintNegative: 'Negative value = possible loss for the bookie / fight club.',
+      summaryWorstCaseHintPositive: 'Positive value = possible profit for the bookie / fight club.',
+      summaryWorstCaseHintZero: '0.00 means: no profit and no loss for the bookie / fight club.',
       summaryMarketWeightLabel: 'Market pressure',
       marketPressureHelp: 'Market pressure shows how strongly current stakes, bookmaker liability and fight history pull the live odds away from the opening odds. Higher value = odds react more strongly to the current market.',
       aggregateTitle: 'Overall settlement',
@@ -1016,6 +1027,7 @@
     summaryPayoutAmount: document.getElementById('summaryPayoutAmount'),
     summaryWinner: document.getElementById('summaryWinner'),
     summaryWorstCase: document.getElementById('summaryWorstCase'),
+    summaryWorstCaseHint: document.getElementById('summaryWorstCaseHint'),
     summaryMarketWeight: document.getElementById('summaryMarketWeight'),
     aggregateFightCount: document.getElementById('aggregateFightCount'),
     aggregateTotalStake: document.getElementById('aggregateTotalStake'),
@@ -1072,8 +1084,8 @@
   const defaultState = () => ({
     settings: { lang: 'de', currency: '$', feePercent: 8, oddsMode: 'auto', confirmReset: true, keepBettorsOnReset: false, keepFightersOnReset: false },
     fighters: [
-      { id: uid(), key: 'A', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9 },
-      { id: uid(), key: 'B', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9 }
+      { id: uid(), key: 'A', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9, oddsAnchorName: '' },
+      { id: uid(), key: 'B', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9, oddsAnchorName: '' }
     ],
     bets: [],
     winnerId: '',
@@ -1092,6 +1104,19 @@
   }
   function fighterFallback(f){ return t('unnamedFighter', { letter: f.key }); }
   function fighterDisplayName(f){ return (f.name || '').trim() || fighterFallback(f); }
+  function getFighterOddsAnchorName(f){
+    if(!f) return '';
+    const anchor = String(f.oddsAnchorName || '').trim();
+    if(anchor) return anchor;
+    const current = String(f.name || '').trim();
+    return current || fighterFallback(f);
+  }
+  function getFighterOddsAnchorKey(f){
+    return normalizeKey(getFighterOddsAnchorName(f));
+  }
+  function buildCurrentOddsMatchupKey(){
+    return buildMatchupKey(state.fighters.map(f => getFighterOddsAnchorName(f)));
+  }
   function isPlaceholderLikeFighterName(name){
     const trimmed = String(name || '').trim();
     if(!trimmed) return true;
@@ -1137,7 +1162,8 @@
         name: typeof f.name === 'string' ? f.name : '',
         removable: idx >= 2,
         manualOdds: sanitizeManualOdds(f.manualOdds),
-        openingOdds: sanitizeManualOdds(f.openingOdds || 1.9)
+        openingOdds: sanitizeManualOdds(f.openingOdds || 1.9),
+        oddsAnchorName: typeof f.oddsAnchorName === 'string' ? f.oddsAnchorName : (typeof f.name === 'string' ? f.name : '')
       })).slice(0, MAX_FIGHTERS);
       if(merged.fighters.length < 2) return defaultState();
       merged.fighters[0].removable = false;
@@ -1229,7 +1255,7 @@
 
     const historyMemory = getHistoricalFighterMemory();
     const matchupMemory = getHistoricalMatchupMemory();
-    const currentMatchupKey = buildMatchupKey(state.fighters.map(f => fighterDisplayName(f)));
+    const currentMatchupKey = buildCurrentOddsMatchupKey();
     const currentMatchup = matchupMemory.get(currentMatchupKey) || { rounds: 0, fighters: new Map(), lastByFighter: new Map() };
     const mode = state.settings.oddsMode === 'manual' ? 'manual' : 'auto';
     const openingOddsByFighter = {};
@@ -1239,9 +1265,10 @@
     const bookieResultByFighter = {};
     const historyBiasByFighter = {};
     const totalBetsCount = state.bets.filter(b => Number(b.stake) > 0).length;
+    const safePayoutPool = Math.max(0, netPool);
 
     const fighterRows = state.fighters.map(f => {
-      const key = normalizeKey(fighterDisplayName(f));
+      const key = getFighterOddsAnchorKey(f);
       const hist = key ? historyMemory.get(key) : null;
       const matchupHist = key ? currentMatchup.fighters.get(key) : null;
       const matchupLast = key ? currentMatchup.lastByFighter.get(key) : null;
@@ -1293,33 +1320,36 @@
     const posteriorTotal = fighterRows.reduce((sum, row) => sum + row.priorLiquidity + row.stakeOnFighter, 0) || 1;
 
     fighterRows.forEach(row => {
+      const stakeOnFighter = Number(row.stakeOnFighter) || 0;
+      const maxDisplayOdds = 12;
       if(mode === 'manual'){
-        const carriedManual = currentMatchup.lastByFighter.get(normalizeKey(fighterDisplayName(row.fighter)))?.manualOdds;
-        const odds = sanitizeManualOdds(row.fighter.manualOdds || carriedManual || row.openingOdds);
+        const carriedManual = currentMatchup.lastByFighter.get(getFighterOddsAnchorKey(row.fighter))?.manualOdds;
+        const requestedOdds = sanitizeManualOdds(row.fighter.manualOdds || carriedManual || row.openingOdds);
+        const odds = clamp(requestedOdds, 1.01, maxDisplayOdds);
         oddsByFighter[row.fighter.id] = odds;
         poolOddsByFighter[row.fighter.id] = null;
-        payoutByFighter[row.fighter.id] = row.stakeOnFighter * odds;
+        payoutByFighter[row.fighter.id] = stakeOnFighter * odds;
       }else{
-        const marketProb = (row.priorLiquidity + row.stakeOnFighter) / posteriorTotal;
+        const marketProb = (row.priorLiquidity + stakeOnFighter) / posteriorTotal;
         const blendedProb = clamp((row.openingProb * (1 - marketWeight)) + (marketProb * marketWeight), 0.02, 0.92);
         const fairOdds = 1 / blendedProb;
-        const liveOdds = clamp(fairOdds / (1 + marginRate), 1.05, 12);
+        const liveOdds = clamp(fairOdds / (1 + marginRate), 1.05, maxDisplayOdds);
         poolOddsByFighter[row.fighter.id] = fairOdds;
         oddsByFighter[row.fighter.id] = liveOdds;
-        payoutByFighter[row.fighter.id] = row.stakeOnFighter * liveOdds;
+        payoutByFighter[row.fighter.id] = stakeOnFighter * liveOdds;
       }
       bookieResultByFighter[row.fighter.id] = totalStake - payoutByFighter[row.fighter.id];
     });
 
-    const worstCaseResult = state.fighters.reduce((worst, f) => Math.min(worst, Number(bookieResultByFighter[f.id] || 0)), 0);
-    return { totalStake, totalBetsCount, feePercent, feeAmount, netPool, stakesByFighter, openingOddsByFighter, poolOddsByFighter, oddsByFighter, payoutByFighter, bookieResultByFighter, historyBiasByFighter, marketWeight, worstCaseResult, mode };
+    const worstCaseResult = state.fighters.reduce((worst, f) => Math.min(worst, Number(bookieResultByFighter[f.id] || 0)), Number.POSITIVE_INFINITY);
+    return { totalStake, totalBetsCount, feePercent, feeAmount, netPool, safePayoutPool, stakesByFighter, openingOddsByFighter, poolOddsByFighter, oddsByFighter, payoutByFighter, bookieResultByFighter, historyBiasByFighter, marketWeight, worstCaseResult: Number.isFinite(worstCaseResult) ? worstCaseResult : 0, mode };
   }
 
 
   function createDefaultFighters(){
     return [
-      { id: uid(), key: 'A', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9 },
-      { id: uid(), key: 'B', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9 }
+      { id: uid(), key: 'A', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9, oddsAnchorName: '' },
+      { id: uid(), key: 'B', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9, oddsAnchorName: '' }
     ];
   }
 
@@ -1386,7 +1416,8 @@
           name: String(fighter.name || ''),
           removable: idx >= 2,
           manualOdds: 1.9,
-          openingOdds: 1.9
+          openingOdds: 1.9,
+          oddsAnchorName: String((fighter.name || '').trim())
         }))
       : defaultFighters;
 
@@ -1577,8 +1608,16 @@
     els.summaryFeeAmount.textContent = t('feeWithPercent', { money: formatMoney(stats.feeAmount), percent: formatPercent(stats.feePercent) });
     els.summaryPayoutAmount.textContent = formatMoney(payout);
     els.summaryWinner.textContent = winner ? fighterDisplayName(winner) : '—';
+    const worstCaseClass = stats.worstCaseResult > 0 ? 'pos' : (stats.worstCaseResult < 0 ? 'neg' : 'zero');
+    const worstCaseHintKey = stats.worstCaseResult > 0
+      ? 'summaryWorstCaseHintPositive'
+      : (stats.worstCaseResult < 0 ? 'summaryWorstCaseHintNegative' : 'summaryWorstCaseHintZero');
     els.summaryWorstCase.textContent = `${stats.worstCaseResult >= 0 ? '+' : ''}${formatMoney(stats.worstCaseResult)}`;
-    els.summaryWorstCase.className = `v ${stats.worstCaseResult >= 0 ? 'pos' : 'neg'}`;
+    els.summaryWorstCase.className = `v ${worstCaseClass}`;
+    if(els.summaryWorstCaseHint){
+      els.summaryWorstCaseHint.textContent = t(worstCaseHintKey);
+      els.summaryWorstCaseHint.className = `summary-subnote ${worstCaseClass}`;
+    }
     els.summaryMarketWeight.textContent = `${formatPercent(stats.marketWeight * 100)} %`;
   }
 
@@ -1795,6 +1834,7 @@
           fighter.name = rawName;
           fighter.manualOdds = resolvedOdds;
           fighter.openingOdds = resolvedOdds;
+          fighter.oddsAnchorName = String(fighter.oddsAnchorName || rawName || '').trim();
         }
       });
       mergedCount += 1;
@@ -2308,7 +2348,7 @@
     const safe = Math.max(1, Math.min(20, Number(count) || 1));
     for(let i = 0; i < safe && state.fighters.length < MAX_FIGHTERS; i++){
       const key = letters[state.fighters.length] || String(state.fighters.length + 1);
-      state.fighters.push({ id: uid(), key, name: '', removable: true, manualOdds: 1.9, openingOdds: 1.9 });
+      state.fighters.push({ id: uid(), key, name: '', removable: true, manualOdds: 1.9, openingOdds: 1.9, oddsAnchorName: '' });
     }
     renderAll();
   }
@@ -2379,7 +2419,7 @@
       winnerId: state.winnerId,
       mode: stats.mode,
       feePercent: stats.feePercent,
-      fighters: state.fighters.map(f => ({ id: f.id, name: fighterDisplayName(f), manualOdds: Number(f.manualOdds || 0), openingOdds: Number(f.openingOdds || 0) })),
+      fighters: state.fighters.map(f => ({ id: f.id, name: fighterDisplayName(f), manualOdds: Number(f.manualOdds || 0), openingOdds: Number(f.openingOdds || 0), oddsAnchorName: String(f.oddsAnchorName || '') })),
       bets: validBets.map(b => ({ name: (b.name || '').trim(), fighterId: b.fighterId, stake: Number(b.stake) }))
     });
 
@@ -2484,17 +2524,19 @@
 
     if(!role || (!id && !key)) return;
     if(role === 'fighter-name'){
+      const nextName = String(target.value || '').trim();
+      const fighterBeforeRename = id ? state.fighters.find(f => f.id === id) : null;
+      const previousDisplayName = fighterBeforeRename ? String(fighterBeforeRename.name || '').trim() : '';
+      const previousAnchorName = fighterBeforeRename ? String(fighterBeforeRename.oddsAnchorName || '').trim() : '';
+      const shouldBootstrapAnchorOdds = Boolean(fighterBeforeRename && !previousDisplayName && !previousAnchorName && nextName);
+
       renameFighterAcrossState(key || id, target.value);
-      if(id){
-        const fighter = state.fighters.find(f => f.id === id);
-        if(fighter) applyKnownQuoteToFighter(fighter, target.value);
-      } else if(key){
-        state.fighters.forEach(fighter => {
-          if(normalizeKey(fighterDisplayName(fighter)) === normalizeKey(target.value) || normalizeKey(fighterDisplayName(fighter)) === normalizeKey(key)){
-            applyKnownQuoteToFighter(fighter, target.value);
-          }
-        });
+
+      if(fighterBeforeRename && shouldBootstrapAnchorOdds){
+        fighterBeforeRename.oddsAnchorName = nextName;
+        applyKnownQuoteToFighter(fighterBeforeRename, nextName);
       }
+
       renderOdds();
       renderBets();
       renderQuickSummary();
