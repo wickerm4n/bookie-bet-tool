@@ -854,6 +854,7 @@
       noWinnerDialogTitle: 'Sieger fehlt',
       noWinnerDialogText: 'Bitte wähle zuerst einen Sieger aus, bevor du den Fight abschließen kannst.',
       noWinnerDialogClose: 'Verstanden',
+      validationDialogTitle: 'Hinweis',
       leaderboardTitle: 'Bestenliste',
       leaderboardClose: 'Schließen',
       leaderboardRank: 'Platz',
@@ -984,6 +985,7 @@
       noWinnerDialogTitle: 'Winner missing',
       noWinnerDialogText: 'Please choose a winner before you can finish the fight.',
       noWinnerDialogClose: 'Understood',
+      validationDialogTitle: 'Notice',
       leaderboardTitle: 'Leaderboard',
       leaderboardClose: 'Close',
       leaderboardRank: 'Rank',
@@ -2390,11 +2392,11 @@
     const stats = getPoolStats();
     const validBets = state.bets.filter(b => (b.name || '').trim() && Number(b.stake) > 0 && state.fighters.some(f => f.id === b.fighterId));
     if(!validBets.length){
-      alert(t('noBets'));
+      openWarningModal(t('validationDialogTitle'), t('noBets'));
       return null;
     }
     if(stats.mode === 'manual' && state.fighters.some(f => !Number.isFinite(Number(f.manualOdds)) || Number(f.manualOdds) <= 1)){
-      alert(t('invalidManualOdds'));
+      openWarningModal(t('validationDialogTitle'), t('invalidManualOdds'));
       return null;
     }
     const winner = state.fighters.find(f => f.id === state.winnerId);
