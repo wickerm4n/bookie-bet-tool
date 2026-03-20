@@ -123,6 +123,15 @@
       transition:.18s ease;
     }
     input:focus,select:focus,textarea:focus{border-color:rgba(255,94,69,.7);box-shadow:0 0 0 3px rgba(255,94,69,.14)}
+    input.is-duplicate{
+      border-color:rgba(255,94,69,.88);
+      box-shadow:0 0 0 3px rgba(255,94,69,.16), 0 0 18px rgba(255,94,69,.14);
+      background:rgba(212,58,47,.12);
+    }
+    input.is-duplicate:focus{
+      border-color:rgba(255,94,69,.95);
+      box-shadow:0 0 0 3px rgba(255,94,69,.2), 0 0 24px rgba(255,94,69,.18);
+    }
     input::placeholder,textarea::placeholder{color:#878d96}
     .field{min-width:0}
     .field label{line-height:1.18;overflow-wrap:anywhere;word-break:break-word}
@@ -201,6 +210,17 @@
     .summary-subnote.pos{color:#9be6b5}
     .summary-subnote.neg{color:#ffb0a6}
     .summary-subnote.zero{color:#d6dae0}
+    .summary-payout-preview{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px}
+    .summary-payout-preview:empty{display:none}
+    .summary-preview-card{padding:12px 14px;border-radius:16px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.06);min-width:0}
+    .summary-preview-card .k{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.11em;line-height:1.22;overflow-wrap:anywhere;word-break:break-word;hyphens:auto}
+    .summary-preview-card .v{margin-top:8px;font-size:1.05rem;font-weight:800;line-height:1.15;overflow-wrap:anywhere;word-break:break-word;hyphens:auto}
+    .result-settlement-info{margin-top:14px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);display:grid;gap:10px}
+    .result-settlement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .result-settlement-block{min-width:0;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);display:grid;gap:6px}
+    .result-settlement-info .k{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.11em;line-height:1.2;overflow-wrap:anywhere;word-break:break-word}
+    .result-settlement-info .v{font-size:1.15rem;font-weight:800;line-height:1.15;overflow-wrap:anywhere;word-break:break-word}
+    .result-settlement-info .hint{font-size:.82rem;line-height:1.4;color:var(--muted);overflow-wrap:anywhere;word-break:break-word}
     .note-box{
       padding:12px 14px;border-left:4px solid rgba(255,94,69,.8);border-radius:12px;background:rgba(255,255,255,.04);color:#d6dae0;line-height:1.5
     }
@@ -516,6 +536,7 @@
       .grid{grid-template-columns:1fr}
       .right-layout{grid-template-columns:1fr}
       .result-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .result-settlement-grid{grid-template-columns:1fr}
     }
     @media (max-width: 760px){
       .wrap{padding:10px}
@@ -736,6 +757,7 @@
                   <div class="v" id="summaryMarketWeight">0 %</div>
                 </div>
               </div>
+              <div class="summary-payout-preview" id="summaryPayoutPreview"></div>
               <div class="summary-actions">
                 <button class="btn-primary leaderboard-trigger" id="openLeaderboardBtn">Bestenliste anzeigen</button>
                 <label class="summary-toggle-card" for="leaderboardAutofillToggle">
@@ -916,8 +938,22 @@
           <div class="v" id="resultFeeStat">0,00 $</div>
         </div>
         <div class="result-stat">
-          <div class="k" id="resultPayoutStatLabel">Gesamtauszahlung</div>
+          <div class="k" id="resultPayoutStatLabel">Gesamtauszahlung an Gewinner</div>
           <div class="v" id="resultPayoutStat">0,00 $</div>
+        </div>
+      </div>
+      <div class="result-settlement-info">
+        <div class="result-settlement-grid">
+          <div class="result-settlement-block">
+            <div class="k" id="resultActualPayoutLabel">Gewinnerseite</div>
+            <div class="v" id="resultActualPayoutValue">—</div>
+            <div class="hint" id="resultActualPayoutHint">Auszahlung an alle Gewinner der Siegerseite.</div>
+          </div>
+          <div class="result-settlement-block">
+            <div class="k" id="resultFighterShareLabel">Fighter-Anteil (basierend auf Quote)</div>
+            <div class="v" id="resultFighterShareValue">0,00 $</div>
+            <div class="hint" id="resultFighterShareHint">Anteil für den siegreichen Fighter auf Basis der Quote.</div>
+          </div>
         </div>
       </div>
       <div class="result-section">
@@ -977,7 +1013,8 @@
       summaryBetsLabel: 'Wetten gesamt',
       summaryStakeLabel: 'Gesamteinsätze',
       summaryFeeLabel: 'Bookie-Anteil',
-      summaryPayoutLabel: 'Gesamtauszahlung',
+      summaryPayoutLabel: 'Gesamtauszahlung an Gewinner',
+      summaryPayoutPreviewLabel: 'Potenzielle Auszahlung bei Sieg von {name}',
       summaryWinnerLabel: 'Ausgewählter Sieger',
       summaryWorstCaseLabel: 'Schlechtestes mögliches Bookie-Ergebnis',
       summaryWorstCaseHintNegative: 'Negativer Wert = möglicher Verlust für den Bookie/Fightclub.',
@@ -1005,7 +1042,18 @@
       resultWinnerStatLabel: 'Sieger',
       resultStakeStatLabel: 'Gesamteinsätze',
       resultFeeStatLabel: 'Bookie-Anteil',
-      resultPayoutStatLabel: 'Gesamtauszahlung',
+      resultPayoutStatLabel: 'Gesamtauszahlung an Gewinner',
+      resultActualPayoutLabel: 'Gewinnerseite',
+      resultActualPayoutHint: 'Auszahlung an alle Gewinner der Siegerseite.',
+      resultFighterShareLabel: 'Fighter-Anteil (basierend auf Quote)',
+      resultFighterShareHint: 'Anteil für den siegreichen Fighter auf Basis der Quote {quote}.',
+      resultFighterShareNoWinner: 'Kein Sieger ausgewählt',
+      resultFighterShareNoOdds: 'Kein Fighter-Anteil verfügbar',
+      resultNoWinnerPayout: 'Bitte zuerst einen Sieger auswählen.',
+      resultWinningSideValue: '{name} · {count} Gewinn-Tipps',
+      resultWinningSideValueSingular: '{name} · 1 Gewinn-Tipp',
+      resultWinningSideNoBets: '{name} · Keine Gewinn-Tipps',
+      resultNoWinnerBets: 'Keine Wetten auf {name}',
       resultLinesTitle: 'Wett-Ergebnisse',
       resultLinesTag: 'Auszahlung im Fokus',
       resultNet: 'Gewinn / Verlust',
@@ -1031,6 +1079,9 @@
       feeWithPercent: '{money} ({percent} %)',
       oddsUnavailable: '—',
       invalidManualOdds: 'Bitte für alle Fighter eine gültige manuelle Quote größer als 1,00 eingeben.',
+      duplicateNamesTitle: 'Namens-Duplikate erkannt',
+      duplicateFighterNamesText: 'Namens-Duplikate bei den Fightern erkannt, bitte korrigieren.',
+      duplicateBettorNamesText: 'Namens-Duplikate bei den wettenden Personen erkannt, bitte korrigieren.',
       resetTitle: 'Neuen Fight starten',
       resetTag: 'Reset',
       keepBettorsLabel: 'Wettende Personen beibehalten',
@@ -1115,7 +1166,8 @@
       summaryBetsLabel: 'Total bets',
       summaryStakeLabel: 'Total stakes',
       summaryFeeLabel: 'Bookie share',
-      summaryPayoutLabel: 'Total payout',
+      summaryPayoutLabel: 'Total payout to winners',
+      summaryPayoutPreviewLabel: 'Potential payout if {name} wins',
       summaryWinnerLabel: 'Selected winner',
       summaryWorstCaseLabel: 'Worst possible bookie result',
       summaryWorstCaseHintNegative: 'Negative value = possible loss for the bookie / fight club.',
@@ -1143,7 +1195,18 @@
       resultWinnerStatLabel: 'Winner',
       resultStakeStatLabel: 'Total stakes',
       resultFeeStatLabel: 'Bookie share',
-      resultPayoutStatLabel: 'Total payout',
+      resultPayoutStatLabel: 'Total payout to winners',
+      resultActualPayoutLabel: 'Winning side',
+      resultActualPayoutHint: 'Payout to all winners on the winning side.',
+      resultFighterShareLabel: 'Fighter share (based on odds)',
+      resultFighterShareHint: 'Share for the winning fighter based on odds {quote}.',
+      resultFighterShareNoWinner: 'No winner selected',
+      resultFighterShareNoOdds: 'No fighter share available',
+      resultNoWinnerPayout: 'Please choose a winner first.',
+      resultWinningSideValue: '{name} · {count} winning bets',
+      resultWinningSideValueSingular: '{name} · 1 winning bet',
+      resultWinningSideNoBets: '{name} · No winning bets',
+      resultNoWinnerBets: 'No bets on {name}',
       resultLinesTitle: 'Bet results',
       resultLinesTag: 'Payout first',
       resultNet: 'Profit / loss',
@@ -1169,6 +1232,9 @@
       feeWithPercent: '{money} ({percent}%)',
       oddsUnavailable: '—',
       invalidManualOdds: 'Please enter valid manual odds greater than 1.00 for all fighters.',
+      duplicateNamesTitle: 'Duplicate names detected',
+      duplicateFighterNamesText: 'Duplicate names were detected among the fighters. Please correct them.',
+      duplicateBettorNamesText: 'Duplicate names were detected among the bettors. Please correct them.',
       resetTitle: 'Start new fight',
       resetTag: 'Reset',
       keepBettorsLabel: 'Keep bettors',
@@ -1238,6 +1304,7 @@
     summaryTotalStake: document.getElementById('summaryTotalStake'),
     summaryFeeAmount: document.getElementById('summaryFeeAmount'),
     summaryPayoutAmount: document.getElementById('summaryPayoutAmount'),
+    summaryPayoutPreview: document.getElementById('summaryPayoutPreview'),
     summaryWinner: document.getElementById('summaryWinner'),
     summaryWorstCase: document.getElementById('summaryWorstCase'),
     summaryWorstCaseHint: document.getElementById('summaryWorstCaseHint'),
@@ -1254,6 +1321,12 @@
     resultStakeStat: document.getElementById('resultStakeStat'),
     resultFeeStat: document.getElementById('resultFeeStat'),
     resultPayoutStat: document.getElementById('resultPayoutStat'),
+    resultActualPayoutLabel: document.getElementById('resultActualPayoutLabel'),
+    resultActualPayoutValue: document.getElementById('resultActualPayoutValue'),
+    resultActualPayoutHint: document.getElementById('resultActualPayoutHint'),
+    resultFighterShareLabel: document.getElementById('resultFighterShareLabel'),
+    resultFighterShareValue: document.getElementById('resultFighterShareValue'),
+    resultFighterShareHint: document.getElementById('resultFighterShareHint'),
     resultLines: document.getElementById('resultLines'),
     startNewFightBtn: document.getElementById('startNewFightBtn'),
     keepBettorsCheckbox: document.getElementById('keepBettorsCheckbox'),
@@ -1352,11 +1425,193 @@
     const lang = currentLang() === 'de' ? 'de-DE' : 'en-US';
     return Number(value || 0).toLocaleString(lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   }
+  function formatPotentialPayoutDisplay(fighter, amount, hasBets){
+    return hasBets ? formatMoney(amount) : t('resultNoWinnerBets', { name: fighterDisplayName(fighter) });
+  }
+  function toMoneyCents(value){
+    return Math.max(0, Math.round((Number(value) || 0) * 100));
+  }
+  function fromMoneyCents(cents){
+    return (Number(cents) || 0) / 100;
+  }
+  function distributeCentsByWeight(totalCents, items, getWeight){
+    const safeTotal = Math.max(0, Math.round(Number(totalCents) || 0));
+    const list = Array.isArray(items) ? items : [];
+    if(!safeTotal || !list.length) return new Map();
+    const weights = list.map(item => Math.max(0, Math.round(Number(getWeight(item)) || 0)));
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+    if(totalWeight <= 0) return new Map();
+
+    const allocations = new Map();
+    let allocated = 0;
+    const remainders = [];
+
+    list.forEach((item, index) => {
+      const scaled = safeTotal * weights[index];
+      const base = Math.floor(scaled / totalWeight);
+      allocated += base;
+      allocations.set(item.id, base);
+      remainders.push({ id: item.id, remainder: scaled - (base * totalWeight), index });
+    });
+
+    let remaining = safeTotal - allocated;
+    remainders.sort((a, b) => (b.remainder - a.remainder) || (a.index - b.index));
+    for(let i = 0; i < remaining; i++){
+      const target = remainders[i % remainders.length];
+      allocations.set(target.id, (allocations.get(target.id) || 0) + 1);
+    }
+    return allocations;
+  }
+  function getSettlementBreakdown(stats, winner, betSource){
+    const netPoolCents = toMoneyCents(stats?.safePayoutPool || 0);
+    if(!winner){
+      return {
+        winnerPayoutAmount: 0,
+        winnerPayoutText: t('resultNoWinnerPayout'),
+        hasWinnerBets: false,
+        fighterShareAmount: 0,
+        fighterShareQuote: 0,
+        fighterShareText: t('resultFighterShareNoWinner'),
+        netPoolAmount: fromMoneyCents(netPoolCents),
+        linePayouts: new Map()
+      };
+    }
+
+    const validBets = (Array.isArray(betSource) ? betSource : state.bets).filter(b => {
+      return (b.name || '').trim() && Number(b.stake) > 0 && state.fighters.some(f => f.id === b.fighterId);
+    });
+    const winningBets = validBets.filter(b => b.fighterId === winner.id);
+    const winningStakeCents = winningBets.reduce((sum, bet) => sum + toMoneyCents(bet.stake), 0);
+    const quote = Number(stats?.oddsByFighter?.[winner.id] || 0);
+
+    let fighterShareCents = 0;
+    let fighterShareQuote = 0;
+    let fighterShareText = t('resultFighterShareNoOdds');
+
+    if(winningStakeCents <= 0){
+      fighterShareCents = netPoolCents;
+      fighterShareText = formatMoney(fromMoneyCents(fighterShareCents));
+    } else if(Number.isFinite(quote) && quote > 0){
+      fighterShareCents = Math.min(netPoolCents, Math.max(0, Math.round(netPoolCents / quote)));
+      fighterShareQuote = quote;
+      fighterShareText = formatMoney(fromMoneyCents(fighterShareCents));
+    }
+
+    const winnerPayoutCents = Math.max(0, netPoolCents - fighterShareCents);
+    const linePayouts = distributeCentsByWeight(winnerPayoutCents, winningBets, bet => toMoneyCents(bet.stake));
+    const winnerPayoutAmount = fromMoneyCents(winnerPayoutCents);
+    const hasWinnerBets = winningBets.length > 0;
+
+    return {
+      winnerPayoutAmount,
+      winnerPayoutText: formatPotentialPayoutDisplay(winner, winnerPayoutAmount, hasWinnerBets),
+      hasWinnerBets,
+      fighterShareAmount: fromMoneyCents(fighterShareCents),
+      fighterShareQuote,
+      fighterShareText,
+      netPoolAmount: fromMoneyCents(netPoolCents),
+      linePayouts
+    };
+  }
+  function getWinnerPayoutSummary(stats, winner){
+    const settlement = getSettlementBreakdown(stats, winner);
+    return {
+      amount: settlement.winnerPayoutAmount,
+      hasBets: settlement.hasWinnerBets,
+      text: settlement.winnerPayoutText
+    };
+  }
+  function getWinnerFighterShare(stats, winner){
+    const settlement = getSettlementBreakdown(stats, winner);
+    return {
+      amount: settlement.fighterShareAmount,
+      quote: settlement.fighterShareQuote,
+      text: settlement.fighterShareText
+    };
+  }
   function sanitizeFee(value){ return Math.min(100, Math.max(0, Number(value) || 0)); }
   function sanitizeManualOdds(value){ return Math.max(1.01, Number(value) || 1.9); }
   function clamp(value, min, max){ return Math.min(max, Math.max(min, value)); }
   function normalizeKey(value){ return String(value || '').trim().toLowerCase(); }
   function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+  function collectDuplicateIds(items, getName, isRelevant){
+    const idsByKey = new Map();
+    (Array.isArray(items) ? items : []).forEach(item => {
+      const rawName = String(getName(item) || '').trim();
+      if(!rawName) return;
+      if(typeof isRelevant === 'function' && !isRelevant(rawName, item)) return;
+      const key = normalizeKey(rawName);
+      if(!key) return;
+      const ids = idsByKey.get(key) || [];
+      ids.push(String(item.id || ''));
+      idsByKey.set(key, ids);
+    });
+    const duplicates = new Set();
+    idsByKey.forEach(ids => {
+      if(ids.length > 1){
+        ids.forEach(id => {
+          if(id) duplicates.add(id);
+        });
+      }
+    });
+    return duplicates;
+  }
+
+  function getDuplicateFighterIds(){
+    return collectDuplicateIds(state.fighters, fighter => fighter?.name, name => hasValidFighterName(name));
+  }
+
+  function getDuplicateBettorIds(){
+    return collectDuplicateIds(state.bets, bet => bet?.name, name => Boolean(String(name || '').trim()));
+  }
+
+  function setDuplicateState(inputs, duplicateIds){
+    inputs.forEach(input => {
+      const isDuplicate = duplicateIds.has(String(input.dataset.id || ''));
+      input.classList.toggle('is-duplicate', isDuplicate);
+      input.setAttribute('aria-invalid', isDuplicate ? 'true' : 'false');
+    });
+  }
+
+  function applyDuplicateHighlights(){
+    const duplicateFighterIds = getDuplicateFighterIds();
+    const duplicateBettorIds = getDuplicateBettorIds();
+    setDuplicateState(document.querySelectorAll('#fightersGrid input[data-role="fighter-name"]'), duplicateFighterIds);
+    setDuplicateState(document.querySelectorAll('#betList input[data-role="bet-name"]'), duplicateBettorIds);
+    return { duplicateFighterIds, duplicateBettorIds };
+  }
+
+  function focusFirstDuplicateInput(type){
+    const selector = type === 'fighters'
+      ? '#fightersGrid input[data-role="fighter-name"].is-duplicate'
+      : '#betList input[data-role="bet-name"].is-duplicate';
+    const input = document.querySelector(selector);
+    if(input && typeof input.focus === 'function'){
+      input.focus({ preventScroll: false });
+      if(typeof input.select === 'function') input.select();
+    }
+  }
+
+  function validateNoDuplicateNames(options = {}){
+    const {
+      fighters = true,
+      bettors = true,
+      showDialog = true
+    } = options;
+    const { duplicateFighterIds, duplicateBettorIds } = applyDuplicateHighlights();
+    if(fighters && duplicateFighterIds.size){
+      if(showDialog) openWarningModal(t('duplicateNamesTitle'), t('duplicateFighterNamesText'));
+      focusFirstDuplicateInput('fighters');
+      return false;
+    }
+    if(bettors && duplicateBettorIds.size){
+      if(showDialog) openWarningModal(t('duplicateNamesTitle'), t('duplicateBettorNamesText'));
+      focusFirstDuplicateInput('bettors');
+      return false;
+    }
+    return true;
+  }
 
   function populateCountSelect(selectEl, max, selected = 1){
     if(!selectEl) return;
@@ -1685,6 +1940,14 @@
   }
 
   function handleStartNewFight(){
+    const shouldValidateFighters = Boolean(state.settings.keepFightersOnReset);
+    const shouldValidateBettors = Boolean(state.settings.keepBettorsOnReset);
+    if((shouldValidateFighters || shouldValidateBettors) && !validateNoDuplicateNames({
+      fighters: shouldValidateFighters,
+      bettors: shouldValidateBettors
+    })){
+      return;
+    }
     if(state.settings.confirmReset === false){
       resetCurrentFight();
       return;
@@ -1714,6 +1977,9 @@
     if(els.skipResetConfirmHintText) els.skipResetConfirmHintText.textContent = t('resetConfirmSkipHint');
     if(els.cancelResetBtn) els.cancelResetBtn.textContent = t('resetConfirmCancel');
     if(els.confirmResetBtn) els.confirmResetBtn.textContent = t('resetConfirmConfirm');
+    if(els.resultActualPayoutLabel) els.resultActualPayoutLabel.textContent = t('resultActualPayoutLabel');
+    if(els.resultActualPayoutHint) els.resultActualPayoutHint.textContent = t('resultActualPayoutHint');
+    if(els.resultFighterShareLabel) els.resultFighterShareLabel.textContent = t('resultFighterShareLabel');
     if(els.warningModalTitle) els.warningModalTitle.textContent = t('noWinnerDialogTitle');
     if(els.warningModalText) els.warningModalText.textContent = t('noWinnerDialogText');
     if(els.closeWarningModalBtn) els.closeWarningModalBtn.textContent = t('noWinnerDialogClose');
@@ -1845,13 +2111,19 @@
   function renderQuickSummary(){
     const stats = getPoolStats();
     const winner = state.fighters.find(f => f.id === state.winnerId);
-    const payout = winner ? (stats.payoutByFighter[winner.id] || 0) : 0;
+    const winnerPayout = getWinnerPayoutSummary(stats, winner);
     els.summaryFighterCount.textContent = String(state.fighters.length);
     els.summaryBetCount.textContent = String(state.bets.length);
     els.summaryTotalStake.textContent = formatMoney(stats.totalStake);
     els.summaryFeeAmount.textContent = t('feeWithPercent', { money: formatMoney(stats.feeAmount), percent: formatPercent(stats.feePercent) });
-    els.summaryPayoutAmount.textContent = formatMoney(payout);
+    els.summaryPayoutAmount.textContent = winnerPayout.hasBets ? formatMoney(winnerPayout.amount) : (winner ? t('resultNoWinnerBets', { name: fighterDisplayName(winner) }) : '—');
     els.summaryWinner.textContent = winner ? fighterDisplayName(winner) : '—';
+    if(els.summaryPayoutPreview){
+      els.summaryPayoutPreview.innerHTML = state.fighters.map(f => {
+        const settlement = getSettlementBreakdown(stats, f);
+        return `<div class="summary-preview-card"><div class="k">${escapeHtml(t('summaryPayoutPreviewLabel', { name: fighterDisplayName(f) }))}</div><div class="v">${escapeHtml(formatPotentialPayoutDisplay(f, settlement.winnerPayoutAmount, settlement.hasWinnerBets))}</div></div>`;
+      }).join('');
+    }
     const worstCaseClass = stats.worstCaseResult > 0 ? 'pos' : (stats.worstCaseResult < 0 ? 'neg' : 'zero');
     const worstCaseHintKey = stats.worstCaseResult > 0
       ? 'summaryWorstCaseHintPositive'
@@ -2499,7 +2771,7 @@
               <li><strong>Wetten gesamt:</strong> Anzahl aller erfassten Wettzeilen.</li>
               <li><strong>Gesamteinsätze:</strong> Summe aller Einsätze.</li>
               <li><strong>Bookie-Anteil:</strong> Ermittelter Anteil für den Bookie/Fightclub.</li>
-              <li><strong>Gesamtauszahlung:</strong> Voraussichtliche Summe der Auszahlungen.</li>
+              <li><strong>Gesamtauszahlung an Gewinner:</strong> Voraussichtliche Summe aller Auszahlungen an wettende Gewinner auf der Siegerseite.</li>
               <li><strong>Ausgewählter Sieger:</strong> Aktuell markierter Gewinner.</li>
               <li><strong>Schlechtester Bookie-Fall:</strong> Ungünstigstes Ergebnis für den Bookie, wenn ein bestimmter Fighter gewinnt.</li>
               <li><strong>Marktdruck:</strong> Zeigt, wie stark der Markt bzw. die aktuellen Einsätze die Quote beeinflussen.</li>
@@ -2532,6 +2804,9 @@
 
     els.guideContent.innerHTML = `
       <div class="guide-intro">
+        <span class="guide-highlight">ℹ️ Quick guide</span>
+        <p>This tool helps you run a fight as a betting market: add fighters, record bets, use automatic or manual odds, choose the winner, and instantly see payouts, bettor results, the bookie share, and the overall outcome.</p>
+      </div>
       <section class="guide-section">
         <h4>🪜 Typical workflow step by step</h4>
         <ol>
@@ -2641,10 +2916,12 @@
     renderLeaderboard();
     renderGuideContent();
     refreshFighterSuggestions();
+    applyDuplicateHighlights();
     saveState();
   }
 
   function addFighters(count){
+    if(!validateNoDuplicateNames({ fighters: true, bettors: false })) return;
     const safe = clamp(Number(count) || 1, 1, MAX_FIGHTERS);
     normalizeCountSelection(els.fighterAddCount, MAX_FIGHTERS);
     if(state.fighters.length >= MAX_FIGHTERS){
@@ -2679,6 +2956,7 @@
   }
 
   function addBets(count){
+    if(!validateNoDuplicateNames({ fighters: false, bettors: true })) return;
     const safe = clamp(Number(count) || 1, 1, MAX_BETTORS);
     normalizeCountSelection(els.betAddCount, MAX_BETTORS);
     if(state.bets.length >= MAX_BETTORS){
@@ -2703,6 +2981,7 @@
   }
 
   function buildResults(){
+    if(!validateNoDuplicateNames({ fighters: true, bettors: true })) return null;
     if(!state.winnerId){
       openWarningModal(t('noWinnerDialogTitle'), t('noWinnerDialogText'));
       return null;
@@ -2718,12 +2997,22 @@
       return null;
     }
     const winner = state.fighters.find(f => f.id === state.winnerId);
-    const winnerOdds = Number(stats.oddsByFighter[state.winnerId] || 0);
-    const totalPayout = winner ? Number(stats.payoutByFighter[winner.id] || 0) : 0;
+    const settlement = getSettlementBreakdown(stats, winner, validBets);
+    const winnerPayout = {
+      amount: settlement.winnerPayoutAmount,
+      hasBets: settlement.hasWinnerBets,
+      text: settlement.winnerPayoutText
+    };
+    const fighterShare = {
+      amount: settlement.fighterShareAmount,
+      quote: settlement.fighterShareQuote,
+      text: settlement.fighterShareText
+    };
+    const totalPayout = winnerPayout.amount;
     const lines = validBets.map(b => {
       const fighter = state.fighters.find(f => f.id === b.fighterId);
       const won = b.fighterId === state.winnerId;
-      const payout = won ? Number(b.stake) * winnerOdds : 0;
+      const payout = won ? fromMoneyCents(settlement.linePayouts.get(b.id) || 0) : 0;
       const net = payout - Number(b.stake);
       return {
         name: (b.name || '').trim() || t('unnamedBettor'),
@@ -2764,6 +3053,11 @@
       feeAmount: stats.feeAmount,
       feePercent: stats.feePercent,
       totalPayout,
+      fighterShareAmount: fighterShare.amount,
+      fighterShareQuote: fighterShare.quote,
+      fighterShareText: fighterShare.text,
+      winnerPayoutText: winnerPayout.text,
+      winnerHasBets: winnerPayout.hasBets,
       bookieNet: stats.totalStake - totalPayout,
       mode: stats.mode,
       createdAt: new Date().toISOString()
@@ -2783,6 +3077,8 @@
         feeAmount: result.feeAmount,
         feePercent: result.feePercent,
         totalPayout: result.totalPayout,
+        fighterShareAmount: result.fighterShareAmount,
+        fighterShareQuote: result.fighterShareQuote,
         bookieNet: result.bookieNet,
         mode: result.mode,
         fighters: result.fighters,
@@ -2803,7 +3099,28 @@
     els.resultWinnerStat.textContent = fighterDisplayName(result.winner);
     els.resultStakeStat.textContent = formatMoney(result.totalStake);
     els.resultFeeStat.textContent = t('feeWithPercent', { money: formatMoney(result.feeAmount), percent: formatPercent(result.feePercent) });
-    els.resultPayoutStat.textContent = formatMoney(result.totalPayout);
+    els.resultPayoutStat.textContent = result.winnerHasBets ? formatMoney(result.totalPayout) : result.winnerPayoutText;
+    const winningBetsCount = result.lines.filter(line => line.won).length;
+    if(els.resultActualPayoutValue){
+      if(!result.winner){
+        els.resultActualPayoutValue.textContent = '—';
+      } else if(winningBetsCount <= 0){
+        els.resultActualPayoutValue.textContent = t('resultWinningSideNoBets', { name: fighterDisplayName(result.winner) });
+      } else if(winningBetsCount === 1){
+        els.resultActualPayoutValue.textContent = t('resultWinningSideValueSingular', { name: fighterDisplayName(result.winner) });
+      } else {
+        els.resultActualPayoutValue.textContent = t('resultWinningSideValue', { name: fighterDisplayName(result.winner), count: String(winningBetsCount) });
+      }
+    }
+    if(els.resultActualPayoutHint) els.resultActualPayoutHint.textContent = t('resultActualPayoutHint');
+    if(els.resultFighterShareValue){
+      els.resultFighterShareValue.textContent = result.fighterShareQuote > 0 ? formatMoney(result.fighterShareAmount) : result.fighterShareText;
+    }
+    if(els.resultFighterShareHint){
+      els.resultFighterShareHint.textContent = result.fighterShareQuote > 0
+        ? t('resultFighterShareHint', { quote: Number(result.fighterShareQuote).toLocaleString(currentLang() === 'de' ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) })
+        : result.fighterShareText;
+    }
     els.resultLines.innerHTML = '';
     result.lines.forEach(line => {
       const item = document.createElement('div');
@@ -2864,6 +3181,7 @@
       renderAggregate();
       renderLeaderboard();
       refreshFighterSuggestions();
+      applyDuplicateHighlights();
       saveState();
       return;
     }
@@ -2873,6 +3191,7 @@
     if(role === 'bet-name'){
       const bet = state.bets.find(b => b.id === id);
       if(bet) bet.name = target.value;
+      applyDuplicateHighlights();
       saveState();
       return;
     }
