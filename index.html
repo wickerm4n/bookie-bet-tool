@@ -194,9 +194,9 @@
     .odds-list{display:grid;gap:12px}
     .odds-row{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:12px}
     .winner-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}
-    .summary-card{padding:14px;border-radius:16px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.06);min-width:0;overflow:hidden}
-    .summary-card .k{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.11em;line-height:1.18;overflow-wrap:anywhere;word-break:break-word}
-    .summary-card .v{font-size:clamp(1.1rem,1.2vw + .55rem,1.9rem);font-weight:800;margin-top:8px;text-align:left;line-height:1.08;overflow-wrap:anywhere;word-break:break-word}
+    .summary-card{padding:14px;border-radius:16px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.06);min-width:0;overflow:hidden;display:grid;align-content:start}
+    .summary-card .k{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.11em;line-height:1.2;overflow-wrap:anywhere;word-break:break-word;hyphens:auto}
+    .summary-card .v{font-size:clamp(1.1rem,1.2vw + .55rem,1.9rem);font-weight:800;margin-top:8px;text-align:left;line-height:1.12;overflow-wrap:anywhere;word-break:break-word;hyphens:auto;max-width:100%}
     .summary-subnote{margin-top:8px;font-size:.78rem;line-height:1.42;color:var(--muted);overflow-wrap:anywhere;word-break:break-word}
     .summary-subnote.pos{color:#9be6b5}
     .summary-subnote.neg{color:#ffb0a6}
@@ -211,26 +211,27 @@
     .bet-list::-webkit-scrollbar-track,.fighters-grid::-webkit-scrollbar-track,.aggregate-scroll::-webkit-scrollbar-track{background:transparent}
     .aggregate-list,.result-lines{display:grid;gap:10px}
     .aggregate-row,.result-line{
-      display:grid;grid-template-columns:minmax(0,1.2fr) minmax(180px,.72fr) auto;gap:12px;align-items:center;
-      padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.05)
+      display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.72fr) auto;gap:12px;align-items:center;
+      padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.05);min-width:0
     }
     .aggregate-main,.result-line-main{display:grid;gap:4px;min-width:0}
-    .aggregate-name,.result-line-name{font-weight:800}
-    .aggregate-meta,.result-line-meta{font-size:.82rem;color:var(--muted)}
+    .aggregate-name,.result-line-name{font-weight:800;line-height:1.2;overflow-wrap:anywhere;word-break:break-word;hyphens:auto}
+    .aggregate-meta,.result-line-meta{font-size:.82rem;color:var(--muted);line-height:1.35;overflow-wrap:anywhere;word-break:break-word;hyphens:auto}
     .aggregate-financial,.result-line-financial{display:grid;gap:8px;justify-items:end;min-width:0}
     .aggregate-pill,.result-line-status{font-size:.78rem;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);line-height:1.18;text-align:center;white-space:normal;overflow-wrap:anywhere;word-break:break-word;max-width:100%}
     .aggregate-actions{display:flex;justify-content:flex-end}
-    .aggregate-value,.result-line-payout{font-weight:800;text-align:right;font-size:1.22rem;line-height:1.05;overflow-wrap:anywhere;word-break:break-word}
-    .odds-meta-grid{display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:10px;margin-top:10px}
-    .micro-stat{padding:9px 11px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);min-width:0;overflow:hidden}
-    .micro-stat .k{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;line-height:1.16;overflow-wrap:anywhere;word-break:break-word}
-    .micro-stat .v{margin-top:6px;font-weight:700;line-height:1.12;overflow-wrap:anywhere;word-break:break-word}
-    .result-line-financials{display:grid;justify-items:end;gap:4px;text-align:right}
-    .result-line-net{font-size:.85rem;color:var(--muted)}
+    .aggregate-value,.result-line-payout{font-weight:800;text-align:right;font-size:1.22rem;line-height:1.08;overflow-wrap:anywhere;word-break:break-word;hyphens:auto;max-width:100%}
+    .odds-meta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px;min-width:0}
+    .odds-meta-grid > *{min-width:0}
+    .micro-stat{padding:9px 11px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);min-width:0;overflow:hidden;display:grid;align-content:start}
+    .micro-stat .k{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;line-height:1.22;overflow-wrap:anywhere;word-break:break-word;hyphens:auto}
+    .micro-stat .v{margin-top:6px;font-weight:700;line-height:1.18;overflow-wrap:anywhere;word-break:break-word;hyphens:auto;max-width:100%}
+    .result-line-financials{display:grid;justify-items:end;gap:4px;text-align:right;min-width:0}
+    .result-line-net{font-size:.85rem;color:var(--muted);line-height:1.3;overflow-wrap:anywhere;word-break:break-word;hyphens:auto}
     .pos{color:#6bdd91}
     .neg{color:#ff8678}
         .zero{color:#dfe3e8}
-    .label-with-info{display:inline-flex;align-items:center;gap:8px}
+    .label-with-info{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
     .info-dot{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--muted);font-size:.72rem;line-height:1;cursor:help}
     .icon-remove-btn{min-height:36px;height:36px;min-width:36px;width:36px;padding:0;border-radius:10px;border:1px solid rgba(255,94,69,.38);background:rgba(212,58,47,.16);color:#ff7a68;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;line-height:1;box-shadow:none}
     .icon-remove-btn:hover{background:rgba(212,58,47,.24);box-shadow:0 0 0 3px rgba(255,94,69,.10)}
@@ -286,6 +287,35 @@
     .summary-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
     .summary-actions > button{flex:1 1 240px}
     .leaderboard-trigger,.guide-trigger{width:100%}
+    .summary-toggle-card{
+      width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;
+      border-radius:16px;border:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.025));
+      box-shadow:0 10px 24px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.03);
+      cursor:pointer;min-height:56px;
+    }
+    .summary-toggle-copy{display:grid;gap:4px;min-width:0;flex:1}
+    .summary-toggle-title{font-size:.82rem;line-height:1.35;letter-spacing:.05em;text-transform:uppercase;color:#eef0f3;overflow-wrap:anywhere}
+    .summary-toggle-hint{font-size:.76rem;line-height:1.45;color:var(--muted)}
+    .switch-toggle{position:relative;display:inline-flex;align-items:center;flex:0 0 auto}
+    .switch-toggle input{position:absolute;opacity:0;pointer-events:none}
+    .switch-slider{
+      width:52px;height:30px;border-radius:999px;display:inline-block;position:relative;
+      background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.03), 0 8px 18px rgba(0,0,0,.18);
+      transition:background .2s ease,border-color .2s ease,box-shadow .2s ease;
+    }
+    .switch-slider::after{
+      content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;
+      background:linear-gradient(180deg,#ffffff,#dfe5eb);box-shadow:0 3px 10px rgba(0,0,0,.3);
+      transition:transform .22s ease;
+    }
+    .switch-toggle input:checked + .switch-slider{
+      background:linear-gradient(180deg, rgba(255,94,69,.92), rgba(212,58,47,.86));
+      border-color:rgba(255,94,69,.65);box-shadow:0 0 0 1px rgba(255,255,255,.04) inset, 0 0 20px rgba(255,94,69,.18);
+    }
+    .switch-toggle input:checked + .switch-slider::after{transform:translateX(22px)}
+    .switch-toggle input:focus-visible + .switch-slider{box-shadow:0 0 0 3px rgba(255,94,69,.16), 0 8px 18px rgba(0,0,0,.18)}
     .guide-modal{
       position:fixed; inset:0; display:none; align-items:center; justify-content:center;
       background:rgba(3,4,6,.74); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
@@ -395,6 +425,81 @@
       min-width:180px;
     }
 
+    @media (max-width: 980px){
+      .wrap{padding:12px 14px 18px}
+      .panel{padding:16px}
+      .panel-title{margin-bottom:12px}
+      .controls-inline{gap:12px}
+      .controls-inline > button{flex:1 1 220px}
+      .bet-row,.aggregate-row,.result-line,.leaderboard-row{padding:14px}
+      .summary-card{padding:16px}
+      .summary-card .v{line-height:1.12}
+      .field{gap:9px}
+      input,select,textarea{padding:15px 14px}
+      button{min-height:50px}
+    }
+    @media (max-width: 760px){
+      .wrap{padding:10px 10px 16px}
+      .grid{gap:14px;margin-top:10px}
+      .col,.right-side-stack{gap:12px}
+      .panel{padding:14px;border-radius:18px}
+      .panel-title{margin-bottom:12px}
+      .panel-title h2,.panel-title h3{font-size:.94rem;letter-spacing:.09em}
+      .field{gap:7px}
+      label{font-size:.74rem;letter-spacing:.075em}
+      input,select,textarea{padding:13px 12px;border-radius:13px}
+      button{width:100%;min-height:50px;padding:12px 14px}
+      .controls-inline{display:grid;grid-template-columns:1fr;align-items:stretch;gap:12px;margin-top:12px}
+      .controls-inline > button{width:100%;flex:none}
+      .count-field{width:100%;min-width:0;display:grid;grid-template-columns:auto minmax(92px,108px);align-items:center;justify-content:space-between}
+      .count-field input{width:100%}
+      .fighter-head{align-items:flex-start;gap:10px}
+      .fighter-pill,.status-chip{font-size:.7rem}
+      .bet-list{gap:12px;max-height:none;padding-right:0}
+      .bet-row{gap:12px;padding:13px;border-radius:15px}
+      .odds-list,.summary-grid,.aggregate-list,.result-lines,.leaderboard-list,.guide-content{gap:12px}
+      .odds-row,.winner-row,.config-grid,.guide-grid,.result-grid,.result-line,.aggregate-row,.leaderboard-row,.right-layout,.fighters-grid,.summary-grid,.bet-row{grid-template-columns:1fr}
+      .winner-row > button{width:100%}
+      .summary-actions{gap:10px;margin-top:12px}
+      .summary-toggle-card{padding:12px;align-items:flex-start}
+      .summary-toggle-title{font-size:.76rem;letter-spacing:.045em}
+      .summary-toggle-hint{font-size:.72rem}
+      .leaderboard-dialog,.guide-dialog{padding:14px;border-radius:20px;width:min(100%,100%)}
+      .leaderboard-scroll,.guide-scroll{max-height:min(72vh,720px);padding-right:0}
+      .leaderboard-footer-actions,.guide-footer-actions,.confirm-actions,.footer-actions{justify-content:stretch}
+      .leaderboard-footer-actions > button,.guide-footer-actions > button,.confirm-actions > button,.footer-actions > button{min-width:0;flex:1 1 100%}
+      .hero{padding:2px 0 0}
+      .hero-top{padding:54px 0 2px}
+      .hero-logo{width:min(100%,360px)}
+      .lang-switch{top:0;right:0;gap:6px}
+      .lang-switch .lang-label{font-size:.72rem}
+      .lang-switch select{min-width:126px;max-width:148px;padding:11px 12px}
+      .result-line-financials{justify-items:start;text-align:left}
+      .aggregate-financial,.result-line-financial{justify-items:start}
+      .aggregate-value{text-align:left}
+    }
+    @media (max-width: 640px){
+      .odds-meta-grid{grid-template-columns:1fr;gap:8px}
+      .micro-stat{padding:10px}
+      .micro-stat .k{font-size:.66rem;letter-spacing:.085em;line-height:1.24}
+      .micro-stat .v{font-size:.98rem;line-height:1.22}
+      .summary-card .k{font-size:.7rem;letter-spacing:.09em}
+      .summary-card .v{line-height:1.14}
+      .aggregate-row,.result-line{gap:10px}
+    }
+    @media (max-width: 420px){
+      .wrap{padding:8px 8px 14px}
+      .panel{padding:12px}
+      .fighter-card,.summary-card,.bet-row,.aggregate-row,.result-line,.leaderboard-row,.guide-section{padding:12px}
+      .summary-card .v{font-size:clamp(1rem, 5.2vw, 1.45rem)}
+      .summary-subnote,.note-box,.aggregate-meta,.result-line-meta{font-size:.74rem;line-height:1.38}
+      .micro-stat .k{font-size:.64rem}
+      .micro-stat .v,.aggregate-value,.result-line-payout{font-size:1rem}
+      .switch-slider{width:48px;height:28px}
+      .switch-slider::after{width:20px;height:20px}
+      .switch-toggle input:checked + .switch-slider::after{transform:translateX(20px)}
+    }
+
     @media (max-width: 1480px){
       .grid{grid-template-columns:1fr}
       .right-layout{grid-template-columns:minmax(0,1.2fr) minmax(360px,1fr)}
@@ -419,6 +524,79 @@
       .aggregate-financial,.result-line-financial{justify-items:start}
       .aggregate-value{text-align:left}
     }
+  
+    /* Responsive modal safety + mobile scroll fixes */
+    .result-dialog,
+    .guide-dialog,
+    .leaderboard-dialog,
+    .confirm-dialog{
+      max-width:min(100%, 1120px);
+      max-height:min(92dvh, 92vh);
+    }
+    .guide-dialog,
+    .leaderboard-dialog{
+      display:flex;
+      flex-direction:column;
+    }
+    .guide-body,
+    .leaderboard-body{
+      min-height:0;
+      flex:1 1 auto;
+      display:flex;
+      flex-direction:column;
+    }
+    .guide-scroll,
+    .leaderboard-scroll{
+      flex:1 1 auto;
+      min-height:0;
+      max-height:none;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+    }
+    @media (max-width: 768px){
+      .result-modal,
+      .guide-modal,
+      .leaderboard-modal,
+      .confirm-modal{
+        align-items:flex-start;
+        padding:10px;
+      }
+      .result-dialog,
+      .guide-dialog,
+      .leaderboard-dialog,
+      .confirm-dialog{
+        width:100%;
+        max-height:min(94dvh, 94vh);
+        margin:0 auto;
+        border-radius:18px;
+      }
+      .guide-dialog,
+      .leaderboard-dialog{
+        margin-top:max(8px, env(safe-area-inset-top));
+        margin-bottom:max(8px, env(safe-area-inset-bottom));
+      }
+      .footer-actions.leaderboard-footer-actions,
+      .footer-actions.guide-footer-actions,
+      .confirm-actions{
+        position:sticky;
+        bottom:0;
+        z-index:2;
+        padding-top:10px;
+        background:linear-gradient(180deg, rgba(11,12,16,0), rgba(11,12,16,.92) 24%, rgba(11,12,16,.98));
+        backdrop-filter:blur(6px);
+        -webkit-backdrop-filter:blur(6px);
+      }
+    }
+    @media (max-width: 420px){
+      .footer-actions.leaderboard-footer-actions > button,
+      .footer-actions.guide-footer-actions > button,
+      .confirm-actions > button{
+        flex:1 1 100%;
+        width:100%;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -552,6 +730,16 @@
               </div>
               <div class="summary-actions">
                 <button class="btn-primary leaderboard-trigger" id="openLeaderboardBtn">Bestenliste anzeigen</button>
+                <label class="summary-toggle-card" for="leaderboardAutofillToggle">
+                  <span class="switch-toggle">
+                    <input type="checkbox" id="leaderboardAutofillToggle">
+                    <span class="switch-slider" aria-hidden="true"></span>
+                  </span>
+                  <span class="summary-toggle-copy">
+                    <span class="summary-toggle-title" id="leaderboardAutofillLabel">Quoten automatisch aus Bestenliste übernehmen</span>
+                    <span class="summary-toggle-hint" id="leaderboardAutofillHint">Nur wenn beide Fighter in der Bestenliste vorhanden sind.</span>
+                  </span>
+                </label>
                 <button class="btn-primary guide-trigger" id="openGuideBtn">Wie dieses Tool funktioniert</button>
               </div>
             </section>
@@ -673,7 +861,7 @@
           <div class="leaderboard-list" id="leaderboardList"></div>
         </div>
         <div class="footer-actions leaderboard-footer-actions">
-          <button class="btn-primary" id="importLeaderboardBtn">Bestenliste importieren</button>
+          <button class="btn-action-green" id="importLeaderboardBtn">Bestenliste importieren</button>
           <button class="btn-action-green" id="exportLeaderboardBtn">Bestenliste exportieren</button>
           <button class="btn-danger" id="resetLeaderboardBtn">Bestenliste zurücksetzen</button>
           <button class="btn-secondary" id="closeLeaderboardBtnBottom">Schließen</button>
@@ -766,6 +954,8 @@
       quickSummaryTitle: 'Schnellübersicht',
       openLeaderboardBtn: 'Bestenliste anzeigen',
       openGuideBtn: 'Wie dieses Tool funktioniert',
+      leaderboardAutofillLabel: 'Quoten automatisch aus Bestenliste übernehmen',
+      leaderboardAutofillHint: 'Verwendet die Bestenlisten-Quote als Live-Quote, nur wenn beide Fighter vorhanden sind.',
       guideTitle: 'Wie dieses Tool funktioniert',
       guideClose: 'Schließen',
       summaryFightersLabel: 'Fighter gesamt',
@@ -854,7 +1044,6 @@
       noWinnerDialogTitle: 'Sieger fehlt',
       noWinnerDialogText: 'Bitte wähle zuerst einen Sieger aus, bevor du den Fight abschließen kannst.',
       noWinnerDialogClose: 'Verstanden',
-      validationDialogTitle: 'Hinweis',
       leaderboardTitle: 'Bestenliste',
       leaderboardClose: 'Schließen',
       leaderboardRank: 'Platz',
@@ -897,6 +1086,8 @@
       quickSummaryTitle: 'Quick overview',
       openLeaderboardBtn: 'Show leaderboard',
       openGuideBtn: 'How this tool works',
+      leaderboardAutofillLabel: 'Auto-fill odds from leaderboard',
+      leaderboardAutofillHint: 'Uses the leaderboard quote as live odds only if both fighters exist.',
       guideTitle: 'How this tool works',
       guideClose: 'Close',
       summaryFightersLabel: 'Total fighters',
@@ -985,7 +1176,6 @@
       noWinnerDialogTitle: 'Winner missing',
       noWinnerDialogText: 'Please choose a winner before you can finish the fight.',
       noWinnerDialogClose: 'Understood',
-      validationDialogTitle: 'Notice',
       leaderboardTitle: 'Leaderboard',
       leaderboardClose: 'Close',
       leaderboardRank: 'Rank',
@@ -1067,6 +1257,7 @@
     closeGuideBtn: document.getElementById('closeGuideBtn'),
     closeGuideBtnBottom: document.getElementById('closeGuideBtnBottom'),
     openLeaderboardBtn: document.getElementById('openLeaderboardBtn'),
+    leaderboardAutofillToggle: document.getElementById('leaderboardAutofillToggle'),
     leaderboardModal: document.getElementById('leaderboardModal'),
     leaderboardList: document.getElementById('leaderboardList'),
     closeLeaderboardBtn: document.getElementById('closeLeaderboardBtn'),
@@ -1084,7 +1275,7 @@
   };
 
   const defaultState = () => ({
-    settings: { lang: 'de', currency: '$', feePercent: 8, oddsMode: 'auto', confirmReset: true, keepBettorsOnReset: false, keepFightersOnReset: false },
+    settings: { lang: 'de', currency: '$', feePercent: 8, oddsMode: 'auto', confirmReset: true, keepBettorsOnReset: false, keepFightersOnReset: false, leaderboardAutofill: false, leaderboardAutofillApplied: false, leaderboardAutofillPrevOddsMode: '' },
     fighters: [
       { id: uid(), key: 'A', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9, oddsAnchorName: '' },
       { id: uid(), key: 'B', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9, oddsAnchorName: '' }
@@ -1158,6 +1349,9 @@
       merged.settings.confirmReset = merged.settings.confirmReset !== false;
       merged.settings.keepBettorsOnReset = Boolean(merged.settings.keepBettorsOnReset);
       merged.settings.keepFightersOnReset = Boolean(merged.settings.keepFightersOnReset);
+      merged.settings.leaderboardAutofill = Boolean(merged.settings.leaderboardAutofill);
+      merged.settings.leaderboardAutofillApplied = Boolean(merged.settings.leaderboardAutofillApplied);
+      merged.settings.leaderboardAutofillPrevOddsMode = typeof merged.settings.leaderboardAutofillPrevOddsMode === 'string' ? merged.settings.leaderboardAutofillPrevOddsMode : '';
       merged.fighters = parsed.fighters.map((f, idx) => ({
         id: f.id || uid(),
         key: f.key || letters[idx] || String(idx + 1),
@@ -1374,6 +1568,7 @@
       els.reactivateResetDialogBtn.style.cursor = state.settings.confirmReset ? 'default' : 'pointer';
     }
     if(els.skipResetConfirmCheckbox) els.skipResetConfirmCheckbox.checked = false;
+    if(els.leaderboardAutofillToggle) els.leaderboardAutofillToggle.checked = Boolean(state.settings.leaderboardAutofill);
   }
 
   function getResetConfirmMessage(){
@@ -1454,7 +1649,7 @@
     const ids = [
       'eyebrowText','heroTitle','heroSub','langLabel','fightersTitle','fighterCountLabel','addFighterBtn',
       'betsTitle','betCountLabel','addBetBtn','oddsTitle','oddsModeAutoLabel','oddsModeManualLabel',
-      'feePercentLabel','winnerLabel','finishFightBtn','quickSummaryTitle','openLeaderboardBtn','openGuideBtn','guideTitle','summaryFightersLabel',
+      'feePercentLabel','winnerLabel','finishFightBtn','quickSummaryTitle','openLeaderboardBtn','openGuideBtn','leaderboardAutofillLabel','leaderboardAutofillHint','guideTitle','summaryFightersLabel',
       'summaryBetsLabel','summaryStakeLabel','summaryFeeLabel','summaryPayoutLabel','summaryWinnerLabel','summaryWorstCaseLabel','summaryMarketWeightLabel',
       'aggregateTitle','aggregateTotalStakeLabel','aggregateTotalPayoutLabel','resultTitle',
       'resultWinnerStatLabel','resultStakeStatLabel','resultFeeStatLabel','resultPayoutStatLabel',
@@ -1739,6 +1934,64 @@
     if(!knownOdds) return false;
     fighter.manualOdds = sanitizeManualOdds(knownOdds);
     fighter.openingOdds = sanitizeManualOdds(knownOdds);
+    return true;
+  }
+
+  function getHistoricalLeaderboardQuote(name){
+    const key = normalizeKey(name);
+    if(!key) return null;
+    const row = getHistoricalLeaderboardRows().get(key);
+    const odds = Number(row?.odds);
+    return Number.isFinite(odds) && odds > 1 ? odds : null;
+  }
+
+  function clearLeaderboardAutofillState(){
+    const hadApplied = Boolean(state?.settings?.leaderboardAutofillApplied);
+    if(hadApplied){
+      const restoreMode = state?.settings?.leaderboardAutofillPrevOddsMode === 'manual' ? 'manual' : 'auto';
+      state.settings.oddsMode = restoreMode;
+    }
+    state.settings.leaderboardAutofillApplied = false;
+    state.settings.leaderboardAutofillPrevOddsMode = '';
+    state.fighters.forEach(fighter => {
+      fighter.manualOdds = sanitizeManualOdds(fighter.manualOdds || 1.9);
+      if(!Number.isFinite(Number(fighter.openingOdds)) || Number(fighter.openingOdds) <= 1){
+        fighter.openingOdds = 1.9;
+      }
+    });
+    return hadApplied;
+  }
+
+  function maybeAutofillOddsFromLeaderboard(){
+    if(!Boolean(state?.settings?.leaderboardAutofill)){
+      return clearLeaderboardAutofillState();
+    }
+    if(!Array.isArray(state.fighters) || state.fighters.length !== 2){
+      return clearLeaderboardAutofillState();
+    }
+    const namedFighters = state.fighters.filter(fighter => hasValidFighterName(fighter?.name));
+    if(namedFighters.length !== 2){
+      return clearLeaderboardAutofillState();
+    }
+    const resolved = namedFighters.map(fighter => ({
+      fighter,
+      odds: getHistoricalLeaderboardQuote(String(fighter.name || '').trim())
+    }));
+    if(resolved.some(entry => !entry.odds)){
+      return clearLeaderboardAutofillState();
+    }
+
+    if(!state.settings.leaderboardAutofillApplied){
+      state.settings.leaderboardAutofillPrevOddsMode = state.settings.oddsMode === 'manual' ? 'manual' : 'auto';
+    }
+
+    state.settings.oddsMode = 'manual';
+    state.settings.leaderboardAutofillApplied = true;
+    resolved.forEach(({ fighter, odds }) => {
+      const safeOdds = sanitizeManualOdds(odds);
+      fighter.manualOdds = safeOdds;
+      fighter.oddsAnchorName = String(fighter.name || '').trim();
+    });
     return true;
   }
 
@@ -2333,7 +2586,7 @@
   }
 
   function renderAll(){
-
+    maybeAutofillOddsFromLeaderboard();
     applyStaticTexts();
     renderFighters();
     renderBets();
@@ -2392,11 +2645,11 @@
     const stats = getPoolStats();
     const validBets = state.bets.filter(b => (b.name || '').trim() && Number(b.stake) > 0 && state.fighters.some(f => f.id === b.fighterId));
     if(!validBets.length){
-      openWarningModal(t('validationDialogTitle'), t('noBets'));
+      alert(t('noBets'));
       return null;
     }
     if(stats.mode === 'manual' && state.fighters.some(f => !Number.isFinite(Number(f.manualOdds)) || Number(f.manualOdds) <= 1)){
-      openWarningModal(t('validationDialogTitle'), t('invalidManualOdds'));
+      alert(t('invalidManualOdds'));
       return null;
     }
     const winner = state.fighters.find(f => f.id === state.winnerId);
@@ -2539,6 +2792,7 @@
         applyKnownQuoteToFighter(fighterBeforeRename, nextName);
       }
 
+      maybeAutofillOddsFromLeaderboard();
       renderOdds();
       renderBets();
       renderQuickSummary();
@@ -2579,6 +2833,15 @@
       state.settings.keepFightersOnReset = target.checked;
       saveState();
       syncResetControls();
+      return;
+    }
+    if(target === els.leaderboardAutofillToggle){
+      state.settings.leaderboardAutofill = target.checked;
+      maybeAutofillOddsFromLeaderboard();
+      renderOdds();
+      renderQuickSummary();
+      renderLeaderboard();
+      saveState();
       return;
     }
     if(target.name === 'oddsMode'){
