@@ -24,6 +24,7 @@
       --blur:18px;
     }
     *{box-sizing:border-box}
+    [hidden]{display:none !important}
     html,body{min-height:100%}
     body{
       min-height:100vh;
@@ -900,6 +901,21 @@
     </div>
   </div>
 
+
+
+  <div class="confirm-modal" id="appDialogModal" aria-hidden="true">
+    <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="appDialogTitle" aria-describedby="appDialogText" tabindex="-1">
+      <div class="confirm-head">
+        <h3 class="confirm-title" id="appDialogTitle">Hinweis</h3>
+        <p class="confirm-text" id="appDialogText"></p>
+      </div>
+      <div class="confirm-actions" id="appDialogActions">
+        <button class="btn-secondary" type="button" id="appDialogCancelBtn">Abbrechen</button>
+        <button class="btn-action-green" type="button" id="appDialogOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
   <input type="file" id="leaderboardImportInput" accept="application/json,.json" hidden>
   <datalist id="fighterSuggestions"></datalist>
 
@@ -1110,6 +1126,11 @@
       noWinnerDialogTitle: 'Sieger fehlt',
       noWinnerDialogText: 'Bitte wähle zuerst einen Sieger aus, bevor du den Fight abschließen kannst.',
       noWinnerDialogClose: 'Verstanden',
+      appDialogDefaultTitle: 'Hinweis',
+      appDialogOk: 'OK',
+      appDialogUnderstood: 'Verstanden',
+      appDialogCancel: 'Abbrechen',
+      appDialogConfirm: 'Bestätigen',
       leaderboardTitle: 'Bestenliste',
       leaderboardClose: 'Schließen',
       leaderboardRank: 'Platz',
@@ -1263,6 +1284,11 @@
       noWinnerDialogTitle: 'Winner missing',
       noWinnerDialogText: 'Please choose a winner before you can finish the fight.',
       noWinnerDialogClose: 'Understood',
+      appDialogDefaultTitle: 'Notice',
+      appDialogOk: 'OK',
+      appDialogUnderstood: 'Understood',
+      appDialogCancel: 'Cancel',
+      appDialogConfirm: 'Confirm',
       leaderboardTitle: 'Leaderboard',
       leaderboardClose: 'Close',
       leaderboardRank: 'Rank',
@@ -1345,6 +1371,12 @@
     warningModalTitle: document.getElementById('warningModalTitle'),
     warningModalText: document.getElementById('warningModalText'),
     closeWarningModalBtn: document.getElementById('closeWarningModalBtn'),
+    appDialogModal: document.getElementById('appDialogModal'),
+    appDialogTitle: document.getElementById('appDialogTitle'),
+    appDialogText: document.getElementById('appDialogText'),
+    appDialogActions: document.getElementById('appDialogActions'),
+    appDialogOkBtn: document.getElementById('appDialogOkBtn'),
+    appDialogCancelBtn: document.getElementById('appDialogCancelBtn'),
     openGuideBtn: document.getElementById('openGuideBtn'),
     guideModal: document.getElementById('guideModal'),
     guideContent: document.getElementById('guideContent'),
@@ -1904,6 +1936,97 @@
     animateModalClose(els.warningModal, els.warningModal?.querySelector('.confirm-dialog'));
   }
 
+
+  const appDialogState = {
+    resolver: null,
+    activeElement: null,
+    dismissValue: false,
+    onClose: null
+  };
+
+  function closeAppDialog(result){
+    const modal = els.appDialogModal;
+    const dialog = modal?.querySelector('.confirm-dialog');
+    if(!modal || modal.getAttribute('aria-hidden') === 'true') return;
+    animateModalClose(modal, dialog, () => {
+      const resolver = appDialogState.resolver;
+      const restoreTarget = appDialogState.activeElement;
+      const onClose = appDialogState.onClose;
+      appDialogState.resolver = null;
+      appDialogState.activeElement = null;
+      appDialogState.onClose = null;
+      if(restoreTarget && typeof restoreTarget.focus === 'function'){
+        try{ restoreTarget.focus({ preventScroll: true }); }catch(_){ restoreTarget.focus(); }
+      }
+      if(typeof onClose === 'function') onClose(result);
+      if(typeof resolver === 'function') resolver(result);
+    });
+  }
+
+  function openAppDialog(options = {}){
+    const {
+      title = t('appDialogDefaultTitle'),
+      text = '',
+      okText = t('appDialogUnderstood'),
+      cancelText = t('appDialogCancel'),
+      variant = 'alert',
+      dismissValue = false,
+      onClose = null
+    } = options;
+
+    if(appDialogState.resolver){
+      closeAppDialog(appDialogState.dismissValue);
+    }
+
+    appDialogState.dismissValue = dismissValue;
+    appDialogState.onClose = onClose;
+    appDialogState.activeElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+    if(els.appDialogTitle) els.appDialogTitle.textContent = title;
+    if(els.appDialogText) els.appDialogText.textContent = text;
+    if(els.appDialogOkBtn) els.appDialogOkBtn.textContent = okText;
+    if(els.appDialogCancelBtn){
+      els.appDialogCancelBtn.textContent = cancelText;
+      els.appDialogCancelBtn.hidden = variant !== 'confirm';
+    }
+
+    const dialog = els.appDialogModal?.querySelector('.confirm-dialog');
+    animateModalOpen(els.appDialogModal, dialog);
+    requestAnimationFrame(() => {
+      const focusTarget = variant === 'confirm' && !els.appDialogCancelBtn?.hidden ? els.appDialogCancelBtn : els.appDialogOkBtn;
+      if(focusTarget && typeof focusTarget.focus === 'function'){
+        try{ focusTarget.focus({ preventScroll: true }); }catch(_){ focusTarget.focus(); }
+      }
+    });
+
+    return new Promise(resolve => {
+      appDialogState.resolver = resolve;
+    });
+  }
+
+  function appAlert(message, options = {}){
+    return openAppDialog({
+      title: options.title || t('appDialogDefaultTitle'),
+      text: message,
+      okText: options.okText || t('appDialogUnderstood'),
+      dismissValue: true,
+      variant: 'alert',
+      onClose: options.onClose || null
+    });
+  }
+
+  function appConfirm(message, options = {}){
+    return openAppDialog({
+      title: options.title || t('appDialogDefaultTitle'),
+      text: message,
+      okText: options.okText || t('appDialogConfirm'),
+      cancelText: options.cancelText || t('appDialogCancel'),
+      dismissValue: false,
+      variant: 'confirm',
+      onClose: options.onClose || null
+    });
+  }
+
   function resetCurrentFight(){
     const keepBettors = Boolean(state.settings.keepBettorsOnReset);
     const keepFighters = Boolean(state.settings.keepFightersOnReset);
@@ -1983,6 +2106,9 @@
     if(els.warningModalTitle) els.warningModalTitle.textContent = t('noWinnerDialogTitle');
     if(els.warningModalText) els.warningModalText.textContent = t('noWinnerDialogText');
     if(els.closeWarningModalBtn) els.closeWarningModalBtn.textContent = t('noWinnerDialogClose');
+    if(els.appDialogTitle && els.appDialogModal?.getAttribute('aria-hidden') === 'true') els.appDialogTitle.textContent = t('appDialogDefaultTitle');
+    if(els.appDialogOkBtn) els.appDialogOkBtn.textContent = t('appDialogUnderstood');
+    if(els.appDialogCancelBtn) els.appDialogCancelBtn.textContent = t('appDialogCancel');
     document.getElementById('feeAmountLabel').textContent = t('feeAmountLabel', { currency: state.settings.currency });
     els.finishNote.textContent = t(state.settings.oddsMode === 'manual' ? 'finishNoteManual' : 'finishNoteAuto');
     els.aggregateFightCount.textContent = t('aggregateFightCount', { count: state.history.length });
@@ -2989,11 +3115,11 @@
     const stats = getPoolStats();
     const validBets = state.bets.filter(b => (b.name || '').trim() && Number(b.stake) > 0 && state.fighters.some(f => f.id === b.fighterId));
     if(!validBets.length){
-      alert(t('noBets'));
+      appAlert(t('noBets'));
       return null;
     }
     if(stats.mode === 'manual' && state.fighters.some(f => !Number.isFinite(Number(f.manualOdds)) || Number(f.manualOdds) <= 1)){
-      alert(t('invalidManualOdds'));
+      appAlert(t('invalidManualOdds'));
       return null;
     }
     const winner = state.fighters.find(f => f.id === state.winnerId);
@@ -3354,6 +3480,8 @@
     }
     if(btn === els.cancelResetBtn){ closeResetConfirm(); return; }
     if(btn === els.closeWarningModalBtn){ closeWarningModal(); return; }
+    if(btn === els.appDialogOkBtn){ closeAppDialog(true); return; }
+    if(btn === els.appDialogCancelBtn){ closeAppDialog(false); return; }
     if(btn === els.reactivateResetDialogBtn){
       if(state.settings.confirmReset) return;
       state.settings.confirmReset = true;
@@ -3402,7 +3530,29 @@
     if(e.target === els.warningModal) closeWarningModal();
   });
 
+  els.appDialogModal?.addEventListener('click', (e) => {
+    if(e.target === els.appDialogModal) closeAppDialog(appDialogState.dismissValue);
+  });
+
   document.addEventListener('keydown', (e) => {
+    if(e.key === 'Tab' && els.appDialogModal?.classList.contains('open')){
+      const focusables = Array.from(els.appDialogModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+        .filter(el => !el.disabled && !el.hidden && el.offsetParent !== null);
+      if(focusables.length){
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if(e.shiftKey && document.activeElement === first){
+          e.preventDefault();
+          last.focus({ preventScroll: true });
+          return;
+        }
+        if(!e.shiftKey && document.activeElement === last){
+          e.preventDefault();
+          first.focus({ preventScroll: true });
+          return;
+        }
+      }
+    }
     if(e.key === 'Tab' && els.confirmLeaderboardResetModal?.classList.contains('open')){
       const focusables = Array.from(els.confirmLeaderboardResetModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
         .filter(el => !el.disabled && el.offsetParent !== null);
@@ -3428,6 +3578,10 @@
     }
     if(els.warningModal.classList.contains('open')){
       closeWarningModal();
+      return;
+    }
+    if(els.appDialogModal?.classList.contains('open')){
+      closeAppDialog(appDialogState.dismissValue);
       return;
     }
     if(els.confirmLeaderboardResetModal?.classList.contains('open')){
