@@ -167,7 +167,7 @@
     .controls-inline{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px}
     .count-field{display:flex;align-items:center;gap:10px;min-width:170px}
     .count-field label{margin:0;white-space:nowrap}
-    .count-field input{width:96px;text-align:center}
+    .count-field select{width:112px;max-width:100%;text-align:center}
     .bet-list{display:flex;flex-direction:column;gap:10px;max-height:470px;overflow:auto;padding-right:4px;scrollbar-gutter:stable}
     .bet-row{
       display:grid;
@@ -452,7 +452,7 @@
       .controls-inline{display:grid;grid-template-columns:1fr;align-items:stretch;gap:12px;margin-top:12px}
       .controls-inline > button{width:100%;flex:none}
       .count-field{width:100%;min-width:0;display:grid;grid-template-columns:auto minmax(92px,108px);align-items:center;justify-content:space-between}
-      .count-field input{width:100%}
+      .count-field select{width:100%}
       .fighter-head{align-items:flex-start;gap:10px}
       .fighter-pill,.status-chip{font-size:.7rem}
       .bet-list{gap:12px;max-height:none;padding-right:0}
@@ -473,12 +473,20 @@
       .hero-logo{width:min(100%,360px)}
       .lang-switch{top:0;right:0;gap:6px}
       .lang-switch .lang-label{font-size:.72rem}
-      .lang-switch select{min-width:126px;max-width:148px;padding:11px 12px}
+      .lang-switch{position:relative;top:auto;right:auto;grid-column:3;grid-row:1;justify-self:end;align-self:start;max-width:min(42vw, 156px)}
+      .lang-switch .lang-label{font-size:.72rem}
+      .lang-switch select{min-width:0;width:100%;max-width:100%;padding:11px 12px}
+      .hero-top{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:start;column-gap:8px;row-gap:10px;padding:8px 0 2px}
+      .hero-brand{grid-column:1 / 4;grid-row:1;justify-self:center;width:100%;padding-top:52px}
+      .hero-logo{width:min(100%,360px)}
       .result-line-financials{justify-items:start;text-align:left}
       .aggregate-financial,.result-line-financial{justify-items:start}
       .aggregate-value{text-align:left}
     }
     @media (max-width: 640px){
+      .hero-top{grid-template-columns:1fr;row-gap:10px;padding-top:4px}
+      .lang-switch{grid-column:1;grid-row:1;justify-self:end;max-width:min(56vw, 168px)}
+      .hero-brand{grid-column:1;grid-row:2;padding-top:0}
       .odds-meta-grid{grid-template-columns:1fr;gap:8px}
       .micro-stat{padding:10px}
       .micro-stat .k{font-size:.66rem;letter-spacing:.085em;line-height:1.24}
@@ -515,11 +523,11 @@
       .panel{padding:12px}
       .fighters-grid,.summary-grid,.bet-row,.odds-row,.winner-row,.config-grid,.result-grid,.result-line,.aggregate-row,.leaderboard-row,.right-layout,.guide-grid{grid-template-columns:1fr}
       .bet-list,.fighters-grid,.aggregate-scroll{max-height:none}
-      .hero-top{padding:54px 0 4px 0}
-      .hero-brand{width:100%}
+      .hero-top{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:start;column-gap:8px;row-gap:10px;padding:8px 0 4px}
+      .hero-brand{grid-column:1 / 4;grid-row:1;justify-self:center;width:100%;padding-top:52px}
       .hero-logo{width:min(100%,420px)}
-      .lang-switch{top:0;right:0;gap:6px}
-      .lang-switch select{min-width:132px;max-width:150px}
+      .lang-switch{position:relative;top:auto;right:auto;grid-column:3;grid-row:1;justify-self:end;align-self:start;gap:6px;max-width:min(42vw, 156px)}
+      .lang-switch select{min-width:0;width:100%;max-width:100%}
       .result-line-financials{justify-items:start;text-align:left}
       .aggregate-financial,.result-line-financial{justify-items:start}
       .aggregate-value{text-align:left}
@@ -626,7 +634,7 @@
           <div class="controls-inline">
             <div class="count-field">
               <label for="fighterAddCount" id="fighterCountLabel">Anzahl</label>
-              <input id="fighterAddCount" type="number" min="1" step="1" value="1" />
+              <select id="fighterAddCount" aria-label="Fighter-Anzahl" data-max="20"></select>
             </div>
             <button class="btn-secondary" id="addFighterBtn">Fighter hinzufügen</button>
           </div>
@@ -640,7 +648,7 @@
           <div class="controls-inline">
             <div class="count-field">
               <label for="betAddCount" id="betCountLabel">Anzahl</label>
-              <input id="betAddCount" type="number" min="1" step="1" value="1" />
+              <select id="betAddCount" aria-label="Anzahl wettender Personen" data-max="100"></select>
             </div>
             <button class="btn-primary" id="addBetBtn">Wettende Person hinzufügen</button>
           </div>
@@ -928,7 +936,8 @@
 <script>
 (() => {
   const STORAGE_KEY = 'bookie_bet_tool_simplified_manual_auto_history_v2_rounds';
-  const MAX_FIGHTERS = 26;
+  const MAX_FIGHTERS = 20;
+  const MAX_BETTORS = 100;
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
   const I18N = {
@@ -940,9 +949,15 @@
       fightersTitle: 'Fighter',
       fighterCountLabel: 'Anzahl',
       addFighterBtn: 'Fighter hinzufügen',
+      fighterLimitReachedTitle: 'Maximale Fighter-Anzahl erreicht',
+      fighterLimitReachedText: 'Es können maximal {max} Fighter gleichzeitig angelegt werden.',
+      fighterCountAdjustedText: 'Die Fighter-Anzahl wurde auf {max} begrenzt.',
       betsTitle: 'Wetten erfassen',
       betCountLabel: 'Anzahl',
       addBetBtn: 'Wettende Person hinzufügen',
+      betLimitReachedTitle: 'Maximale Anzahl an Wettenden erreicht',
+      betLimitReachedText: 'Es können maximal {max} wettende Personen gleichzeitig angelegt werden.',
+      betCountAdjustedText: 'Die Anzahl wurde auf {max} begrenzt.',
       oddsTitle: 'Quoten & Sieger',
       oddsModeAutoLabel: 'Automatische Quote',
       oddsModeManualLabel: 'Manuelle Quote',
@@ -1072,9 +1087,15 @@
       fightersTitle: 'Fighters',
       fighterCountLabel: 'Count',
       addFighterBtn: 'Add fighter',
+      fighterLimitReachedTitle: 'Maximum fighter count reached',
+      fighterLimitReachedText: 'You can add up to {max} fighters at the same time.',
+      fighterCountAdjustedText: 'The fighter count was limited to {max}.',
       betsTitle: 'Place bets',
       betCountLabel: 'Count',
       addBetBtn: 'Add bettor',
+      betLimitReachedTitle: 'Maximum bettor count reached',
+      betLimitReachedText: 'You can add up to {max} bettors at the same time.',
+      betCountAdjustedText: 'The count was limited to {max}.',
       oddsTitle: 'Odds & winner',
       oddsModeAutoLabel: 'Automatic odds',
       oddsModeManualLabel: 'Manual odds',
@@ -1287,6 +1308,7 @@
   });
 
   let state = loadState();
+  setTimeout(syncCountSelectors, 0);
 
   function uid(){ return Math.random().toString(36).slice(2,10); }
   function currentLang(){ return ['de','en'].includes(state?.settings?.lang) ? state.settings.lang : 'de'; }
@@ -1336,6 +1358,31 @@
   function normalizeKey(value){ return String(value || '').trim().toLowerCase(); }
   function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
+  function populateCountSelect(selectEl, max, selected = 1){
+    if(!selectEl) return;
+    const safeSelected = String(clamp(Number(selected) || 1, 1, max));
+    selectEl.innerHTML = Array.from({ length: max }, (_, idx) => {
+      const value = String(idx + 1);
+      return `<option value="${value}">${value}</option>`;
+    }).join('');
+    selectEl.value = safeSelected;
+  }
+
+  function normalizeCountSelection(selectEl, max){
+    if(!selectEl) return 1;
+    const safe = clamp(Number(selectEl.value) || 1, 1, max);
+    const safeString = String(safe);
+    if(selectEl.value !== safeString) selectEl.value = safeString;
+    return safe;
+  }
+
+  function syncCountSelectors(){
+    populateCountSelect(els.fighterAddCount, MAX_FIGHTERS, els.fighterAddCount?.value || 1);
+    populateCountSelect(els.betAddCount, MAX_BETTORS, els.betAddCount?.value || 1);
+    normalizeCountSelection(els.fighterAddCount, MAX_FIGHTERS);
+    normalizeCountSelection(els.betAddCount, MAX_BETTORS);
+  }
+
   function loadState(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -1369,7 +1416,7 @@
         name: typeof b.name === 'string' ? b.name : '',
         fighterId: String(b.fighterId || ''),
         stake: Math.max(0, Number(b.stake) || 0)
-      }));
+      })).slice(0, MAX_BETTORS);
       merged.winnerId = String(parsed.winnerId || '');
       merged.history = Array.isArray(parsed.history)
         ? parsed.history.map(fight => ({
@@ -2485,9 +2532,6 @@
 
     els.guideContent.innerHTML = `
       <div class="guide-intro">
-        <span class="guide-highlight">ℹ️ Quick guide</span>
-        <p>This tool helps you run a fight as a betting market: add fighters, record bets, use automatic or manual odds, choose the winner, and instantly see payouts, bettor results, the bookie share, and the overall outcome.</p>
-      </div>
       <section class="guide-section">
         <h4>🪜 Typical workflow step by step</h4>
         <ol>
@@ -2586,6 +2630,7 @@
   }
 
   function renderAll(){
+    syncCountSelectors();
     maybeAutofillOddsFromLeaderboard();
     applyStaticTexts();
     renderFighters();
@@ -2600,8 +2645,18 @@
   }
 
   function addFighters(count){
-    const safe = Math.max(1, Math.min(20, Number(count) || 1));
-    for(let i = 0; i < safe && state.fighters.length < MAX_FIGHTERS; i++){
+    const safe = clamp(Number(count) || 1, 1, MAX_FIGHTERS);
+    normalizeCountSelection(els.fighterAddCount, MAX_FIGHTERS);
+    if(state.fighters.length >= MAX_FIGHTERS){
+      openWarningModal(t('fighterLimitReachedTitle'), t('fighterLimitReachedText', { max: MAX_FIGHTERS }));
+      return;
+    }
+    const available = MAX_FIGHTERS - state.fighters.length;
+    const amount = Math.min(safe, available);
+    if(amount < safe){
+      openWarningModal(t('fighterLimitReachedTitle'), t('fighterCountAdjustedText', { max: amount }));
+    }
+    for(let i = 0; i < amount; i++){
       const key = letters[state.fighters.length] || String(state.fighters.length + 1);
       state.fighters.push({ id: uid(), key, name: '', removable: true, manualOdds: 1.9, openingOdds: 1.9, oddsAnchorName: '' });
     }
@@ -2624,9 +2679,19 @@
   }
 
   function addBets(count){
-    const safe = Math.max(1, Math.min(50, Number(count) || 1));
+    const safe = clamp(Number(count) || 1, 1, MAX_BETTORS);
+    normalizeCountSelection(els.betAddCount, MAX_BETTORS);
+    if(state.bets.length >= MAX_BETTORS){
+      openWarningModal(t('betLimitReachedTitle'), t('betLimitReachedText', { max: MAX_BETTORS }));
+      return;
+    }
+    const available = MAX_BETTORS - state.bets.length;
+    const amount = Math.min(safe, available);
+    if(amount < safe){
+      openWarningModal(t('betLimitReachedTitle'), t('betCountAdjustedText', { max: amount }));
+    }
     const defaultFighterId = state.fighters[0]?.id || '';
-    for(let i = 0; i < safe; i++){
+    for(let i = 0; i < amount; i++){
       state.bets.push({ id: uid(), name: '', fighterId: defaultFighterId, stake: 50 });
     }
     renderAll();
@@ -2821,6 +2886,14 @@
     if(target === els.langSelect){
       state.settings.lang = target.value;
       renderAll();
+      return;
+    }
+    if(target === els.fighterAddCount){
+      normalizeCountSelection(els.fighterAddCount, MAX_FIGHTERS);
+      return;
+    }
+    if(target === els.betAddCount){
+      normalizeCountSelection(els.betAddCount, MAX_BETTORS);
       return;
     }
     if(target === els.keepBettorsCheckbox){
