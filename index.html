@@ -968,7 +968,7 @@
           <div class="result-settlement-block">
             <div class="k" id="resultFighterShareLabel">Fighter-Anteil (basierend auf Quote)</div>
             <div class="v" id="resultFighterShareValue">0,00 $</div>
-            <div class="hint" id="resultFighterShareHint">Anteil für den siegreichen Fighter auf Basis der Quote.</div>
+            <div class="hint" id="resultFighterShareHint">Anteil für den siegreichen Fighter aus dem Hausanteil.</div>
           </div>
         </div>
       </div>
@@ -1062,7 +1062,7 @@
       resultActualPayoutLabel: 'Gewinnerseite',
       resultActualPayoutHint: 'Auszahlung an alle Gewinner der Siegerseite.',
       resultFighterShareLabel: 'Fighter-Anteil (basierend auf Quote)',
-      resultFighterShareHint: 'Anteil für den siegreichen Fighter auf Basis der Quote {quote}.',
+      resultFighterShareHint: 'Anteil für den siegreichen Fighter aus dem Hausanteil · Quote {quote}.',
       resultFighterShareNoWinner: 'Kein Sieger ausgewählt',
       resultFighterShareNoOdds: 'Kein Fighter-Anteil verfügbar',
       resultNoWinnerPayout: 'Bitte zuerst einen Sieger auswählen.',
@@ -1220,7 +1220,7 @@
       resultActualPayoutLabel: 'Winning side',
       resultActualPayoutHint: 'Payout to all winners on the winning side.',
       resultFighterShareLabel: 'Fighter share (based on odds)',
-      resultFighterShareHint: 'Share for the winning fighter based on odds {quote}.',
+      resultFighterShareHint: 'Share for the winning fighter from the house cut · odds {quote}.',
       resultFighterShareNoWinner: 'No winner selected',
       resultFighterShareNoOdds: 'No fighter share available',
       resultNoWinnerPayout: 'Please choose a winner first.',
@@ -1496,6 +1496,7 @@
   }
   function getSettlementBreakdown(stats, winner, betSource){
     const netPoolCents = toMoneyCents(stats?.safePayoutPool || 0);
+    const feeCents = toMoneyCents(stats?.feeAmount || 0);
     if(!winner){
       return {
         winnerPayoutAmount: 0,
@@ -1516,21 +1517,36 @@
     const winningStakeCents = winningBets.reduce((sum, bet) => sum + toMoneyCents(bet.stake), 0);
     const quote = Number(stats?.oddsByFighter?.[winner.id] || 0);
 
+    const winnerTopUpFromFeeCents = Math.max(0, winningStakeCents - netPoolCents);
+    const winnerPayoutCents = Math.max(0, netPoolCents + winnerTopUpFromFeeCents);
+    const remainingFeeCents = Math.max(0, feeCents - winnerTopUpFromFeeCents);
+
     let fighterShareCents = 0;
     let fighterShareQuote = 0;
     let fighterShareText = t('resultFighterShareNoOdds');
 
-    if(winningStakeCents <= 0){
-      fighterShareCents = netPoolCents;
-      fighterShareText = formatMoney(fromMoneyCents(fighterShareCents));
-    } else if(Number.isFinite(quote) && quote > 0){
-      fighterShareCents = Math.min(netPoolCents, Math.max(0, Math.round(netPoolCents / quote)));
+    if(Number.isFinite(quote) && quote > 0 && remainingFeeCents > 0){
+      fighterShareCents = Math.min(remainingFeeCents, Math.max(0, Math.round(remainingFeeCents / quote)));
       fighterShareQuote = quote;
       fighterShareText = formatMoney(fromMoneyCents(fighterShareCents));
     }
 
-    const winnerPayoutCents = Math.max(0, netPoolCents - fighterShareCents);
-    const linePayouts = distributeCentsByWeight(winnerPayoutCents, winningBets, bet => toMoneyCents(bet.stake));
+    let linePayouts = new Map();
+    if(winningBets.length > 0){
+      if(winnerPayoutCents >= winningStakeCents){
+        linePayouts = new Map(winningBets.map(bet => [bet.id, toMoneyCents(bet.stake)]));
+        const surplusCents = Math.max(0, winnerPayoutCents - winningStakeCents);
+        if(surplusCents > 0){
+          const surplusAllocations = distributeCentsByWeight(surplusCents, winningBets, bet => toMoneyCents(bet.stake));
+          winningBets.forEach(bet => {
+            linePayouts.set(bet.id, (linePayouts.get(bet.id) || 0) + (surplusAllocations.get(bet.id) || 0));
+          });
+        }
+      } else {
+        linePayouts = distributeCentsByWeight(winnerPayoutCents, winningBets, bet => toMoneyCents(bet.stake));
+      }
+    }
+
     const winnerPayoutAmount = fromMoneyCents(winnerPayoutCents);
     const hasWinnerBets = winningBets.length > 0;
 
@@ -2929,6 +2945,10 @@
     }
 
     els.guideContent.innerHTML = `
+      <div class="guide-intro">
+        <span class="guide-highlight">ℹ️ Quick guide</span>
+        <p>This tool helps you run a fight as a betting market: add fighters, record bets, use automatic or manual odds, choose the winner, and instantly see payouts, bettor results, the bookie share, and the overall outcome.</p>
+      </div>
       <section class="guide-section">
         <h4>🪜 Typical workflow step by step</h4>
         <ol>
@@ -3180,7 +3200,7 @@
       fighterShareText: fighterShare.text,
       winnerPayoutText: winnerPayout.text,
       winnerHasBets: winnerPayout.hasBets,
-      bookieNet: stats.totalStake - totalPayout,
+      bookieNet: stats.totalStake - totalPayout - fighterShare.amount,
       mode: stats.mode,
       createdAt: new Date().toISOString()
     };
@@ -3447,14 +3467,6 @@
       return;
     }
   });
-
-  document.addEventListener('wheel', (e) => {
-    const input = e.target.closest('input[type="number"]');
-    if(!input || input.disabled || input.readOnly) return;
-    const active = document.activeElement === input || input.matches(':hover');
-    if(!active) return;
-    e.preventDefault();
-  }, { passive: false });
 
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('button');
