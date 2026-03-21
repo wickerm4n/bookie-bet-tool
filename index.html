@@ -2,6 +2,9 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0b0c10" />
   <title>Bookie Bet Tool</title>
@@ -987,6 +990,57 @@
 
 <script>
 (() => {
+  const APP_BUILD_VERSION = '2026.03.21-v14';
+  const APP_BUILD_STORAGE_KEY = 'bookie_bet_tool_html_build_version';
+  const APP_BUILD_SESSION_KEY = 'bookie_bet_tool_html_build_reloaded';
+
+  function enforceFreshBuild(){
+    try{
+      const url = new URL(window.location.href);
+      const currentBuild = url.searchParams.get('__appv');
+      const seenBuild = localStorage.getItem(APP_BUILD_STORAGE_KEY);
+      const sessionReloadBuild = sessionStorage.getItem(APP_BUILD_SESSION_KEY);
+
+      if(currentBuild !== APP_BUILD_VERSION){
+        url.searchParams.set('__appv', APP_BUILD_VERSION);
+        url.searchParams.set('__cb', Date.now().toString(36));
+        window.location.replace(url.toString());
+        return true;
+      }
+
+      if(seenBuild !== APP_BUILD_VERSION){
+        localStorage.setItem(APP_BUILD_STORAGE_KEY, APP_BUILD_VERSION);
+        if(sessionReloadBuild !== APP_BUILD_VERSION){
+          sessionStorage.setItem(APP_BUILD_SESSION_KEY, APP_BUILD_VERSION);
+          url.searchParams.set('__cb', Date.now().toString(36));
+          window.location.replace(url.toString());
+          return true;
+        }
+      }
+    }catch(_error){
+      return false;
+    }
+    return false;
+  }
+
+  function clearLegacyBrowserCaches(){
+    try{
+      if('serviceWorker' in navigator){
+        navigator.serviceWorker.getRegistrations()
+          .then(registrations => registrations.forEach(registration => registration.unregister().catch(() => {})))
+          .catch(() => {});
+      }
+      if('caches' in window){
+        caches.keys()
+          .then(keys => Promise.all(keys.map(key => caches.delete(key))))
+          .catch(() => {});
+      }
+    }catch(_error){}
+  }
+
+  if(enforceFreshBuild()) return;
+  clearLegacyBrowserCaches();
+
   const STORAGE_KEY = 'bookie_bet_tool_simplified_manual_auto_history_v2_rounds';
   const MAX_FIGHTERS = 20;
   const MAX_BETTORS = 100;
