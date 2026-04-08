@@ -80,7 +80,7 @@
       feeAmountLabel: 'Bookie-/Fightclub-Anteil ({currency})',
       winnerLabel: 'Sieger auswählen',
       finishFightBtn: 'Fight abschließen',
-      finishNoteManual: 'Manuell: Auszahlungen werden mit deinen festen Quoten berechnet.',
+      finishNoteManual: 'Manuell: Neue Wetten übernehmen die aktuelle Fighter-Quote und behalten sie nach dem Platzieren.',
       quickSummaryTitle: 'Schnellübersicht',
       openLeaderboardBtn: 'Bestenliste anzeigen',
       openGuideBtn: 'Wie dieses Tool funktioniert',
@@ -114,7 +114,7 @@
       bookieResultIfWinsLabel: 'Bookie-Ergebnis bei Sieg von {name}',
       marketWeightInfo: 'Marktdruck {percent}',
       resultBookieNetLabel: 'Bookie-Ergebnis',
-      finishNoteAuto: 'Auto: Live-Quote = Eröffnungsquote + Markt-/Haftungsanpassung aus aktuellen Einsätzen und Historie.',
+      finishNoteAuto: 'Auto: Neue Wetten übernehmen die aktuelle Live-Quote und behalten sie nach dem Platzieren.',
       removeAggregateEntry: 'Eintrag löschen',
       noAggregateData: 'Noch keine abgeschlossenen Kämpfe vorhanden.',
       resultTitle: 'Fight-Zusammenfassung',
@@ -144,6 +144,8 @@
       bettorPlaceholder: 'Name der wettenden Person',
       pickLabel: 'Tipp',
       stakeLabel: 'Einsatz',
+      betOddsLiveLabel: 'Quote für diese Wette - live',
+      betOddsLockedLabel: 'Quote für diese Wette - fixiert',
       oddsLabel: 'Quote für {name}',
       payoutIfWinsLabel: 'Auszahlung bei Sieg für {name}',
       manualOddsInputLabel: 'Manuelle Quote für {name}',
@@ -152,7 +154,7 @@
       noBets: 'Bitte mindestens eine Wette mit Name und Einsatz erfassen.',
       win: 'Gewonnen',
       lost: 'Verloren',
-      resultMeta: 'Einsatz {stake} · Tipp auf {pick} · Auszahlung {payout}',
+      resultMeta: 'Einsatz {stake} · Tipp auf {pick} · Quote {quote} · Auszahlung {payout}',
       unnamedFighter: 'Fighter {letter}',
       unnamedBettor: 'Unbekannt',
       feeWithPercent: '{money} ({percent} %)',
@@ -238,7 +240,7 @@
       feeAmountLabel: 'Bookie / fight club share ({currency})',
       winnerLabel: 'Choose winner',
       finishFightBtn: 'Finish fight',
-      finishNoteManual: 'Manual: payouts use your fixed odds.',
+      finishNoteManual: 'Manual: new bets take the current fighter odds and keep them once the bet is placed.',
       quickSummaryTitle: 'Quick overview',
       openLeaderboardBtn: 'Show leaderboard',
       openGuideBtn: 'How this tool works',
@@ -272,7 +274,7 @@
       bookieResultIfWinsLabel: 'Bookie result if {name} wins',
       marketWeightInfo: 'Market pressure {percent}',
       resultBookieNetLabel: 'Bookie result',
-      finishNoteAuto: 'Auto: live odds blend opening odds with market and liability pressure from current stakes and fight history.',
+      finishNoteAuto: 'Auto: new bets take the current live odds and keep them once the bet is placed.',
       removeAggregateEntry: 'Remove entry',
       noAggregateData: 'No finished fights yet.',
       resultTitle: 'Fight summary',
@@ -302,6 +304,8 @@
       bettorPlaceholder: 'Name of bettor',
       pickLabel: 'Pick',
       stakeLabel: 'Stake',
+      betOddsLiveLabel: 'Odds for this bet - live',
+      betOddsLockedLabel: 'Odds for this bet - locked',
       oddsLabel: 'Odds for {name}',
       payoutIfWinsLabel: 'Payout if {name} wins',
       manualOddsInputLabel: 'Manual odds for {name}',
@@ -310,7 +314,7 @@
       noBets: 'Please enter at least one bet with a name and stake.',
       win: 'Won',
       lost: 'Lost',
-      resultMeta: 'Stake {stake} · Pick {pick} · Payout {payout}',
+      resultMeta: 'Stake {stake} · Pick {pick} · Odds {quote} · Payout {payout}',
       unnamedFighter: 'Fighter {letter}',
       unnamedBettor: 'Unknown',
       feeWithPercent: '{money} ({percent}%)',
@@ -479,6 +483,26 @@
   setTimeout(syncCountSelectors, 0);
 
   function uid(){ return Math.random().toString(36).slice(2,10); }
+  function createBetRecord({
+    id = uid(),
+    name = '',
+    fighterId = '',
+    stake = 50,
+    lockedOdds = 0,
+    oddsLocked = false
+  } = {}){
+    const safeLockedOdds = Number.isFinite(Number(lockedOdds)) && Number(lockedOdds) > 1
+      ? sanitizeManualOdds(lockedOdds)
+      : 0;
+    return {
+      id: id || uid(),
+      name: typeof name === 'string' ? name : '',
+      fighterId: String(fighterId || ''),
+      stake: Math.max(0, Number(stake) || 0),
+      lockedOdds: safeLockedOdds,
+      oddsLocked: Boolean(oddsLocked) && safeLockedOdds > 1
+    };
+  }
   function currentLang(){ return ['de','en'].includes(state?.settings?.lang) ? state.settings.lang : 'de'; }
   function t(key, vars={}){
     const dict = I18N[currentLang()] || I18N.de;
@@ -520,6 +544,12 @@
     const lang = currentLang() === 'de' ? 'de-DE' : 'en-US';
     return Number(value || 0).toLocaleString(lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   }
+  function formatOdds(value){
+    const numeric = Number(value);
+    if(!Number.isFinite(numeric) || numeric <= 0) return t('oddsUnavailable');
+    const lang = currentLang() === 'de' ? 'de-DE' : 'en-US';
+    return numeric.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
   function formatPotentialPayoutDisplay(fighter, amount, hasBets){
     return hasBets ? formatMoney(amount) : t('resultNoWinnerBets', { name: fighterDisplayName(fighter) });
   }
@@ -529,33 +559,66 @@
   function fromMoneyCents(cents){
     return (Number(cents) || 0) / 100;
   }
-  function distributeCentsByWeight(totalCents, items, getWeight){
-    const safeTotal = Math.max(0, Math.round(Number(totalCents) || 0));
-    const list = Array.isArray(items) ? items : [];
-    if(!safeTotal || !list.length) return new Map();
-    const weights = list.map(item => Math.max(0, Math.round(Number(getWeight(item)) || 0)));
-    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-    if(totalWeight <= 0) return new Map();
-
-    const allocations = new Map();
-    let allocated = 0;
-    const remainders = [];
-
-    list.forEach((item, index) => {
-      const scaled = safeTotal * weights[index];
-      const base = Math.floor(scaled / totalWeight);
-      allocated += base;
-      allocations.set(item.id, base);
-      remainders.push({ id: item.id, remainder: scaled - (base * totalWeight), index });
-    });
-
-    let remaining = safeTotal - allocated;
-    remainders.sort((a, b) => (b.remainder - a.remainder) || (a.index - b.index));
-    for(let i = 0; i < remaining; i++){
-      const target = remainders[i % remainders.length];
-      allocations.set(target.id, (allocations.get(target.id) || 0) + 1);
-    }
-    return allocations;
+  function getCurrentFighterOdds(fighterId, stats){
+    const fighter = state.fighters.find(f => f.id === fighterId);
+    if(!fighter) return Number.NaN;
+    const liveOdds = Number(stats?.oddsByFighter?.[fighterId] || 0);
+    if(Number.isFinite(liveOdds) && liveOdds > 1) return liveOdds;
+    const manualOdds = Number(fighter.manualOdds || 0);
+    if(Number.isFinite(manualOdds) && manualOdds > 1) return sanitizeManualOdds(manualOdds);
+    const openingOdds = Number(fighter.openingOdds || 0);
+    return Number.isFinite(openingOdds) && openingOdds > 1 ? sanitizeManualOdds(openingOdds) : Number.NaN;
+  }
+  function getStoredBetOdds(bet){
+    const odds = Number(bet?.lockedOdds || 0);
+    return Number.isFinite(odds) && odds > 1 ? sanitizeManualOdds(odds) : Number.NaN;
+  }
+  function isBetOddsLocked(bet){
+    return Boolean(bet?.oddsLocked) && Number.isFinite(getStoredBetOdds(bet));
+  }
+  function canLockBetOdds(bet){
+    return Boolean((bet?.name || '').trim()) && Number(bet?.stake) > 0 && state.fighters.some(f => f.id === bet?.fighterId);
+  }
+  function clearBetOddsLock(bet){
+    if(!bet) return false;
+    const hadLock = Boolean(bet.oddsLocked) || Number(bet.lockedOdds) > 0;
+    bet.oddsLocked = false;
+    bet.lockedOdds = 0;
+    return hadLock;
+  }
+  function lockBetOdds(bet, stats){
+    if(!bet || !canLockBetOdds(bet)) return false;
+    const nextOdds = getCurrentFighterOdds(bet.fighterId, stats);
+    if(!Number.isFinite(nextOdds) || nextOdds <= 1) return false;
+    const previousOdds = getStoredBetOdds(bet);
+    const nextLockedOdds = sanitizeManualOdds(nextOdds);
+    const didChange = !isBetOddsLocked(bet) || !Number.isFinite(previousOdds) || Math.abs(previousOdds - nextLockedOdds) > 0.0001;
+    bet.lockedOdds = nextLockedOdds;
+    bet.oddsLocked = true;
+    return didChange;
+  }
+  function getBetResolvedOdds(bet, stats){
+    const lockedOdds = getStoredBetOdds(bet);
+    if(isBetOddsLocked(bet) && Number.isFinite(lockedOdds)) return lockedOdds;
+    return getCurrentFighterOdds(bet?.fighterId, stats);
+  }
+  function getBetPayoutAmount(bet, stats){
+    const stake = Number(bet?.stake) || 0;
+    const odds = getBetResolvedOdds(bet, stats);
+    if(stake <= 0 || !Number.isFinite(odds) || odds <= 0) return 0;
+    return stake * odds;
+  }
+  function getAverageBetOdds(bets, stats, fallbackOdds = Number.NaN){
+    const weighted = (Array.isArray(bets) ? bets : []).reduce((acc, bet) => {
+      const stakeCents = toMoneyCents(bet?.stake);
+      const odds = getBetResolvedOdds(bet, stats);
+      if(stakeCents <= 0 || !Number.isFinite(odds) || odds <= 0) return acc;
+      acc.totalWeight += stakeCents;
+      acc.totalOdds += stakeCents * odds;
+      return acc;
+    }, { totalWeight: 0, totalOdds: 0 });
+    if(weighted.totalWeight > 0) return weighted.totalOdds / weighted.totalWeight;
+    return fallbackOdds;
   }
   function getSettlementBreakdown(stats, winner, betSource){
     const netPoolCents = toMoneyCents(stats?.safePayoutPool || 0);
@@ -577,11 +640,17 @@
       return (b.name || '').trim() && Number(b.stake) > 0 && state.fighters.some(f => f.id === b.fighterId);
     });
     const winningBets = validBets.filter(b => b.fighterId === winner.id);
-    const winningStakeCents = winningBets.reduce((sum, bet) => sum + toMoneyCents(bet.stake), 0);
-    const quote = Number(stats?.oddsByFighter?.[winner.id] || 0);
+    const linePayouts = new Map();
+    let winnerPayoutCents = 0;
+    winningBets.forEach(bet => {
+      const payoutCents = toMoneyCents(getBetPayoutAmount(bet, stats));
+      linePayouts.set(bet.id, payoutCents);
+      winnerPayoutCents += payoutCents;
+    });
+    const currentWinnerOdds = Number(stats?.oddsByFighter?.[winner.id] || 0);
+    const quote = getAverageBetOdds(winningBets, stats, currentWinnerOdds);
 
-    const winnerTopUpFromFeeCents = Math.max(0, winningStakeCents - netPoolCents);
-    const winnerPayoutCents = Math.max(0, netPoolCents + winnerTopUpFromFeeCents);
+    const winnerTopUpFromFeeCents = Math.max(0, winnerPayoutCents - netPoolCents);
     const remainingFeeCents = Math.max(0, feeCents - winnerTopUpFromFeeCents);
 
     let fighterShareCents = 0;
@@ -592,22 +661,6 @@
       fighterShareCents = Math.min(remainingFeeCents, Math.max(0, Math.round(remainingFeeCents / quote)));
       fighterShareQuote = quote;
       fighterShareText = formatMoney(fromMoneyCents(fighterShareCents));
-    }
-
-    let linePayouts = new Map();
-    if(winningBets.length > 0){
-      if(winnerPayoutCents >= winningStakeCents){
-        linePayouts = new Map(winningBets.map(bet => [bet.id, toMoneyCents(bet.stake)]));
-        const surplusCents = Math.max(0, winnerPayoutCents - winningStakeCents);
-        if(surplusCents > 0){
-          const surplusAllocations = distributeCentsByWeight(surplusCents, winningBets, bet => toMoneyCents(bet.stake));
-          winningBets.forEach(bet => {
-            linePayouts.set(bet.id, (linePayouts.get(bet.id) || 0) + (surplusAllocations.get(bet.id) || 0));
-          });
-        }
-      } else {
-        linePayouts = distributeCentsByWeight(winnerPayoutCents, winningBets, bet => toMoneyCents(bet.stake));
-      }
     }
 
     const winnerPayoutAmount = fromMoneyCents(winnerPayoutCents);
@@ -777,11 +830,13 @@
       if(merged.fighters.length < 2) return defaultState();
       merged.fighters[0].removable = false;
       merged.fighters[1].removable = false;
-      merged.bets = parsed.bets.map(b => ({
+      merged.bets = parsed.bets.map(b => createBetRecord({
         id: b.id || uid(),
-        name: typeof b.name === 'string' ? b.name : '',
-        fighterId: String(b.fighterId || ''),
-        stake: Math.max(0, Number(b.stake) || 0)
+        name: b.name,
+        fighterId: b.fighterId,
+        stake: b.stake,
+        lockedOdds: b.lockedOdds,
+        oddsLocked: b.oddsLocked
       })).slice(0, MAX_BETTORS);
       merged.winnerId = String(parsed.winnerId || '');
       merged.history = Array.isArray(parsed.history)
@@ -852,13 +907,18 @@
     return memory;
   }
 
-  function getPoolStats(){
-    const totalStake = state.bets.reduce((sum, b) => sum + (Number(b.stake) || 0), 0);
+  function getPoolStats(options = {}){
+    const excludedBetId = String(options?.excludeBetId || '');
+    const activeBets = state.bets.filter(bet => {
+      if(excludedBetId && String(bet.id || '') === excludedBetId) return false;
+      return (bet.name || '').trim() && Number(bet.stake) > 0 && state.fighters.some(fighter => fighter.id === bet.fighterId);
+    });
+    const totalStake = activeBets.reduce((sum, b) => sum + (Number(b.stake) || 0), 0);
     const feePercent = sanitizeFee(state.settings.feePercent);
     const feeAmount = totalStake * (feePercent / 100);
     const netPool = Math.max(0, totalStake - feeAmount);
     const stakesByFighter = Object.fromEntries(state.fighters.map(f => [f.id, 0]));
-    state.bets.forEach(b => {
+    activeBets.forEach(b => {
       if (stakesByFighter[b.fighterId] != null) stakesByFighter[b.fighterId] += Number(b.stake) || 0;
     });
 
@@ -873,7 +933,7 @@
     const payoutByFighter = {};
     const bookieResultByFighter = {};
     const historyBiasByFighter = {};
-    const totalBetsCount = state.bets.filter(b => Number(b.stake) > 0).length;
+    const totalBetsCount = activeBets.length;
     const safePayoutPool = Math.max(0, netPool);
 
     const fighterRows = state.fighters.map(f => {
@@ -937,7 +997,6 @@
         const odds = clamp(requestedOdds, 1.01, maxDisplayOdds);
         oddsByFighter[row.fighter.id] = odds;
         poolOddsByFighter[row.fighter.id] = null;
-        payoutByFighter[row.fighter.id] = stakeOnFighter * odds;
       }else{
         const marketProb = (row.priorLiquidity + stakeOnFighter) / posteriorTotal;
         const blendedProb = clamp((row.openingProb * (1 - marketWeight)) + (marketProb * marketWeight), 0.02, 0.92);
@@ -945,9 +1004,17 @@
         const liveOdds = clamp(fairOdds / (1 + marginRate), 1.05, maxDisplayOdds);
         poolOddsByFighter[row.fighter.id] = fairOdds;
         oddsByFighter[row.fighter.id] = liveOdds;
-        payoutByFighter[row.fighter.id] = stakeOnFighter * liveOdds;
       }
-      bookieResultByFighter[row.fighter.id] = totalStake - payoutByFighter[row.fighter.id];
+      payoutByFighter[row.fighter.id] = 0;
+    });
+
+    activeBets.forEach(bet => {
+      if(!(Number(bet?.stake) > 0) || !state.fighters.some(fighter => fighter.id === bet?.fighterId)) return;
+      payoutByFighter[bet.fighterId] = (Number(payoutByFighter[bet.fighterId]) || 0) + getBetPayoutAmount(bet, { oddsByFighter, mode });
+    });
+
+    state.fighters.forEach(fighter => {
+      bookieResultByFighter[fighter.id] = totalStake - (Number(payoutByFighter[fighter.id]) || 0);
     });
 
     const worstCaseResult = state.fighters.reduce((worst, f) => Math.min(worst, Number(bookieResultByFighter[f.id] || 0)), Number.POSITIVE_INFINITY);
@@ -963,7 +1030,7 @@
   }
 
   function createDefaultBetRows(){
-    return [{ id: uid(), name: '', fighterId: '', stake: 50 }];
+    return [createBetRecord({ fighterId: '', stake: 50 })];
   }
 
   function applyResetDialogPreference(skipFutureDialogs){
@@ -1124,13 +1191,13 @@
 
     const firstFighterId = nextFighters[0]?.id || '';
     const nextBets = keepBettors
-      ? (state.bets.length ? state.bets : createDefaultBetRows()).map(bet => ({
+      ? (state.bets.length ? state.bets : createDefaultBetRows()).map(bet => createBetRecord({
           id: uid(),
           name: String(bet.name || ''),
           fighterId: firstFighterId,
           stake: 0
         }))
-      : createDefaultBetRows().map(bet => ({ ...bet, fighterId: firstFighterId }));
+      : createDefaultBetRows().map(bet => createBetRecord({ ...bet, fighterId: firstFighterId }));
 
     state.fighters = nextFighters;
     state.bets = nextBets;
@@ -1238,8 +1305,11 @@
   }
 
   function renderBets(){
+    const stats = getPoolStats();
     els.betList.innerHTML = '';
     state.bets.forEach(b => {
+      const betOdds = getBetResolvedOdds(b, stats);
+      const betOddsLabel = t(isBetOddsLocked(b) ? 'betOddsLockedLabel' : 'betOddsLiveLabel');
       const row = document.createElement('div');
       row.className = 'bet-row';
       row.innerHTML = `
@@ -1257,6 +1327,13 @@
         </div>
         <button class="icon-remove-btn" type="button" data-role="remove-bet" data-id="${b.id}" title="${t('remove')}" aria-label="${t('remove')}"><span>✕</span></button>
       `;
+      const oddsField = document.createElement('div');
+      oddsField.className = 'field';
+      oddsField.innerHTML = `
+        <label>${betOddsLabel}</label>
+        <input type="text" readonly value="${escapeHtml(formatOdds(betOdds))}">
+      `;
+      row.insertBefore(oddsField, row.querySelector('button[data-role="remove-bet"]'));
       els.betList.appendChild(row);
     });
   }
@@ -1841,7 +1918,15 @@
       const fallbackId = state.fighters[0]?.id || '';
       state.bets = state.bets
         .filter(bet => !removableActiveIds.includes(bet.fighterId))
-        .map(bet => ({ ...bet, fighterId: state.fighters.some(fighter => fighter.id === bet.fighterId) ? bet.fighterId : fallbackId }));
+        .map(bet => {
+          const nextFighterId = state.fighters.some(fighter => fighter.id === bet.fighterId) ? bet.fighterId : fallbackId;
+          return createBetRecord({
+            ...bet,
+            fighterId: nextFighterId,
+            lockedOdds: nextFighterId === bet.fighterId ? bet.lockedOdds : 0,
+            oddsLocked: nextFighterId === bet.fighterId ? bet.oddsLocked : false
+          });
+        });
       if(removableActiveIds.includes(state.winnerId)) state.winnerId = '';
     }
 
@@ -1931,7 +2016,7 @@
           <h4>🪜 Typischer Workflow Schritt für Schritt</h4>
           <ol>
             <li>Fighter-Namen eintragen oder zusätzliche Fighter hinzufügen.</li>
-            <li>Für jede wettende Person Name, Tipp und Einsatz erfassen.</li>
+            <li>Für jede wettende Person Name, Tipp und Einsatz erfassen; die aktuelle Quote wird pro Wette gespeichert.</li>
             <li>Automatische oder manuelle Quote auswählen.</li>
             <li>Bookie-/Fightclub-Anteil prüfen bzw. anpassen.</li>
             <li>In der Schnellübersicht Quoten, Gesamteinsätze, Marktdruck und Risiken kontrollieren.</li>
@@ -1951,19 +2036,20 @@
           </section>
           <section class="guide-section">
             <h4>💸 Bereich „Wetten erfassen“</h4>
-            <p>Hier trägst du pro Zeile eine wettende Person, deren Tipp und den Einsatz ein. Über „Wettende Person hinzufügen“ kannst du beliebig viele Wettscheine ergänzen. Jede Zeile steht für genau eine Person bzw. eine Wette.</p>
+            <p>Hier trägst du pro Zeile eine wettende Person, deren Tipp und den Einsatz ein. Über „Wettende Person hinzufügen“ kannst du beliebig viele Wettscheine ergänzen. Jede Zeile steht für genau eine Person bzw. eine Wette und speichert ihre eigene Quote.</p>
             <ul>
               <li><strong>Wettende Person:</strong> Name der Person.</li>
               <li><strong>Tipp:</strong> Auf welchen Fighter gesetzt wird.</li>
               <li><strong>Einsatz:</strong> Geldbetrag dieser Wette.</li>
+              <li><strong>Quote pro Wette:</strong> Wird fixiert, sobald Name und Einsatz gesetzt sind.</li>
             </ul>
           </section>
           <section class="guide-section">
             <h4>📈 Bereich „Quoten &amp; Sieger“</h4>
             <p>Hier steuerst du, wie die Quoten entstehen, wie hoch der Bookie-Anteil ist und welcher Fighter am Ende gewinnt.</p>
             <ul>
-              <li><strong>Automatische Quote:</strong> Das Tool passt die Live-Quote anhand der aktuellen Einsätze, des Marktdrucks und historischer Daten an.</li>
-              <li><strong>Manuelle Quote:</strong> Du gibst die Quote für jeden Fighter selbst vor.</li>
+              <li><strong>Automatische Quote:</strong> Das Tool passt die Live-Quote anhand der aktuellen Einsätze, des Marktdrucks und historischer Daten an; neue Wetten übernehmen den aktuellen Wert.</li>
+              <li><strong>Manuelle Quote:</strong> Du gibst die Quote für jeden Fighter selbst vor; neue Wetten übernehmen diese Quote beim Platzieren.</li>
               <li><strong>Bookie-/Fightclub-Anteil:</strong> Prozentualer Anteil, der vor der Auszahlung im Modell berücksichtigt wird.</li>
               <li><strong>Sieger auswählen:</strong> Erst nach Wahl eines Siegers kann der Fight sauber abgeschlossen werden.</li>
             </ul>
@@ -1994,7 +2080,7 @@
             <h4>📚 Wichtige Begriffe</h4>
             <ul>
               <li><strong>Einsatz:</strong> Der Geldbetrag, den eine Person auf einen Fighter setzt.</li>
-              <li><strong>Quote:</strong> Multiplikator für die Auszahlung. Beispiel: 2.00 bedeutet, dass aus 10 $ bei Gewinn 20 $ Auszahlung werden.</li>
+              <li><strong>Quote:</strong> Multiplikator für die Auszahlung. Beispiel: 2.00 bedeutet, dass aus 10 $ bei Gewinn 20 $ Auszahlung werden. Jede Wette behält ihre beim Platzieren gespeicherte Quote.</li>
               <li><strong>Automatische Quote:</strong> Die Quote wird dynamisch vom Tool berechnet.</li>
               <li><strong>Manuelle Quote:</strong> Die Quote wird direkt von dir festgelegt.</li>
               <li><strong>Bookie-Anteil:</strong> Anteil bzw. Gebühr, der für Bookie/Fightclub berücksichtigt wird.</li>
@@ -2016,7 +2102,7 @@
         <h4>🪜 Typical workflow step by step</h4>
         <ol>
           <li>Enter fighter names or add more fighters.</li>
-          <li>Add each bettor with name, pick, and stake.</li>
+          <li>Add each bettor with name, pick, and stake; each bet keeps the odds that were active when it was placed.</li>
           <li>Choose automatic or manual odds.</li>
           <li>Review or adjust the bookie / fight club share.</li>
           <li>Use the quick overview to monitor stakes, odds, market pressure, and risk.</li>
@@ -2036,19 +2122,20 @@
         </section>
         <section class="guide-section">
           <h4>💸 “Place bets” section</h4>
-          <p>Each row represents one bettor and one bet. Enter the bettor name, choose the fighter they are backing, and enter the stake amount.</p>
+          <p>Each row represents one bettor and one bet. Enter the bettor name, choose the fighter they are backing, and enter the stake amount. Every row keeps its own locked odds.</p>
           <ul>
             <li><strong>Bettor:</strong> name of the person placing the bet.</li>
             <li><strong>Pick:</strong> the fighter they bet on.</li>
             <li><strong>Stake:</strong> the amount of money placed on that bet.</li>
+            <li><strong>Odds per bet:</strong> lock in automatically once name and stake are set.</li>
           </ul>
         </section>
         <section class="guide-section">
           <h4>📈 “Odds &amp; winner” section</h4>
           <p>This area controls how odds are generated, how much of a share the bookie keeps, and who wins the fight.</p>
           <ul>
-            <li><strong>Automatic odds:</strong> live odds react to stakes, market pressure, and historical signals.</li>
-            <li><strong>Manual odds:</strong> you enter the odds for each fighter yourself.</li>
+            <li><strong>Automatic odds:</strong> live odds react to stakes, market pressure, and historical signals; new bets take the current live value.</li>
+            <li><strong>Manual odds:</strong> you enter the odds for each fighter yourself; new bets take that current fighter odds value when placed.</li>
             <li><strong>Bookie / fight club share:</strong> percentage considered by the model before payouts.</li>
             <li><strong>Choose winner:</strong> required before the fight can be finalized.</li>
           </ul>
@@ -2079,7 +2166,7 @@
           <h4>📚 Key terms</h4>
           <ul>
             <li><strong>Stake:</strong> amount of money a bettor puts on a fighter.</li>
-            <li><strong>Odds:</strong> multiplier used to calculate payout. Example: 2.00 means a winning 10 $ bet pays out 20 $.</li>
+            <li><strong>Odds:</strong> multiplier used to calculate payout. Example: 2.00 means a winning 10 $ bet pays out 20 $. Each bet keeps the odds that were stored when it was placed.</li>
             <li><strong>Automatic odds:</strong> odds are calculated dynamically by the tool.</li>
             <li><strong>Manual odds:</strong> odds are defined directly by you.</li>
             <li><strong>Bookie share:</strong> fee or retained share assigned to the bookie/fight club.</li>
@@ -2155,7 +2242,15 @@
     const fallbackId = state.fighters[0]?.id || '';
     state.bets = state.bets
       .filter(b => b.fighterId !== id)
-      .map(b => ({ ...b, fighterId: state.fighters.some(f => f.id === b.fighterId) ? b.fighterId : fallbackId }));
+      .map(b => {
+        const nextFighterId = state.fighters.some(f => f.id === b.fighterId) ? b.fighterId : fallbackId;
+        return createBetRecord({
+          ...b,
+          fighterId: nextFighterId,
+          lockedOdds: nextFighterId === b.fighterId ? b.lockedOdds : 0,
+          oddsLocked: nextFighterId === b.fighterId ? b.oddsLocked : false
+        });
+      });
     if(state.winnerId === id) state.winnerId = '';
     renderAll();
   }
@@ -2175,7 +2270,7 @@
     }
     const defaultFighterId = state.fighters[0]?.id || '';
     for(let i = 0; i < amount; i++){
-      state.bets.push({ id: uid(), name: '', fighterId: defaultFighterId, stake: 50 });
+      state.bets.push(createBetRecord({ fighterId: defaultFighterId, stake: 50 }));
     }
     renderAll();
   }
@@ -2201,6 +2296,9 @@
       appAlert(t('invalidManualOdds'));
       return null;
     }
+    validBets.forEach(bet => {
+      if(!isBetOddsLocked(bet)) lockBetOdds(bet, stats);
+    });
     const winner = state.fighters.find(f => f.id === state.winnerId);
     const settlement = getSettlementBreakdown(stats, winner, validBets);
     const winnerPayout = {
@@ -2217,12 +2315,14 @@
     const lines = validBets.map(b => {
       const fighter = state.fighters.find(f => f.id === b.fighterId);
       const won = b.fighterId === state.winnerId;
+      const odds = getBetResolvedOdds(b, stats);
       const payout = won ? fromMoneyCents(settlement.linePayouts.get(b.id) || 0) : 0;
       const net = payout - Number(b.stake);
       return {
         name: (b.name || '').trim() || t('unnamedBettor'),
         fighter: fighter ? fighterDisplayName(fighter) : '—',
         stake: Number(b.stake),
+        odds,
         payout,
         net,
         won
@@ -2234,7 +2334,13 @@
       mode: stats.mode,
       feePercent: stats.feePercent,
       fighters: state.fighters.map(f => ({ id: f.id, name: fighterDisplayName(f), manualOdds: Number(f.manualOdds || 0), openingOdds: Number(f.openingOdds || 0), oddsAnchorName: String(f.oddsAnchorName || '') })),
-      bets: validBets.map(b => ({ name: (b.name || '').trim(), fighterId: b.fighterId, stake: Number(b.stake) }))
+      bets: validBets.map(b => ({
+        name: (b.name || '').trim(),
+        fighterId: b.fighterId,
+        stake: Number(b.stake),
+        lockedOdds: Number(getStoredBetOdds(b) || 0),
+        oddsLocked: isBetOddsLocked(b)
+      }))
     });
 
     const validNamedFighters = state.fighters
@@ -2298,6 +2404,9 @@
     const result = buildResults();
     if(!result) return;
     persistFightResult(result);
+    renderBets();
+    renderOdds();
+    renderQuickSummary();
     renderAggregate();
     renderLeaderboard();
 
@@ -2333,7 +2442,7 @@
       item.innerHTML = `
         <div class="result-line-main">
           <div class="result-line-name">${escapeHtml(line.name)}</div>
-          <div class="result-line-meta">${escapeHtml(t('resultMeta', { stake: formatMoney(line.stake), pick: line.fighter, payout: formatMoney(line.payout) }))}</div>
+          <div class="result-line-meta">${escapeHtml(t('resultMeta', { stake: formatMoney(line.stake), pick: line.fighter, quote: formatOdds(line.odds), payout: formatMoney(line.payout) }))}</div>
         </div>
         <div class="result-line-status">${line.won ? t('win') : t('lost')}</div>
         <div class="result-line-financials">
@@ -2435,6 +2544,7 @@
     if(target === els.leaderboardAutofillToggle){
       state.settings.leaderboardAutofill = target.checked;
       maybeAutofillOddsFromLeaderboard();
+      renderBets();
       renderOdds();
       renderQuickSummary();
       renderLeaderboard();
@@ -2443,9 +2553,24 @@
     }
     if(target.name === 'oddsMode'){
       state.settings.oddsMode = target.value === 'manual' ? 'manual' : 'auto';
+      renderBets();
       renderOdds();
       renderQuickSummary();
       renderLeaderboard();
+      saveState();
+      return;
+    }
+    if(role === 'bet-name' && id){
+      const bet = state.bets.find(b => b.id === id);
+      if(bet){
+        bet.name = target.value;
+        if(canLockBetOdds(bet) && !isBetOddsLocked(bet)) lockBetOdds(bet, getPoolStats({ excludeBetId: bet.id }));
+      }
+      renderBets();
+      renderOdds();
+      renderQuickSummary();
+      renderLeaderboard();
+      applyDuplicateHighlights();
       saveState();
       return;
     }
@@ -2496,6 +2621,7 @@
     if(role === 'manual-odds' && id){
       const fighter = state.fighters.find(f => f.id === id);
       if(fighter) fighter.manualOdds = sanitizeManualOdds(String(target.value).replace(',', '.'));
+      renderBets();
       renderOdds();
       renderQuickSummary();
       renderLeaderboard();
@@ -2505,6 +2631,7 @@
     if(role === 'opening-odds' && id){
       const fighter = state.fighters.find(f => f.id === id);
       if(fighter) fighter.openingOdds = sanitizeManualOdds(String(target.value).replace(',', '.'));
+      renderBets();
       renderOdds();
       renderQuickSummary();
       renderLeaderboard();
@@ -2513,7 +2640,11 @@
     }
     if(role === 'bet-stake' && id){
       const bet = state.bets.find(b => b.id === id);
-      if(bet) bet.stake = Math.max(0, Number(String(target.value).replace(',', '.')) || 0);
+      if(bet){
+        bet.stake = Math.max(0, Number(String(target.value).replace(',', '.')) || 0);
+        if(canLockBetOdds(bet) && !isBetOddsLocked(bet)) lockBetOdds(bet, getPoolStats({ excludeBetId: bet.id }));
+      }
+      renderBets();
       renderOdds();
       renderQuickSummary();
       renderLeaderboard();
@@ -2522,7 +2653,12 @@
     }
     if(role === 'bet-fighter' && id){
       const bet = state.bets.find(b => b.id === id);
-      if(bet) bet.fighterId = target.value;
+      if(bet){
+        bet.fighterId = target.value;
+        clearBetOddsLock(bet);
+        if(canLockBetOdds(bet)) lockBetOdds(bet, getPoolStats({ excludeBetId: bet.id }));
+      }
+      renderBets();
       renderOdds();
       renderQuickSummary();
       renderLeaderboard();
