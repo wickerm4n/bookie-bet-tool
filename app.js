@@ -1,5 +1,5 @@
 (() => {
-  const APP_BUILD_VERSION = '2026.04.09-v18-security-hardening';
+  const APP_BUILD_VERSION = '2026.04.09-v19-leaderboard-layout';
   const APP_BUILD_STORAGE_KEY = 'bookie_bet_tool_html_build_version';
   const APP_BUILD_SESSION_KEY = 'bookie_bet_tool_html_build_reloaded';
 
@@ -2769,27 +2769,47 @@
     renderAll({ historyMode: 'replace' });
   }
 
-  function renderLeaderboardControls(){
+  function renderLeaderboardControls(hasRows = true){
     if(!els.leaderboardControls) return;
+    if(!hasRows){
+      els.leaderboardControls.classList.add('is-empty');
+      els.leaderboardControls.innerHTML = '';
+      return;
+    }
+
+    els.leaderboardControls.classList.remove('is-empty');
     const sortState = getLeaderboardSortState();
     const controls = [
-      { key: 'odds', label: t('leaderboardSortOdds') },
-      { key: 'wins', label: t('leaderboardSortWins') },
-      { key: 'losses', label: t('leaderboardSortLosses') }
+      { key: 'odds', label: t('leaderboardSortOdds'), heading: t('leaderboardQuote') },
+      { key: 'wins', label: t('leaderboardSortWins'), heading: t('leaderboardWins') },
+      { key: 'losses', label: t('leaderboardSortLosses'), heading: t('leaderboardLosses') }
     ];
-    els.leaderboardControls.innerHTML = controls.map(control => {
+    const statControls = controls.map(control => {
       const isActive = sortState.key === control.key;
       const nextDirection = isActive ? (sortState.dir === 'asc' ? 'desc' : 'asc') : (control.key === 'odds' ? 'asc' : 'desc');
       const directionLabel = t(nextDirection === 'asc' ? 'leaderboardSortAscending' : 'leaderboardSortDescending');
-      const arrow = isActive ? (sortState.dir === 'asc' ? '↑' : '↓') : '';
-      return `<button class="btn-secondary leaderboard-sort-btn ${isActive ? 'is-active' : ''}" type="button" data-role="leaderboard-sort" data-key="${control.key}" title="${escapeHtml(`${control.label} ${directionLabel}`)}" aria-label="${escapeHtml(`${control.label} ${directionLabel}`)}">${escapeHtml(control.label)}${arrow ? ` ${arrow}` : ''}</button>`;
+      const icon = isActive ? (sortState.dir === 'asc' ? '&uarr;' : '&darr;') : '&harr;';
+      return `
+        <div class="leaderboard-toolbar-stat">
+          <button class="btn-secondary leaderboard-sort-btn ${isActive ? 'is-active' : ''}" type="button" data-role="leaderboard-sort" data-key="${control.key}" title="${escapeHtml(`${control.label} ${directionLabel}`)}" aria-label="${escapeHtml(`${control.label} ${directionLabel}`)}">
+            <span class="leaderboard-sort-icon" aria-hidden="true">${icon}</span>
+          </button>
+          <div class="leaderboard-toolbar-label">${escapeHtml(control.heading)}</div>
+        </div>
+      `;
     }).join('');
+    els.leaderboardControls.innerHTML = `
+      <div class="leaderboard-toolbar-rank" aria-hidden="true"></div>
+      <div class="leaderboard-toolbar-name" aria-hidden="true"></div>
+      <div class="leaderboard-toolbar-stats">${statControls}</div>
+      <div class="leaderboard-toolbar-action" aria-hidden="true"></div>
+    `;
   }
 
   function renderLeaderboardV2(){
     if(!els.leaderboardList) return;
     const rows = getLeaderboardRows();
-    renderLeaderboardControls();
+    renderLeaderboardControls(Boolean(rows.length));
 
     els.leaderboardList.innerHTML = '';
     if(!rows.length){
@@ -2811,15 +2831,12 @@
         </div>
         <div class="leaderboard-stats">
           <div class="leaderboard-stat">
-            <div class="k">${escapeHtml(t('leaderboardQuote'))}</div>
             <div class="v">${escapeHtml(Number.isFinite(row.odds) && row.odds > 0 ? row.odds.toFixed(2) : t('oddsUnavailable'))}</div>
           </div>
           <div class="leaderboard-stat">
-            <div class="k">${escapeHtml(t('leaderboardWins'))}</div>
             <div class="v">${escapeHtml(String(row.wins || 0))}</div>
           </div>
           <div class="leaderboard-stat">
-            <div class="k">${escapeHtml(t('leaderboardLosses'))}</div>
             <div class="v">${escapeHtml(String(row.losses || 0))}</div>
           </div>
         </div>
