@@ -1,5 +1,5 @@
 (() => {
-  const APP_BUILD_VERSION = '2026.04.09-v24-leaderboard-save-dialog';
+  const APP_BUILD_VERSION = '2026.04.09-v25-leaderboard-export-fallback';
   const APP_BUILD_STORAGE_KEY = 'bookie_bet_tool_html_build_version';
   const APP_BUILD_SESSION_KEY = 'bookie_bet_tool_html_build_reloaded';
 
@@ -560,6 +560,15 @@
   });
   Object.assign(I18N.en, {
     leaderboardImportTooLarge: 'The JSON file is too large. Please choose a file smaller than {maxKb} KB.'
+  });
+
+  Object.assign(I18N.de, {
+    leaderboardExportDialogUnavailable: 'In dieser Browser-Umgebung ist kein nativer Speichern-Dialog verfügbar. Die Bestenliste kann stattdessen als Download gespeichert werden.',
+    leaderboardExportFallbackBtn: 'Download starten'
+  });
+  Object.assign(I18N.en, {
+    leaderboardExportDialogUnavailable: 'A native save dialog is not available in this browser environment. The leaderboard can be saved as a download instead.',
+    leaderboardExportFallbackBtn: 'Start download'
   });
 
   const els = {
@@ -2435,6 +2444,10 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
+  function canUseNativeSaveDialog(){
+    return Boolean(window.isSecureContext && typeof window.showSaveFilePicker === 'function');
+  }
+
   async function exportLeaderboard(){
     const rows = getKnownFighterRows().map(row => ({
       name: String(row.rawName || row.name || '').trim() || String(row.name || '').trim(),
@@ -2454,7 +2467,7 @@
     const filename = `${t('leaderboardExportFilename')}-${stamp}.json`;
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
 
-    if(typeof window.showSaveFilePicker === 'function'){
+    if(canUseNativeSaveDialog()){
       try{
         const fileHandle = await window.showSaveFilePicker({
           suggestedName: filename,
@@ -2474,6 +2487,12 @@
     }
 
     try{
+      const confirmed = await appConfirm(t('leaderboardExportDialogUnavailable'), {
+        title: t('leaderboardTitle'),
+        okText: t('leaderboardExportFallbackBtn'),
+        cancelText: t('appDialogCancel')
+      });
+      if(!confirmed) return;
       triggerLeaderboardDownload(blob, filename);
     } catch(error){
       console.warn('Leaderboard export failed', error);
