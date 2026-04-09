@@ -1,5 +1,5 @@
 (() => {
-  const APP_BUILD_VERSION = '2026.04.09-v23-leaderboard-header-labels';
+  const APP_BUILD_VERSION = '2026.04.09-v24-leaderboard-save-dialog';
   const APP_BUILD_STORAGE_KEY = 'bookie_bet_tool_html_build_version';
   const APP_BUILD_SESSION_KEY = 'bookie_bet_tool_html_build_reloaded';
 
@@ -235,6 +235,7 @@
       cancelLeaderboardResetBtn: 'Abbrechen',
       leaderboardExportFilename: 'bestenliste',
       leaderboardExportSuccess: 'Bestenliste wurde erfolgreich exportiert.',
+      leaderboardExportFailed: 'Die Bestenliste konnte nicht gespeichert werden.',
       leaderboardImportSuccess: '{count} Fighter wurden importiert bzw. aktualisiert.',
       leaderboardImportInvalid: 'Die ausgewählte Datei enthält keine gültige Bestenliste.',
       leaderboardImportReadError: 'Die JSON-Datei konnte nicht gelesen werden.',
@@ -409,6 +410,7 @@
       cancelLeaderboardResetBtn: 'Cancel',
       leaderboardExportFilename: 'leaderboard',
       leaderboardExportSuccess: 'Leaderboard exported successfully.',
+      leaderboardExportFailed: 'The leaderboard could not be saved.',
       leaderboardImportSuccess: '{count} fighters were imported or updated.',
       leaderboardImportInvalid: 'The selected file does not contain a valid leaderboard.',
       leaderboardImportReadError: 'The JSON file could not be read.',
@@ -2422,7 +2424,18 @@
       .join('');
   }
 
-  function exportLeaderboard(){
+  function triggerLeaderboardDownload(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function exportLeaderboard(){
     const rows = getKnownFighterRows().map(row => ({
       name: String(row.rawName || row.name || '').trim() || String(row.name || '').trim(),
       odds: Number.isFinite(Number(row.odds)) ? Number(Number(row.odds).toFixed(4)) : null,
@@ -2437,16 +2450,35 @@
       exportedAt: new Date().toISOString(),
       fighters: rows
     };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-    a.href = url;
-    a.download = `${t('leaderboardExportFilename')}-${stamp}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const filename = `${t('leaderboardExportFilename')}-${stamp}.json`;
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+
+    if(typeof window.showSaveFilePicker === 'function'){
+      try{
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{
+            description: 'JSON',
+            accept: { 'application/json': ['.json'] }
+          }]
+        });
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        return;
+      } catch(error){
+        if(error?.name === 'AbortError') return;
+        console.warn('Native save dialog failed, falling back to download', error);
+      }
+    }
+
+    try{
+      triggerLeaderboardDownload(blob, filename);
+    } catch(error){
+      console.warn('Leaderboard export failed', error);
+      appAlert(t('leaderboardExportFailed'), { title: t('leaderboardTitle') });
+    }
   }
 
   function normalizeImportedFighters(data){
