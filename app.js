@@ -1,5 +1,5 @@
 (() => {
-  const APP_BUILD_VERSION = '2026.04.09-v17-fight-guards';
+  const APP_BUILD_VERSION = '2026.04.09-v18-security-hardening';
   const APP_BUILD_STORAGE_KEY = 'bookie_bet_tool_html_build_version';
   const APP_BUILD_SESSION_KEY = 'bookie_bet_tool_html_build_reloaded';
 
@@ -58,6 +58,13 @@
   const DIALOG_PREFS_STORAGE_KEY = `${STORAGE_KEY}_dialog_prefs_v1`;
   const MAX_FIGHTERS = 20;
   const MAX_BETTORS = 100;
+  const MAX_TEXT_LENGTH = 80;
+  const MAX_FIGHT_NAME_LENGTH = 96;
+  const MAX_IMPORT_FILE_BYTES = 512 * 1024;
+  const MAX_IMPORTED_FIGHTERS = 500;
+  const MAX_STAKE_AMOUNT = 100000000;
+  const MAX_ODDS_VALUE = 1000;
+  const SAFE_ID_PATTERN = /^[a-z0-9_-]{6,64}$/i;
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
   const I18N = {
@@ -232,6 +239,7 @@
       leaderboardImportInvalid: 'Die ausgewählte Datei enthält keine gültige Bestenliste.',
       leaderboardImportReadError: 'Die JSON-Datei konnte nicht gelesen werden.',
       leaderboardImportNoFile: 'Bitte wähle eine JSON-Datei aus.',
+      leaderboardImportTooLarge: 'Die JSON-Datei ist zu groß. Bitte wähle eine Datei unter {maxKb} KB.',
       leaderboardResetDone: 'Die gespeicherte Bestenlisten-Historie wurde gelöscht.'
     },
     en: {
@@ -405,6 +413,7 @@
       leaderboardImportInvalid: 'The selected file does not contain a valid leaderboard.',
       leaderboardImportReadError: 'The JSON file could not be read.',
       leaderboardImportNoFile: 'Please choose a JSON file.',
+      leaderboardImportTooLarge: 'The JSON file is too large. Please choose a file smaller than {maxKb} KB.',
       leaderboardResetDone: 'The saved leaderboard history has been deleted.'
     }
   };
@@ -414,6 +423,7 @@
     fightSelectLabel: 'Aktiver Fight',
     fightNameLabel: 'Fight-Name',
     fightNamePlaceholder: 'Fight {number}',
+    renameFightBtn: 'Fight umbenennen',
     createFightBtn: 'Neuen Fight anlegen',
     deleteFightBtn: 'Fight lÃ¶schen',
     fightCountTag: '{count} Fights aktiv',
@@ -435,6 +445,7 @@
     fightSelectLabel: 'Active fight',
     fightNameLabel: 'Fight name',
     fightNamePlaceholder: 'Fight {number}',
+    renameFightBtn: 'Rename fight',
     createFightBtn: 'Create new fight',
     deleteFightBtn: 'Delete fight',
     fightCountTag: '{count} active fights',
@@ -542,10 +553,18 @@
     leaderboardResetSkipHint: 'This notice will only be skipped when resetting the leaderboard.'
   });
 
+  Object.assign(I18N.de, {
+    leaderboardImportTooLarge: 'Die JSON-Datei ist zu groß. Bitte wähle eine Datei unter {maxKb} KB.'
+  });
+  Object.assign(I18N.en, {
+    leaderboardImportTooLarge: 'The JSON file is too large. Please choose a file smaller than {maxKb} KB.'
+  });
+
   const els = {
     langSelect: document.getElementById('langSelect'),
     fightSelect: document.getElementById('fightSelect'),
     fightNameInput: document.getElementById('fightNameInput'),
+    renameFightBtn: document.getElementById('renameFightBtn'),
     createFightBtn: document.getElementById('createFightBtn'),
     deleteFightBtn: document.getElementById('deleteFightBtn'),
     fightCountTag: document.getElementById('fightCountTag'),
@@ -677,8 +696,8 @@
 
   function defaultState({ fightId = '', fightName = '' } = {}){
     return {
-      fightId: String(fightId || ''),
-      fightName: typeof fightName === 'string' ? fightName : '',
+      fightId: sanitizeId(fightId),
+      fightName: sanitizeTextValue(fightName, MAX_FIGHT_NAME_LENGTH),
       ...defaultFightState(),
       history: []
     };
@@ -688,6 +707,21 @@
   setTimeout(syncCountSelectors, 0);
 
   function uid(){ return Math.random().toString(36).slice(2,10); }
+  function sanitizeId(value, fallback = ''){
+    const normalized = String(value || '').trim();
+    if(SAFE_ID_PATTERN.test(normalized)) return normalized;
+    return fallback ? String(fallback).trim() : '';
+  }
+  function sanitizeTextValue(value, maxLength = MAX_TEXT_LENGTH){
+    const withoutControls = String(value ?? '').replace(/[\u0000-\u001F\u007F]+/g, ' ');
+    const collapsed = withoutControls.replace(/\s+/g, ' ').trim();
+    return collapsed.slice(0, Math.max(0, Number(maxLength) || MAX_TEXT_LENGTH));
+  }
+  function sanitizeMoneyValue(value){
+    const numeric = Number(value);
+    if(!Number.isFinite(numeric)) return 0;
+    return clamp(numeric, 0, MAX_STAKE_AMOUNT);
+  }
   function createBetRecord({
     id = uid(),
     name = '',
@@ -700,10 +734,10 @@
       ? sanitizeManualOdds(lockedOdds)
       : 0;
     return {
-      id: id || uid(),
-      name: typeof name === 'string' ? name : '',
-      fighterId: String(fighterId || ''),
-      stake: Math.max(0, Number(stake) || 0),
+      id: sanitizeId(id, uid()),
+      name: sanitizeTextValue(name),
+      fighterId: sanitizeId(fighterId),
+      stake: sanitizeMoneyValue(stake),
       lockedOdds: safeLockedOdds,
       oddsLocked: Boolean(oddsLocked) && safeLockedOdds > 1
     };
@@ -910,12 +944,18 @@
       text: settlement.hasWinnerBets ? formatMoney(settlement.winnerGrossAmount) : settlement.fighterShareText
     };
   }
-  function sanitizeFee(value){ return Math.min(100, Math.max(0, Number(value) || 0)); }
-  function sanitizeManualOdds(value){ return Math.max(1.01, Number(value) || 1.9); }
+  function sanitizeFee(value){
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? clamp(numeric, 0, 100) : 0;
+  }
+  function sanitizeManualOdds(value){
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? clamp(numeric, 1.01, MAX_ODDS_VALUE) : 1.9;
+  }
   function clamp(value, min, max){ return Math.min(max, Math.max(min, value)); }
   function normalizeKey(value){ return String(value || '').trim().toLowerCase(); }
   function getFightStorageKey(fightId){
-    return `${FIGHT_STORAGE_PREFIX}${String(fightId || '')}`;
+    return `${FIGHT_STORAGE_PREFIX}${sanitizeId(fightId)}`;
   }
   function readJsonStorage(key, fallback){
     try{
@@ -928,10 +968,16 @@
     }
   }
   function writeJsonStorage(key, value){
-    localStorage.setItem(key, JSON.stringify(value));
+    try{
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    }catch(error){
+      console.warn('Storage write failed', error);
+      return false;
+    }
   }
   function normalizeFightNameValue(value){
-    return String(value || '').replace(/\s+/g, ' ').trim();
+    return sanitizeTextValue(value, MAX_FIGHT_NAME_LENGTH);
   }
   function normalizeFightNameKey(value){
     return normalizeKey(normalizeFightNameValue(value));
@@ -992,11 +1038,11 @@
     return `Fight ${Math.max(1, Number(index) + 1)}`;
   }
   function normalizeFightMeta(entry, index = 0){
-    const id = String(entry?.id || '').trim();
+    const id = sanitizeId(entry?.id);
     if(!id) return null;
     return {
       id,
-      name: typeof entry?.name === 'string' ? entry.name : '',
+      name: sanitizeTextValue(entry?.name, MAX_FIGHT_NAME_LENGTH),
       createdAt: String(entry?.createdAt || ''),
       updatedAt: String(entry?.updatedAt || ''),
       sortIndex: index
@@ -1022,14 +1068,43 @@
   }
   function normalizeHistoryEntries(history){
     return (Array.isArray(history) ? history : []).map((fight, index) => {
-      const fighters = Array.isArray(fight?.fighters) ? fight.fighters : [];
-      const lines = Array.isArray(fight?.lines) ? fight.lines : [];
+      const fighters = Array.isArray(fight?.fighters) ? fight.fighters.map(fighter => ({
+        ...fighter,
+        name: sanitizeTextValue(fighter?.name),
+        stake: sanitizeMoneyValue(fighter?.stake),
+        openingOdds: Number.isFinite(Number(fighter?.openingOdds)) ? sanitizeManualOdds(fighter.openingOdds) : 0,
+        liveOdds: Number.isFinite(Number(fighter?.liveOdds)) ? sanitizeManualOdds(fighter.liveOdds) : 0,
+        manualOdds: Number.isFinite(Number(fighter?.manualOdds)) ? sanitizeManualOdds(fighter.manualOdds) : 0,
+        recordWins: Math.max(0, Math.floor(Number(fighter?.recordWins ?? 0) || 0)),
+        recordLosses: Math.max(0, Math.floor(Number(fighter?.recordLosses ?? 0) || 0)),
+        appearances: Math.max(0, Math.floor(Number(fighter?.appearances ?? 0) || 0))
+      })) : [];
+      const lines = Array.isArray(fight?.lines) ? fight.lines.map(line => ({
+        ...line,
+        name: sanitizeTextValue(line?.name),
+        fighter: sanitizeTextValue(line?.fighter),
+        stake: sanitizeMoneyValue(line?.stake),
+        odds: Number.isFinite(Number(line?.odds)) && Number(line?.odds) > 1 ? sanitizeManualOdds(line.odds) : 0,
+        grossPayout: sanitizeMoneyValue(line?.grossPayout),
+        feeAmount: sanitizeMoneyValue(line?.feeAmount),
+        payout: sanitizeMoneyValue(line?.payout),
+        net: clamp(Number(line?.net) || 0, -MAX_STAKE_AMOUNT, MAX_STAKE_AMOUNT)
+      })) : [];
       const signature = String(fight?.signature || '');
       const importKey = String(fight?.importKey || '');
       const fallbackId = signature
         || (fight?.imported ? `import:${importKey || index}` : `${String(fight?.createdAt || 'fight')}:${String(fight?.matchupKey || '')}:${index}`);
       return {
         ...fight,
+        winner: sanitizeTextValue(fight?.winner),
+        matchupKey: String(fight?.matchupKey || ''),
+        totalStake: sanitizeMoneyValue(fight?.totalStake),
+        feeAmount: sanitizeMoneyValue(fight?.feeAmount),
+        feePercent: sanitizeFee(fight?.feePercent),
+        totalPayout: sanitizeMoneyValue(fight?.totalPayout),
+        fighterShareAmount: sanitizeMoneyValue(fight?.fighterShareAmount),
+        fighterShareQuote: Number.isFinite(Number(fight?.fighterShareQuote)) && Number(fight?.fighterShareQuote) > 1 ? sanitizeManualOdds(fight.fighterShareQuote) : 0,
+        bookieNet: clamp(Number(fight?.bookieNet) || 0, -MAX_STAKE_AMOUNT, MAX_STAKE_AMOUNT),
         id: String(fight?.id || fallbackId),
         signature,
         fighters,
@@ -1062,13 +1137,13 @@
     merged.settings.leaderboardSortDir = String(merged.settings.leaderboardSortDir || '') === 'desc' ? 'desc' : 'asc';
     merged.fighters = Array.isArray(rawFight?.fighters)
       ? rawFight.fighters.map((fighter, idx) => ({
-          id: fighter.id || uid(),
+          id: sanitizeId(fighter.id, uid()),
           key: fighter.key || letters[idx] || String(idx + 1),
-          name: typeof fighter.name === 'string' ? fighter.name : '',
+          name: sanitizeTextValue(fighter.name),
           removable: idx >= 2,
           manualOdds: sanitizeManualOdds(fighter.manualOdds),
           openingOdds: sanitizeManualOdds(fighter.openingOdds || 1.9),
-          oddsAnchorName: typeof fighter.oddsAnchorName === 'string' ? fighter.oddsAnchorName : (typeof fighter.name === 'string' ? fighter.name : '')
+          oddsAnchorName: sanitizeTextValue(typeof fighter.oddsAnchorName === 'string' ? fighter.oddsAnchorName : fighter.name)
         })).slice(0, MAX_FIGHTERS)
       : defaultFightState().fighters;
     if(merged.fighters.length < 2) merged.fighters = defaultFightState().fighters;
@@ -1085,6 +1160,7 @@
         })).slice(0, MAX_BETTORS)
       : [];
     merged.winnerId = String(rawFight?.winnerId || '');
+    merged.winnerId = sanitizeId(merged.winnerId);
     merged.lastSettlementSignature = String(rawFight?.lastSettlementSignature || '');
     return merged;
   }
@@ -1092,13 +1168,13 @@
     return {
       settings: { ...(state?.settings || defaultSettings()) },
       fighters: Array.isArray(state?.fighters) ? state.fighters.map((fighter, idx) => ({
-        id: fighter.id || uid(),
+        id: sanitizeId(fighter.id, uid()),
         key: fighter.key || letters[idx] || String(idx + 1),
-        name: typeof fighter.name === 'string' ? fighter.name : '',
+        name: sanitizeTextValue(fighter.name),
         removable: idx >= 2,
         manualOdds: sanitizeManualOdds(fighter.manualOdds),
         openingOdds: sanitizeManualOdds(fighter.openingOdds || 1.9),
-        oddsAnchorName: typeof fighter.oddsAnchorName === 'string' ? fighter.oddsAnchorName : ''
+        oddsAnchorName: sanitizeTextValue(fighter.oddsAnchorName)
       })) : defaultFightState().fighters,
       bets: Array.isArray(state?.bets) ? state.bets.map(bet => createBetRecord({
         id: bet.id || uid(),
@@ -1405,13 +1481,35 @@
     renderAll();
   }
 
-  function renameCurrentFight(nextName, options = {}){
+  async function renameCurrentFight(nextName, options = {}){
     const shouldRender = options?.render !== false;
     if(!state?.fightId) return;
-    state.fightName = String(nextName || '');
+    const fightIndex = getFightIndex();
+    const activeIndex = Math.max(0, fightIndex.findIndex(meta => meta.id === state.fightId));
+    const activeMeta = fightIndex[activeIndex] || fightIndex[0] || null;
+    const normalizedName = normalizeFightNameValue(nextName);
+    const duplicateMatches = findExistingFightNames(normalizedName, { excludeId: state.fightId });
+    if(duplicateMatches.length){
+      const confirmed = await appConfirm(
+        t('fightDuplicateText', { name: normalizedName }),
+        {
+          title: t('fightDuplicateTitle'),
+          okText: t('fightDuplicateConfirmBtn'),
+          confirmKey: 'duplicateFightName',
+          skipHint: t('fightDuplicateSkipHint')
+        }
+      );
+      if(!confirmed){
+        state.fightName = getFightDisplayName(activeMeta, activeIndex);
+        if(shouldRender) renderFightManager();
+        return false;
+      }
+    }
+    state.fightName = normalizedName;
     updateFightMeta(state.fightId, { name: state.fightName });
     saveState();
     if(shouldRender) renderFightManager();
+    return true;
   }
 
   async function deleteCurrentFight(){
@@ -1929,6 +2027,7 @@
       const el = document.getElementById(id);
       if(el) el.textContent = t(id);
     });
+    if(els.renameFightBtn) els.renameFightBtn.textContent = t('renameFightBtn');
     if(els.createFightBtn) els.createFightBtn.textContent = t('createFightBtn');
     if(els.deleteFightBtn) els.deleteFightBtn.textContent = t('deleteFightBtn');
     if(els.fightNameInput) els.fightNameInput.placeholder = t('fightNamePlaceholder', { number: '1' });
@@ -2041,6 +2140,7 @@
     const selectedWinner = state.fighters.find(fighter => fighter.id === state.winnerId);
     els.oddsGrid.innerHTML = '';
     state.fighters.forEach(f => {
+      const fighterName = fighterDisplayName(f);
       const openingOdds = stats.openingOddsByFighter[f.id];
       const liveOdds = stats.oddsByFighter[f.id];
       const poolOdds = stats.poolOddsByFighter[f.id];
@@ -2051,29 +2151,29 @@
       row.className = 'fighter-card';
       const oddsField = stats.mode === 'manual'
         ? `<div class="field">
-             <label>${t('manualOddsInputLabel', { name: fighterDisplayName(f) })}</label>
+             <label>${escapeHtml(t('manualOddsInputLabel', { name: fighterName }))}</label>
              <input type="number" inputmode="decimal" min="1.01" step="0.01" data-role="manual-odds" data-id="${f.id}" value="${sanitizeManualOdds(liveOdds || f.manualOdds).toFixed(2)}">
            </div>`
         : `<div class="field">
-             <label>${t('openingOddsLabel', { name: fighterDisplayName(f) })}</label>
+             <label>${escapeHtml(t('openingOddsLabel', { name: fighterName }))}</label>
              <input type="number" inputmode="decimal" min="1.05" step="0.01" data-role="opening-odds" data-id="${f.id}" value="${openingOdds.toFixed(2)}">
            </div>
            <div class="field">
-             <label>${t('liveOddsLabel', { name: fighterDisplayName(f) })}</label>
+             <label>${escapeHtml(t('liveOddsLabel', { name: fighterName }))}</label>
              <input type="text" readonly value="${liveOdds ? liveOdds.toFixed(2) : t('oddsUnavailable')}">
            </div>`;
       row.innerHTML = `
         <div class="odds-row">
           ${oddsField}
           ${stats.mode === 'manual' ? `<div class="field">
-            <label>${t('payoutIfWinsLabel', { name: fighterDisplayName(f) })}</label>
+            <label>${escapeHtml(t('payoutIfWinsLabel', { name: fighterName }))}</label>
             <input type="text" readonly value="${stats.stakesByFighter[f.id] > 0 ? formatMoney(payout) : t('noBetsOnFighter')}">
           </div>` : ''}
         </div>
         <div class="odds-meta-grid">
           ${stats.mode === 'auto' ? `<div class="micro-stat"><div class="k">${t('poolOddsLabel')}</div><div class="v">${poolOdds ? poolOdds.toFixed(2) : t('oddsUnavailable')}</div></div>` : ''}
-          <div class="micro-stat"><div class="k">${t('payoutIfWinsLabel', { name: fighterDisplayName(f) })}</div><div class="v">${stats.stakesByFighter[f.id] > 0 ? formatMoney(payout) : t('noBetsOnFighter')}</div></div>
-          <div class="micro-stat"><div class="k">${t('bookieResultIfWinsLabel', { name: fighterDisplayName(f) })}</div><div class="v ${bookieResult >= 0 ? 'pos' : 'neg'}">${bookieResult >= 0 ? '+' : ''}${formatMoney(bookieResult)}</div></div>
+          <div class="micro-stat"><div class="k">${escapeHtml(t('payoutIfWinsLabel', { name: fighterName }))}</div><div class="v">${stats.stakesByFighter[f.id] > 0 ? formatMoney(payout) : t('noBetsOnFighter')}</div></div>
+          <div class="micro-stat"><div class="k">${escapeHtml(t('bookieResultIfWinsLabel', { name: fighterName }))}</div><div class="v ${bookieResult >= 0 ? 'pos' : 'neg'}">${bookieResult >= 0 ? '+' : ''}${formatMoney(bookieResult)}</div></div>
           <div class="micro-stat"><div class="k">${t('historyBiasLabel')}</div><div class="v">${hist.fights ? `${Math.round(hist.winRate * 100)}% / x${hist.factor.toFixed(2)}` : '—'}</div></div>
         </div>
       `;
@@ -2345,9 +2445,9 @@
   }
 
   function normalizeImportedFighters(data){
-    if(Array.isArray(data)) return data;
-    if(Array.isArray(data?.fighters)) return data.fighters;
-    if(Array.isArray(data?.leaderboard)) return data.leaderboard;
+    if(Array.isArray(data)) return data.slice(0, MAX_IMPORTED_FIGHTERS);
+    if(Array.isArray(data?.fighters)) return data.fighters.slice(0, MAX_IMPORTED_FIGHTERS);
+    if(Array.isArray(data?.leaderboard)) return data.leaderboard.slice(0, MAX_IMPORTED_FIGHTERS);
     return null;
   }
 
@@ -2357,7 +2457,7 @@
     const importedAt = new Date().toISOString();
     let mergedCount = 0;
     fighters.forEach((entry, index) => {
-      const rawName = String(entry?.name || entry?.fighter || '').trim();
+      const rawName = sanitizeTextValue(entry?.name || entry?.fighter);
       const key = normalizeKey(rawName);
       if(!key) return;
       const oddsCandidate = Number(entry?.odds ?? entry?.quote ?? entry?.liveOdds ?? entry?.manualOdds ?? entry?.openingOdds ?? 1.9);
@@ -2570,18 +2670,18 @@
   function renameFighterAcrossState(historyKey, nextName){
     const lookupValue = String(historyKey || '').trim();
     const targetKey = normalizeKey(lookupValue);
-    const trimmedName = String(nextName || '').trim();
+    const trimmedName = sanitizeTextValue(nextName);
     if(!lookupValue && !targetKey) return;
 
     let matchedCurrentFighter = false;
     state.fighters.forEach(fighter => {
       if(fighter.id === lookupValue){
-        fighter.name = nextName;
+        fighter.name = trimmedName;
         matchedCurrentFighter = true;
         return;
       }
       if(targetKey && normalizeKey(fighterDisplayName(fighter)) === targetKey){
-        fighter.name = nextName;
+        fighter.name = trimmedName;
         matchedCurrentFighter = true;
       }
     });
@@ -3458,7 +3558,6 @@
     const key = target.dataset.key;
 
     if(target === els.fightNameInput){
-      renameCurrentFight(target.value, { render: false });
       return;
     }
 
@@ -3497,7 +3596,7 @@
     }
     if(role === 'bet-name'){
       const bet = state.bets.find(b => b.id === id);
-      if(bet) bet.name = target.value;
+      if(bet) bet.name = sanitizeTextValue(target.value);
       applyDuplicateHighlights();
       saveState();
       return;
@@ -3514,7 +3613,6 @@
       return;
     }
     if(target === els.fightNameInput){
-      renameCurrentFight(target.value);
       return;
     }
     if(target === els.langSelect){
@@ -3564,7 +3662,7 @@
     if(role === 'bet-name' && id){
       const bet = state.bets.find(b => b.id === id);
       if(bet){
-        bet.name = target.value;
+        bet.name = sanitizeTextValue(target.value);
         if(canLockBetOdds(bet) && !isBetOddsLocked(bet)) lockBetOdds(bet, getPoolStats({ excludeBetId: bet.id }));
       }
       renderBets();
@@ -3595,6 +3693,11 @@
       const file = target.files && target.files[0];
       if(!file){
         openWarningModal(t('leaderboardTitle'), t('leaderboardImportNoFile'));
+        return;
+      }
+      if(Number(file.size || 0) > MAX_IMPORT_FILE_BYTES){
+        openWarningModal(t('leaderboardTitle'), t('leaderboardImportTooLarge', { maxKb: String(Math.round(MAX_IMPORT_FILE_BYTES / 1024)) }));
+        target.value = '';
         return;
       }
       const reader = new FileReader();
@@ -3644,7 +3747,7 @@
     if(role === 'bet-stake' && id){
       const bet = state.bets.find(b => b.id === id);
       if(bet){
-        bet.stake = Math.max(0, Number(String(target.value).replace(',', '.')) || 0);
+        bet.stake = sanitizeMoneyValue(String(target.value).replace(',', '.'));
         if(canLockBetOdds(bet) && !isBetOddsLocked(bet)) lockBetOdds(bet, getPoolStats({ excludeBetId: bet.id }));
       }
       renderBets();
@@ -3696,6 +3799,7 @@
     const id = btn.dataset.id;
     const key = btn.dataset.key;
 
+    if(btn === els.renameFightBtn){ renameCurrentFight(els.fightNameInput?.value || ''); return; }
     if(btn === els.createFightBtn){ createFightSlot(); return; }
     if(btn === els.deleteFightBtn){ deleteCurrentFight(); return; }
     if(btn === els.addFighterBtn){ addFighters(els.fighterAddCount.value); return; }
@@ -3776,6 +3880,11 @@
   });
 
   document.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' && document.activeElement === els.fightNameInput){
+      e.preventDefault();
+      renameCurrentFight(els.fightNameInput?.value || '');
+      return;
+    }
     if(e.key === 'Tab' && els.appDialogModal?.classList.contains('open')){
       const focusables = Array.from(els.appDialogModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
         .filter(el => !el.disabled && !el.hidden && el.offsetParent !== null);

@@ -170,7 +170,7 @@
     .fight-manager-panel{margin-top:6px}
     .fight-manager-grid{
       display:grid;
-      grid-template-columns:minmax(220px,.95fr) minmax(240px,1.1fr) auto auto;
+      grid-template-columns:minmax(220px,.95fr) minmax(240px,1.1fr) auto auto auto;
       gap:12px;
       align-items:end;
     }
@@ -190,6 +190,14 @@
       padding:12px;
     }
     .bet-row .mini-btn{min-height:42px;height:42px;align-self:end}
+    .bet-row .icon-remove-btn{
+      min-height:50px;
+      height:50px;
+      min-width:50px;
+      width:50px;
+      border-radius:14px;
+      align-self:center;
+    }
     .config-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}
     .mode-switch{
       display:flex;gap:10px;flex-wrap:wrap;align-items:center;
