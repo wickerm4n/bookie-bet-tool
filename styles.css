@@ -306,6 +306,7 @@
     .btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,.14)}
     .confirm-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(3,4,6,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:10000;padding:18px}
     .confirm-modal.open{display:flex}
+    #warningModal,#appDialogModal{z-index:10030}
     #confirmLeaderboardResetModal{z-index:10020}
     .confirm-dialog{width:min(560px,100%);background:linear-gradient(180deg, rgba(17,19,23,.96), rgba(11,12,16,.98));border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:20px;box-shadow:0 28px 80px rgba(0,0,0,.55)}
     .confirm-head{display:grid;gap:8px;margin-bottom:14px}

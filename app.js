@@ -1,5 +1,5 @@
 (() => {
-  const APP_BUILD_VERSION = '2026.04.09-v25-leaderboard-export-fallback';
+  const APP_BUILD_VERSION = '2026.04.09-v26-leaderboard-export-notice';
   const APP_BUILD_STORAGE_KEY = 'bookie_bet_tool_html_build_version';
   const APP_BUILD_SESSION_KEY = 'bookie_bet_tool_html_build_reloaded';
 
@@ -235,6 +235,8 @@
       cancelLeaderboardResetBtn: 'Abbrechen',
       leaderboardExportFilename: 'bestenliste',
       leaderboardExportSuccess: 'Bestenliste wurde erfolgreich exportiert.',
+      leaderboardExportSavedNotice: 'Die Bestenliste wurde erfolgreich als "{filename}" im gewählten Speicherort gespeichert.',
+      leaderboardExportDownloadNotice: 'Der Download der Bestenliste wurde erfolgreich gestartet: "{filename}". Der genaue Speicherpfad wird vom Browser bzw. System festgelegt.',
       leaderboardExportFailed: 'Die Bestenliste konnte nicht gespeichert werden.',
       leaderboardImportSuccess: '{count} Fighter wurden importiert bzw. aktualisiert.',
       leaderboardImportInvalid: 'Die ausgewählte Datei enthält keine gültige Bestenliste.',
@@ -410,6 +412,8 @@
       cancelLeaderboardResetBtn: 'Cancel',
       leaderboardExportFilename: 'leaderboard',
       leaderboardExportSuccess: 'Leaderboard exported successfully.',
+      leaderboardExportSavedNotice: 'The leaderboard was successfully saved as "{filename}" in the selected location.',
+      leaderboardExportDownloadNotice: 'The leaderboard download was successfully started: "{filename}". The exact save path is determined by the browser or system.',
       leaderboardExportFailed: 'The leaderboard could not be saved.',
       leaderboardImportSuccess: '{count} fighters were imported or updated.',
       leaderboardImportInvalid: 'The selected file does not contain a valid leaderboard.',
@@ -2479,6 +2483,10 @@
         const writable = await fileHandle.createWritable();
         await writable.write(blob);
         await writable.close();
+        openWarningModal(
+          t('leaderboardTitle'),
+          t('leaderboardExportSavedNotice', { filename: fileHandle?.name || filename })
+        );
         return;
       } catch(error){
         if(error?.name === 'AbortError') return;
@@ -2487,16 +2495,14 @@
     }
 
     try{
-      const confirmed = await appConfirm(t('leaderboardExportDialogUnavailable'), {
-        title: t('leaderboardTitle'),
-        okText: t('leaderboardExportFallbackBtn'),
-        cancelText: t('appDialogCancel')
-      });
-      if(!confirmed) return;
       triggerLeaderboardDownload(blob, filename);
+      openWarningModal(
+        t('leaderboardTitle'),
+        t('leaderboardExportDownloadNotice', { filename })
+      );
     } catch(error){
       console.warn('Leaderboard export failed', error);
-      appAlert(t('leaderboardExportFailed'), { title: t('leaderboardTitle') });
+      openWarningModal(t('leaderboardTitle'), t('leaderboardExportFailed'));
     }
   }
 
