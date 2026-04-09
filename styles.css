@@ -200,7 +200,8 @@
       border-radius:14px;
       align-self:center;
     }
-    .config-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}
+    .config-grid{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:12px;margin-bottom:12px;align-items:start}
+    .config-grid .field label{letter-spacing:.05em;line-height:1.15}
     .mode-switch{
       display:flex;gap:10px;flex-wrap:wrap;align-items:center;
       margin-bottom:14px;

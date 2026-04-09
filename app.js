@@ -1,5 +1,5 @@
 (() => {
-  const APP_BUILD_VERSION = '2026.04.09-v28-panel-bottom-sync';
+  const APP_BUILD_VERSION = '2026.04.09-v30-fee-label-layout';
   const APP_BUILD_STORAGE_KEY = 'bookie_bet_tool_html_build_version';
   const APP_BUILD_SESSION_KEY = 'bookie_bet_tool_html_build_reloaded';
 
@@ -102,7 +102,7 @@
       oddsModeAutoLabel: 'Automatische Quote',
       oddsModeManualLabel: 'Manuelle Quote',
       feePercentLabel: 'Bookie-/Fightclub-Anteil (%)',
-      feeAmountLabel: 'Bookie-/Fightclub-Anteil fÃ¼r Sieger ({currency})',
+      feeAmountLabel: 'Anteil fÃ¼r Sieger ({currency})',
       winnerLabel: 'Sieger auswählen',
       finishFightBtn: 'Fight abschließen',
       finishNoteManual: 'Manuell: Neue Wetten übernehmen die aktuelle Fighter-Quote und behalten sie nach dem Platzieren.',
@@ -279,7 +279,7 @@
       oddsModeAutoLabel: 'Automatic odds',
       oddsModeManualLabel: 'Manual odds',
       feePercentLabel: 'Bookie / fight club share (%)',
-      feeAmountLabel: 'Bookie / fight club share for winner ({currency})',
+      feeAmountLabel: 'Winner share ({currency})',
       winnerLabel: 'Choose winner',
       finishFightBtn: 'Finish fight',
       finishNoteManual: 'Manual: new bets take the current fighter odds and keep them once the bet is placed.',
@@ -439,7 +439,7 @@
     fightDeleteConfirmTitle: 'Fight lÃ¶schen?',
     fightDeleteConfirmText: 'MÃ¶chtest du "{name}" wirklich lÃ¶schen? Der laufende Fight wird entfernt, die globale Historie bleibt erhalten.',
     fightDeleteConfirmBtn: 'Fight lÃ¶schen',
-    feeAmountLabel: 'Bookie-/Fightclub-Anteil fÃ¼r Sieger ({currency})',
+    feeAmountLabel: 'Anteil fÃ¼r Sieger ({currency})',
     resultActualPayoutHint: 'Auszahlung an alle Gewinner der Siegerseite nach Abzug des Bookie-Anteils.',
     resultFighterShareLabel: 'Brutto vor Bookie-Abzug',
     resultFighterShareHint: 'Summe aller Gewinn-Wetten vor {percent} % Bookie-Anteil.',
@@ -461,7 +461,7 @@
     fightDeleteConfirmTitle: 'Delete fight?',
     fightDeleteConfirmText: 'Do you really want to delete "{name}"? The live fight will be removed, but the shared history will stay.',
     fightDeleteConfirmBtn: 'Delete fight',
-    feeAmountLabel: 'Bookie / fight club share for winner ({currency})',
+    feeAmountLabel: 'Winner share ({currency})',
     resultActualPayoutHint: 'Payout to all winners on the winning side after the bookie share is deducted.',
     resultFighterShareLabel: 'Gross before bookie share',
     resultFighterShareHint: 'Total of all winning bets before the {percent}% bookie share.',
@@ -476,7 +476,7 @@
     fightDeleteConfirmTitle: 'Fight löschen?',
     fightDeleteConfirmText: 'Möchtest du "{name}" wirklich löschen? Der laufende Fight wird entfernt, die globale Historie bleibt erhalten.',
     fightDeleteConfirmBtn: 'Fight löschen',
-    feeAmountLabel: 'Bookie-/Fightclub-Anteil für Sieger ({currency})',
+    feeAmountLabel: 'Anteil für Sieger ({currency})',
     resultFighterShareNoOdds: 'Keine Gewinn-Wetten verfügbar',
     resultMeta: 'Einsatz {stake} - Tipp auf {pick} - Quote {quote} - Brutto {gross} - Bookie {fee} - Auszahlung {payout}'
   });
@@ -498,7 +498,7 @@
     fightDeleteConfirmTitle: 'Fight löschen?',
     fightDeleteConfirmText: 'Möchtest du "{name}" wirklich löschen? Der laufende Fight wird entfernt, die globale Historie bleibt erhalten.',
     fightDeleteConfirmBtn: 'Fight löschen',
-    feeAmountLabel: 'Bookie-/Fightclub-Anteil für Sieger ({currency})',
+    feeAmountLabel: 'Anteil für Sieger ({currency})',
     resultActualPayoutHint: 'Auszahlung an alle Gewinner der Siegerseite nach Abzug des Bookie-Anteils.',
     resultFighterShareLabel: 'Brutto vor Bookie-Abzug',
     resultFighterShareHint: 'Summe aller Gewinn-Wetten vor {percent} % Bookie-Anteil.',
@@ -535,7 +535,7 @@
     fightDeleteConfirmTitle: 'Delete fight?',
     fightDeleteConfirmText: 'Do you really want to delete "{name}"? The live fight will be removed, but the shared history will stay.',
     fightDeleteConfirmBtn: 'Delete fight',
-    feeAmountLabel: 'Bookie / fight club share for winner ({currency})',
+    feeAmountLabel: 'Winner share ({currency})',
     resultActualPayoutHint: 'Payout to all winners on the winning side after the bookie share is deducted.',
     resultFighterShareLabel: 'Gross before bookie share',
     resultFighterShareHint: 'Total of all winning bets before the {percent}% bookie share.',
