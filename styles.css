@@ -407,7 +407,11 @@
       grid-template-columns:58px minmax(0,1.05fr) minmax(360px,1.05fr) 36px;
       gap:12px;
       align-items:end;
-      padding:2px 2px 0;
+      padding:2px 2px 10px;
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:linear-gradient(180deg, rgba(11,12,16,.98), rgba(11,12,16,.94) 76%, rgba(11,12,16,0));
     }
     .leaderboard-toolbar.is-empty{display:none}
     .leaderboard-toolbar-rank,
@@ -415,7 +419,7 @@
     .leaderboard-toolbar-action{min-height:1px}
     .leaderboard-toolbar-stats{
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
+      grid-template-columns:minmax(118px,1.24fr) minmax(82px,.72fr) minmax(126px,1.08fr);
       gap:10px;
       min-width:0;
     }
@@ -446,6 +450,9 @@
       letter-spacing:.06em;
       text-transform:uppercase;
       line-height:1.18;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .leaderboard-sort-icon{
       pointer-events:none;
@@ -459,6 +466,9 @@
       box-shadow:0 10px 24px rgba(212,58,47,.14);
     }
     .leaderboard-scroll{
+      display:grid;
+      gap:12px;
+      align-content:start;
       max-height:min(68vh,680px);
       overflow:auto;
       padding-right:4px;
@@ -486,7 +496,7 @@
     .leaderboard-name-input{width:100%}
     .leaderboard-stats{
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
+      grid-template-columns:minmax(118px,1.24fr) minmax(82px,.72fr) minmax(126px,1.08fr);
       gap:10px;
       min-width:0;
     }
@@ -549,8 +559,15 @@
       align-items:center;
     }
     .leaderboard-footer-actions > button{
-      min-width:180px;
-      flex:0 1 220px;
+      flex:0 0 auto;
+      width:auto;
+      max-width:100%;
+      min-width:0;
+      min-height:46px;
+      padding:10px 20px;
+      white-space:nowrap;
+      font-size:.9rem;
+      letter-spacing:.03em;
     }
 
     @media (max-width: 980px){
@@ -604,10 +621,10 @@
       .leaderboard-toolbar-rank,
       .leaderboard-toolbar-name,
       .leaderboard-toolbar-action{display:none}
-      .leaderboard-toolbar-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .leaderboard-toolbar-stats{grid-template-columns:minmax(108px,1.12fr) minmax(74px,.72fr) minmax(114px,1.02fr)}
       .leaderboard-sort-btn{
         min-height:50px;
-        padding:9px 10px;
+        padding:9px 9px;
         gap:8px;
       }
       .leaderboard-sort-copy{
@@ -628,7 +645,7 @@
       .result-line-financials{justify-items:start;text-align:left}
       .aggregate-financial,.result-line-financial{justify-items:start}
       .aggregate-value{text-align:left}
-      .leaderboard-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .leaderboard-stats{grid-template-columns:minmax(108px,1.12fr) minmax(74px,.72fr) minmax(114px,1.02fr)}
     }
     @media (max-width: 640px){
       .hero-top{grid-template-columns:1fr;row-gap:10px;padding-top:4px}
