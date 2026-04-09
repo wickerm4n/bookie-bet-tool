@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#0b0c10" />
   <title>Bookie Bet Tool</title>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'" />
-  <link rel="stylesheet" href="styles.css?v=2026.04.09-v16-multifight" />
+  <link rel="stylesheet" href="styles.css?v=2026.04.09-v17-fight-guards" />
 </head>
 <body>
   <div class="wrap">
@@ -290,6 +290,7 @@
         <button class="btn-secondary close-x" id="closeLeaderboardBtn" aria-label="Schließen">×</button>
       </div>
       <div class="leaderboard-body">
+        <div class="leaderboard-toolbar" id="leaderboardControls"></div>
         <div class="leaderboard-scroll">
           <div class="leaderboard-list" id="leaderboardList"></div>
         </div>
@@ -311,6 +312,13 @@
         <h3 class="confirm-title" id="appDialogTitle">Hinweis</h3>
         <p class="confirm-text" id="appDialogText"></p>
       </div>
+      <label class="check-card" for="appDialogSkipCheckbox" id="appDialogSkipWrap" hidden>
+        <input type="checkbox" id="appDialogSkipCheckbox">
+        <span class="check-copy">
+          <span class="check-title" id="appDialogSkipLabelText">Nicht erneut anzeigen</span>
+          <span class="check-hint" id="appDialogSkipHintText"></span>
+        </span>
+      </label>
       <div class="confirm-actions" id="appDialogActions">
         <button class="btn-secondary" type="button" id="appDialogCancelBtn">Abbrechen</button>
         <button class="btn-action-green" type="button" id="appDialogOkBtn">OK</button>
@@ -327,6 +335,13 @@
         <h3 class="confirm-title" id="leaderboardResetTitle">Bestenliste zurücksetzen?</h3>
         <p class="confirm-text" id="leaderboardResetText">Möchtest du wirklich die gesamte Bestenliste löschen? Alle gespeicherten Fighter aus der Historie werden dauerhaft entfernt.</p>
       </div>
+      <label class="check-card" for="skipLeaderboardResetConfirmCheckbox">
+        <input type="checkbox" id="skipLeaderboardResetConfirmCheckbox">
+        <span class="check-copy">
+          <span class="check-title" id="skipLeaderboardResetConfirmLabelText">Nicht erneut anzeigen</span>
+          <span class="check-hint" id="skipLeaderboardResetConfirmHintText">Der Bestätigungsdialog wird für das Zurücksetzen der Bestenliste künftig übersprungen.</span>
+        </span>
+      </label>
       <div class="confirm-actions">
         <button class="btn-secondary" type="button" id="cancelLeaderboardResetBtn">Abbrechen</button>
         <button class="btn-danger" type="button" id="confirmLeaderboardResetBtn">Bestenliste löschen</button>

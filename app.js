@@ -1,5 +1,5 @@
 (() => {
-  const APP_BUILD_VERSION = '2026.04.09-v16-multifight';
+  const APP_BUILD_VERSION = '2026.04.09-v17-fight-guards';
   const APP_BUILD_STORAGE_KEY = 'bookie_bet_tool_html_build_version';
   const APP_BUILD_SESSION_KEY = 'bookie_bet_tool_html_build_reloaded';
 
@@ -55,6 +55,7 @@
   const FIGHT_STORAGE_PREFIX = `${STORAGE_KEY}_fight_`;
   const HISTORY_STORAGE_KEY = `${STORAGE_KEY}_history_v1`;
   const ACTIVE_FIGHT_SESSION_KEY = `${STORAGE_KEY}_active_fight_id`;
+  const DIALOG_PREFS_STORAGE_KEY = `${STORAGE_KEY}_dialog_prefs_v1`;
   const MAX_FIGHTERS = 20;
   const MAX_BETTORS = 100;
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -452,18 +453,93 @@
   });
 
   Object.assign(I18N.de, {
-    deleteFightBtn: 'Fight loeschen',
-    fightManagerHint: 'Jeder Browser-Tab kann auf einen anderen Fight gestellt werden. So laufen mehrere Kaempfe parallel, ohne sich zu ueberschreiben.',
-    fightDeleteLastTitle: 'Letzten Fight nicht loeschen',
-    fightDeleteConfirmTitle: 'Fight loeschen?',
-    fightDeleteConfirmText: 'Moechtest du "{name}" wirklich loeschen? Der laufende Fight wird entfernt, die globale Historie bleibt erhalten.',
-    fightDeleteConfirmBtn: 'Fight loeschen',
-    feeAmountLabel: 'Bookie-/Fightclub-Anteil fuer Sieger ({currency})',
-    resultFighterShareNoOdds: 'Keine Gewinn-Wetten verfuegbar',
+    deleteFightBtn: 'Fight löschen',
+    fightManagerHint: 'Jeder Browser-Tab kann auf einen anderen Fight gestellt werden. So laufen mehrere Kämpfe parallel, ohne sich zu überschreiben.',
+    fightDeleteLastTitle: 'Letzten Fight nicht löschen',
+    fightDeleteConfirmTitle: 'Fight löschen?',
+    fightDeleteConfirmText: 'Möchtest du "{name}" wirklich löschen? Der laufende Fight wird entfernt, die globale Historie bleibt erhalten.',
+    fightDeleteConfirmBtn: 'Fight löschen',
+    feeAmountLabel: 'Bookie-/Fightclub-Anteil für Sieger ({currency})',
+    resultFighterShareNoOdds: 'Keine Gewinn-Wetten verfügbar',
     resultMeta: 'Einsatz {stake} - Tipp auf {pick} - Quote {quote} - Brutto {gross} - Bookie {fee} - Auszahlung {payout}'
   });
   Object.assign(I18N.en, {
     resultMeta: 'Stake {stake} - Pick {pick} - Odds {quote} - Gross {gross} - Bookie {fee} - Payout {payout}'
+  });
+
+  Object.assign(I18N.de, {
+    fightManagerTitle: 'Fight-Verwaltung',
+    fightSelectLabel: 'Aktiver Fight',
+    fightNameLabel: 'Fight-Name',
+    fightNamePlaceholder: 'Fight {number}',
+    createFightBtn: 'Neuen Fight anlegen',
+    deleteFightBtn: 'Fight löschen',
+    fightCountTag: '{count} Fights aktiv',
+    fightManagerHint: 'Jeder Browser-Tab kann auf einen anderen Fight gestellt werden. So laufen mehrere Kämpfe parallel, ohne sich zu überschreiben.',
+    fightDeleteLastTitle: 'Letzten Fight nicht löschen',
+    fightDeleteLastText: 'Mindestens ein Fight muss bestehen bleiben.',
+    fightDeleteConfirmTitle: 'Fight löschen?',
+    fightDeleteConfirmText: 'Möchtest du "{name}" wirklich löschen? Der laufende Fight wird entfernt, die globale Historie bleibt erhalten.',
+    fightDeleteConfirmBtn: 'Fight löschen',
+    feeAmountLabel: 'Bookie-/Fightclub-Anteil für Sieger ({currency})',
+    resultActualPayoutHint: 'Auszahlung an alle Gewinner der Siegerseite nach Abzug des Bookie-Anteils.',
+    resultFighterShareLabel: 'Brutto vor Bookie-Abzug',
+    resultFighterShareHint: 'Summe aller Gewinn-Wetten vor {percent} % Bookie-Anteil.',
+    resultFighterShareNoOdds: 'Keine Gewinn-Wetten verfügbar',
+    resultMeta: 'Einsatz {stake} - Tipp auf {pick} - Quote {quote} - Brutto {gross} - Bookie {fee} - Auszahlung {payout}',
+    leaderboardWins: 'Siege',
+    leaderboardLosses: 'Niederlagen',
+    leaderboardNameTooltip: 'Name kann nachträglich geändert werden',
+    leaderboardSortOdds: 'Quote',
+    leaderboardSortWins: 'Siege',
+    leaderboardSortLosses: 'Niederlagen',
+    leaderboardSortAscending: 'aufsteigend',
+    leaderboardSortDescending: 'absteigend',
+    dialogSkipLabel: 'Nicht erneut anzeigen',
+    dialogSkipHintDefault: 'Dieser Bestätigungsdialog wird künftig für diesen Fall übersprungen.',
+    fightDuplicateTitle: 'Fight-Name bereits vorhanden',
+    fightDuplicateText: 'Ein Fight mit dem Namen "{name}" existiert bereits. Möchtest du den neuen Fight trotzdem zusätzlich anlegen?',
+    fightDuplicateConfirmBtn: 'Trotzdem anlegen',
+    fightDuplicateSkipHint: 'Der Hinweis wird künftig nur bei doppelten Fight-Namen übersprungen.',
+    fightDeleteSkipHint: 'Der Hinweis wird künftig nur beim Löschen eines Fights übersprungen.',
+    leaderboardResetSkipHint: 'Der Hinweis wird künftig nur beim Zurücksetzen der Bestenliste übersprungen.'
+  });
+  Object.assign(I18N.en, {
+    fightManagerTitle: 'Fight manager',
+    fightSelectLabel: 'Active fight',
+    fightNameLabel: 'Fight name',
+    fightNamePlaceholder: 'Fight {number}',
+    createFightBtn: 'Create new fight',
+    deleteFightBtn: 'Delete fight',
+    fightCountTag: '{count} active fights',
+    fightManagerHint: 'Each browser tab can stay on a different fight, so multiple fights can run in parallel without overwriting each other.',
+    fightDeleteLastTitle: 'Cannot delete last fight',
+    fightDeleteLastText: 'At least one fight must remain.',
+    fightDeleteConfirmTitle: 'Delete fight?',
+    fightDeleteConfirmText: 'Do you really want to delete "{name}"? The live fight will be removed, but the shared history will stay.',
+    fightDeleteConfirmBtn: 'Delete fight',
+    feeAmountLabel: 'Bookie / fight club share for winner ({currency})',
+    resultActualPayoutHint: 'Payout to all winners on the winning side after the bookie share is deducted.',
+    resultFighterShareLabel: 'Gross before bookie share',
+    resultFighterShareHint: 'Total of all winning bets before the {percent}% bookie share.',
+    resultFighterShareNoOdds: 'No winning bets available',
+    resultMeta: 'Stake {stake} - Pick {pick} - Odds {quote} - Gross {gross} - Bookie {fee} - Payout {payout}',
+    leaderboardWins: 'Wins',
+    leaderboardLosses: 'Losses',
+    leaderboardNameTooltip: 'Name can be changed later',
+    leaderboardSortOdds: 'Odds',
+    leaderboardSortWins: 'Wins',
+    leaderboardSortLosses: 'Losses',
+    leaderboardSortAscending: 'ascending',
+    leaderboardSortDescending: 'descending',
+    dialogSkipLabel: 'Do not show again',
+    dialogSkipHintDefault: 'This confirmation dialog will be skipped for this case in the future.',
+    fightDuplicateTitle: 'Fight name already exists',
+    fightDuplicateText: 'A fight named "{name}" already exists. Do you want to create the new fight anyway as an additional entry?',
+    fightDuplicateConfirmBtn: 'Create anyway',
+    fightDuplicateSkipHint: 'This notice will only be skipped for duplicate fight names.',
+    fightDeleteSkipHint: 'This notice will only be skipped when deleting a fight.',
+    leaderboardResetSkipHint: 'This notice will only be skipped when resetting the leaderboard.'
   });
 
   const els = {
@@ -538,6 +614,10 @@
     appDialogActions: document.getElementById('appDialogActions'),
     appDialogOkBtn: document.getElementById('appDialogOkBtn'),
     appDialogCancelBtn: document.getElementById('appDialogCancelBtn'),
+    appDialogSkipWrap: document.getElementById('appDialogSkipWrap'),
+    appDialogSkipCheckbox: document.getElementById('appDialogSkipCheckbox'),
+    appDialogSkipLabelText: document.getElementById('appDialogSkipLabelText'),
+    appDialogSkipHintText: document.getElementById('appDialogSkipHintText'),
     openGuideBtn: document.getElementById('openGuideBtn'),
     guideModal: document.getElementById('guideModal'),
     guideContent: document.getElementById('guideContent'),
@@ -546,6 +626,7 @@
     openLeaderboardBtn: document.getElementById('openLeaderboardBtn'),
     leaderboardAutofillToggle: document.getElementById('leaderboardAutofillToggle'),
     leaderboardModal: document.getElementById('leaderboardModal'),
+    leaderboardControls: document.getElementById('leaderboardControls'),
     leaderboardList: document.getElementById('leaderboardList'),
     closeLeaderboardBtn: document.getElementById('closeLeaderboardBtn'),
     closeLeaderboardBtnBottom: document.getElementById('closeLeaderboardBtnBottom'),
@@ -558,7 +639,10 @@
     leaderboardResetTitle: document.getElementById('leaderboardResetTitle'),
     leaderboardResetText: document.getElementById('leaderboardResetText'),
     confirmLeaderboardResetBtn: document.getElementById('confirmLeaderboardResetBtn'),
-    cancelLeaderboardResetBtn: document.getElementById('cancelLeaderboardResetBtn')
+    cancelLeaderboardResetBtn: document.getElementById('cancelLeaderboardResetBtn'),
+    skipLeaderboardResetConfirmCheckbox: document.getElementById('skipLeaderboardResetConfirmCheckbox'),
+    skipLeaderboardResetConfirmLabelText: document.getElementById('skipLeaderboardResetConfirmLabelText'),
+    skipLeaderboardResetConfirmHintText: document.getElementById('skipLeaderboardResetConfirmHintText')
   };
 
   function defaultSettings(){
@@ -572,7 +656,9 @@
       keepFightersOnReset: false,
       leaderboardAutofill: false,
       leaderboardAutofillApplied: false,
-      leaderboardAutofillPrevOddsMode: ''
+      leaderboardAutofillPrevOddsMode: '',
+      leaderboardSortKey: 'odds',
+      leaderboardSortDir: 'asc'
     };
   }
 
@@ -844,6 +930,64 @@
   function writeJsonStorage(key, value){
     localStorage.setItem(key, JSON.stringify(value));
   }
+  function normalizeFightNameValue(value){
+    return String(value || '').replace(/\s+/g, ' ').trim();
+  }
+  function normalizeFightNameKey(value){
+    return normalizeKey(normalizeFightNameValue(value));
+  }
+  function defaultDialogPreferences(){
+    return {
+      deleteFight: true,
+      duplicateFightName: true,
+      leaderboardReset: true
+    };
+  }
+  function readDialogPreferences(){
+    const defaults = defaultDialogPreferences();
+    const parsed = readJsonStorage(DIALOG_PREFS_STORAGE_KEY, defaults);
+    return Object.keys(defaults).reduce((acc, key) => {
+      acc[key] = parsed?.[key] !== false;
+      return acc;
+    }, {});
+  }
+  function writeDialogPreferences(preferences){
+    const defaults = defaultDialogPreferences();
+    const normalized = Object.keys(defaults).reduce((acc, key) => {
+      acc[key] = preferences?.[key] !== false;
+      return acc;
+    }, {});
+    writeJsonStorage(DIALOG_PREFS_STORAGE_KEY, normalized);
+    return normalized;
+  }
+  function shouldShowConfirmDialog(preferenceKey){
+    if(!preferenceKey) return true;
+    return readDialogPreferences()[preferenceKey] !== false;
+  }
+  function setConfirmDialogPreference(preferenceKey, shouldShow){
+    if(!preferenceKey) return true;
+    const preferences = readDialogPreferences();
+    preferences[preferenceKey] = shouldShow !== false;
+    writeDialogPreferences(preferences);
+    return preferences[preferenceKey];
+  }
+  function createUniqueFightId(existingFightIndex = []){
+    const existingIds = new Set((Array.isArray(existingFightIndex) ? existingFightIndex : []).map(meta => String(meta?.id || '')));
+    let nextId = uid();
+    while(existingIds.has(nextId)){
+      nextId = uid();
+    }
+    return nextId;
+  }
+  function findExistingFightNames(name, options = {}){
+    const targetKey = normalizeFightNameKey(name);
+    const excludeId = String(options?.excludeId || '');
+    if(!targetKey) return [];
+    return getFightIndex().filter((meta, index) => {
+      if(excludeId && String(meta?.id || '') === excludeId) return false;
+      return normalizeFightNameKey(getFightDisplayName(meta, index)) === targetKey;
+    });
+  }
   function getFallbackFightName(index = 0){
     return `Fight ${Math.max(1, Number(index) + 1)}`;
   }
@@ -914,6 +1058,8 @@
     merged.settings.leaderboardAutofill = Boolean(merged.settings.leaderboardAutofill);
     merged.settings.leaderboardAutofillApplied = Boolean(merged.settings.leaderboardAutofillApplied);
     merged.settings.leaderboardAutofillPrevOddsMode = typeof merged.settings.leaderboardAutofillPrevOddsMode === 'string' ? merged.settings.leaderboardAutofillPrevOddsMode : '';
+    merged.settings.leaderboardSortKey = ['odds','wins','losses'].includes(String(merged.settings.leaderboardSortKey || '')) ? String(merged.settings.leaderboardSortKey) : 'odds';
+    merged.settings.leaderboardSortDir = String(merged.settings.leaderboardSortDir || '') === 'desc' ? 'desc' : 'asc';
     merged.fighters = Array.isArray(rawFight?.fighters)
       ? rawFight.fighters.map((fighter, idx) => ({
           id: fighter.id || uid(),
@@ -1207,10 +1353,24 @@
     renderAll();
   }
 
-  function createFightSlot(){
+  async function createFightSlot(){
     ensureFightStore();
     const fightIndex = getFightIndex();
     const now = new Date().toISOString();
+    const nextFightName = normalizeFightNameValue(getFallbackFightName(fightIndex.length));
+    const nameAlreadyExists = findExistingFightNames(nextFightName).length > 0;
+    if(nameAlreadyExists){
+      const confirmed = await appConfirm(
+        t('fightDuplicateText', { name: nextFightName }),
+        {
+          title: t('fightDuplicateTitle'),
+          okText: t('fightDuplicateConfirmBtn'),
+          confirmKey: 'duplicateFightName',
+          skipHint: t('fightDuplicateSkipHint')
+        }
+      );
+      if(!confirmed) return;
+    }
     const nextFightState = defaultFightState();
     nextFightState.settings = {
       ...nextFightState.settings,
@@ -1218,13 +1378,27 @@
     };
     nextFightState.settings.leaderboardAutofillApplied = false;
     nextFightState.settings.leaderboardAutofillPrevOddsMode = '';
+    const latestFightIndex = getFightIndex();
+    const latestNameAlreadyExists = latestFightIndex.some((meta, index) => normalizeFightNameKey(getFightDisplayName(meta, index)) === normalizeFightNameKey(nextFightName));
+    if(latestNameAlreadyExists && !nameAlreadyExists){
+      const confirmed = await appConfirm(
+        t('fightDuplicateText', { name: nextFightName }),
+        {
+          title: t('fightDuplicateTitle'),
+          okText: t('fightDuplicateConfirmBtn'),
+          confirmKey: 'duplicateFightName',
+          skipHint: t('fightDuplicateSkipHint')
+        }
+      );
+      if(!confirmed) return;
+    }
     const meta = {
-      id: uid(),
-      name: getFallbackFightName(fightIndex.length),
+      id: createUniqueFightId(latestFightIndex),
+      name: nextFightName,
       createdAt: now,
       updatedAt: now
     };
-    saveFightIndex([...fightIndex, meta]);
+    saveFightIndex([...latestFightIndex, meta]);
     writeJsonStorage(getFightStorageKey(meta.id), nextFightState);
     setActiveFightId(meta.id);
     state = loadState();
@@ -1251,7 +1425,12 @@
     const fightName = getFightDisplayName(activeMeta, activeIndex);
     const confirmed = await appConfirm(
       t('fightDeleteConfirmText', { name: fightName }),
-      { title: t('fightDeleteConfirmTitle'), okText: t('fightDeleteConfirmBtn') }
+      {
+        title: t('fightDeleteConfirmTitle'),
+        okText: t('fightDeleteConfirmBtn'),
+        confirmKey: 'deleteFight',
+        skipHint: t('fightDeleteSkipHint')
+      }
     );
     if(!confirmed) return;
     localStorage.removeItem(getFightStorageKey(state.fightId));
@@ -1261,6 +1440,50 @@
     setActiveFightId(fallbackFightId);
     state = loadState();
     renderAll();
+  }
+
+  function getLeaderboardSortState(){
+    const key = ['odds','wins','losses'].includes(String(state?.settings?.leaderboardSortKey || ''))
+      ? String(state.settings.leaderboardSortKey)
+      : 'odds';
+    const dir = String(state?.settings?.leaderboardSortDir || '') === 'desc' ? 'desc' : 'asc';
+    return { key, dir };
+  }
+
+  function setLeaderboardSort(nextKey){
+    const current = getLeaderboardSortState();
+    const key = ['odds','wins','losses'].includes(String(nextKey || '')) ? String(nextKey) : 'odds';
+    const defaultDir = key === 'odds' ? 'asc' : 'desc';
+    if(current.key === key){
+      state.settings.leaderboardSortDir = current.dir === 'asc' ? 'desc' : 'asc';
+    }else{
+      state.settings.leaderboardSortKey = key;
+      state.settings.leaderboardSortDir = defaultDir;
+    }
+  }
+
+  function compareLeaderboardRows(a, b, sortState){
+    const key = sortState?.key || 'odds';
+    const dirFactor = sortState?.dir === 'desc' ? -1 : 1;
+    const valueFor = (row) => {
+      if(key === 'wins') return Number(row?.wins || 0);
+      if(key === 'losses') return Number(row?.losses || 0);
+      const odds = Number(row?.odds);
+      return Number.isFinite(odds) ? odds : Number.POSITIVE_INFINITY;
+    };
+    const aValue = valueFor(a);
+    const bValue = valueFor(b);
+    if(aValue !== bValue){
+      return (aValue < bValue ? -1 : 1) * dirFactor;
+    }
+    const aName = String(a?.name || a?.rawName || '');
+    const bName = String(b?.name || b?.rawName || '');
+    const byName = aName.localeCompare(bName, currentLang());
+    if(byName !== 0) return byName;
+    if((Number(b?.latestSeenAt) || 0) !== (Number(a?.latestSeenAt) || 0)){
+      return (Number(b?.latestSeenAt) || 0) - (Number(a?.latestSeenAt) || 0);
+    }
+    return (Number(a?.sortIndex) || 0) - (Number(b?.sortIndex) || 0);
   }
 
   function fighterOptionsHtml(selectedId){
@@ -1524,7 +1747,8 @@
     resolver: null,
     activeElement: null,
     dismissValue: false,
-    onClose: null
+    onClose: null,
+    confirmKey: ''
   };
 
   function closeAppDialog(result){
@@ -1535,9 +1759,18 @@
       const resolver = appDialogState.resolver;
       const restoreTarget = appDialogState.activeElement;
       const onClose = appDialogState.onClose;
+      const confirmKey = appDialogState.confirmKey;
+      const shouldPersistSkipPreference = Boolean(confirmKey) && Boolean(els.appDialogSkipCheckbox?.checked) && result === true;
       appDialogState.resolver = null;
       appDialogState.activeElement = null;
       appDialogState.onClose = null;
+      appDialogState.confirmKey = '';
+      if(els.appDialogSkipCheckbox){
+        els.appDialogSkipCheckbox.checked = false;
+        els.appDialogSkipCheckbox.disabled = true;
+      }
+      if(els.appDialogSkipWrap) els.appDialogSkipWrap.hidden = true;
+      if(shouldPersistSkipPreference) setConfirmDialogPreference(confirmKey, false);
       if(restoreTarget && typeof restoreTarget.focus === 'function'){
         try{ restoreTarget.focus({ preventScroll: true }); }catch(_){ restoreTarget.focus(); }
       }
@@ -1554,16 +1787,25 @@
       cancelText = t('appDialogCancel'),
       variant = 'alert',
       dismissValue = false,
-      onClose = null
+      onClose = null,
+      confirmKey = '',
+      skipLabel = t('dialogSkipLabel'),
+      skipHint = t('dialogSkipHintDefault')
     } = options;
 
     if(appDialogState.resolver){
       closeAppDialog(appDialogState.dismissValue);
     }
 
+    if(variant === 'confirm' && confirmKey && !shouldShowConfirmDialog(confirmKey)){
+      if(typeof onClose === 'function') onClose(true);
+      return Promise.resolve(true);
+    }
+
     appDialogState.dismissValue = dismissValue;
     appDialogState.onClose = onClose;
     appDialogState.activeElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    appDialogState.confirmKey = variant === 'confirm' ? String(confirmKey || '') : '';
 
     if(els.appDialogTitle) els.appDialogTitle.textContent = title;
     if(els.appDialogText) els.appDialogText.textContent = text;
@@ -1572,6 +1814,14 @@
       els.appDialogCancelBtn.textContent = cancelText;
       els.appDialogCancelBtn.hidden = variant !== 'confirm';
     }
+    const showSkipToggle = variant === 'confirm' && Boolean(confirmKey);
+    if(els.appDialogSkipWrap) els.appDialogSkipWrap.hidden = !showSkipToggle;
+    if(els.appDialogSkipCheckbox){
+      els.appDialogSkipCheckbox.checked = false;
+      els.appDialogSkipCheckbox.disabled = !showSkipToggle;
+    }
+    if(els.appDialogSkipLabelText) els.appDialogSkipLabelText.textContent = skipLabel;
+    if(els.appDialogSkipHintText) els.appDialogSkipHintText.textContent = skipHint;
 
     const dialog = els.appDialogModal?.querySelector('.confirm-dialog');
     animateModalOpen(els.appDialogModal, dialog);
@@ -1606,7 +1856,10 @@
       cancelText: options.cancelText || t('appDialogCancel'),
       dismissValue: false,
       variant: 'confirm',
-      onClose: options.onClose || null
+      onClose: options.onClose || null,
+      confirmKey: options.confirmKey || '',
+      skipLabel: options.skipLabel || t('dialogSkipLabel'),
+      skipHint: options.skipHint || t('dialogSkipHintDefault')
     });
   }
 
@@ -1696,6 +1949,8 @@
     if(els.appDialogTitle && els.appDialogModal?.getAttribute('aria-hidden') === 'true') els.appDialogTitle.textContent = t('appDialogDefaultTitle');
     if(els.appDialogOkBtn) els.appDialogOkBtn.textContent = t('appDialogUnderstood');
     if(els.appDialogCancelBtn) els.appDialogCancelBtn.textContent = t('appDialogCancel');
+    if(els.appDialogSkipLabelText) els.appDialogSkipLabelText.textContent = t('dialogSkipLabel');
+    if(els.appDialogSkipHintText) els.appDialogSkipHintText.textContent = t('dialogSkipHintDefault');
     document.getElementById('feeAmountLabel').textContent = t('feeAmountLabel', { currency: state.settings.currency });
     els.finishNote.textContent = t(state.settings.oddsMode === 'manual' ? 'finishNoteManual' : 'finishNoteAuto');
     els.aggregateFightCount.textContent = t('aggregateFightCount', { count: state.history.length });
@@ -1716,6 +1971,8 @@
     if(els.leaderboardResetText) els.leaderboardResetText.textContent = t('leaderboardResetText');
     if(els.confirmLeaderboardResetBtn) els.confirmLeaderboardResetBtn.textContent = t('confirmLeaderboardResetBtn');
     if(els.cancelLeaderboardResetBtn) els.cancelLeaderboardResetBtn.textContent = t('cancelLeaderboardResetBtn');
+    if(els.skipLeaderboardResetConfirmLabelText) els.skipLeaderboardResetConfirmLabelText.textContent = t('dialogSkipLabel');
+    if(els.skipLeaderboardResetConfirmHintText) els.skipLeaderboardResetConfirmHintText.textContent = t('leaderboardResetSkipHint');
     syncResetControls();
     const marketInfo = document.getElementById('marketPressureInfo');
     if(marketInfo){
@@ -2064,6 +2321,8 @@
     const rows = getKnownFighterRows().map(row => ({
       name: String(row.rawName || row.name || '').trim() || String(row.name || '').trim(),
       odds: Number.isFinite(Number(row.odds)) ? Number(Number(row.odds).toFixed(4)) : null,
+      wins: Number(row.wins || 0),
+      losses: Number(row.losses || 0),
       appearances: Number(row.appearances || 0),
       exportedAt: new Date().toISOString()
     })).filter(row => row.name);
@@ -2103,6 +2362,9 @@
       if(!key) return;
       const oddsCandidate = Number(entry?.odds ?? entry?.quote ?? entry?.liveOdds ?? entry?.manualOdds ?? entry?.openingOdds ?? 1.9);
       const resolvedOdds = sanitizeManualOdds(Number.isFinite(oddsCandidate) ? oddsCandidate : 1.9);
+      const importedWins = Math.max(0, Number(entry?.wins ?? 0) || 0);
+      const importedLosses = Math.max(0, Number(entry?.losses ?? 0) || 0);
+      const importedAppearances = Math.max(0, Number(entry?.appearances ?? entry?.fights ?? 0) || 0);
       const existingImport = (Array.isArray(state.history) ? state.history : []).find(fight => fight?.imported === true && normalizeKey(fight?.importKey) === key);
       const payload = {
         createdAt: importedAt,
@@ -2121,6 +2383,9 @@
           name: rawName,
           stake: 0,
           won: false,
+          recordWins: importedWins,
+          recordLosses: importedLosses,
+          appearances: importedAppearances,
           openingOdds: resolvedOdds,
           liveOdds: resolvedOdds,
           manualOdds: resolvedOdds
@@ -2147,7 +2412,16 @@
 
   let lastFocusedElementBeforeTopConfirm = null;
 
+  function applyLeaderboardResetDialogPreference(skipFutureDialogs){
+    setConfirmDialogPreference('leaderboardReset', !skipFutureDialogs);
+  }
+
   function openLeaderboardResetConfirm(){
+    if(!shouldShowConfirmDialog('leaderboardReset')){
+      resetLeaderboardHistory();
+      return;
+    }
+    if(els.skipLeaderboardResetConfirmCheckbox) els.skipLeaderboardResetConfirmCheckbox.checked = false;
     if(els.leaderboardResetTitle) els.leaderboardResetTitle.textContent = t('leaderboardResetTitle');
     if(els.leaderboardResetText) els.leaderboardResetText.textContent = t('leaderboardResetText');
     lastFocusedElementBeforeTopConfirm = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -2164,6 +2438,7 @@
 
   function closeLeaderboardResetConfirm(){
     animateModalClose(els.confirmLeaderboardResetModal, els.confirmLeaderboardResetModal?.querySelector('.confirm-dialog'), () => {
+      if(els.skipLeaderboardResetConfirmCheckbox) els.skipLeaderboardResetConfirmCheckbox.checked = false;
       if(els.leaderboardModal){
         els.leaderboardModal.setAttribute('aria-hidden', els.leaderboardModal.classList.contains('open') ? 'false' : 'true');
         els.leaderboardModal.inert = false;
@@ -2178,19 +2453,26 @@
     state.history = [];
     state.lastSettlementSignature = '';
     renderAll({ historyMode: 'replace' });
-    closeLeaderboardResetConfirm();
+    if(els.confirmLeaderboardResetModal?.classList.contains('open')) closeLeaderboardResetConfirm();
   }
 
   function getHistoricalLeaderboardRows(){
     const historyRows = new Map();
     (Array.isArray(state.history) ? state.history : []).forEach((fight, fightIndex) => {
       const fightTime = new Date(fight?.createdAt || 0).getTime() || fightIndex;
+      const countsTowardRecord = !Boolean(fight?.imported);
       (Array.isArray(fight?.fighters) ? fight.fighters : []).forEach((fighter, fighterIndex) => {
         const displayName = String(fighter?.name || '').trim();
         if(!hasValidFighterName(displayName)) return;
         const nameKey = normalizeKey(displayName);
         if(!nameKey) return;
         const resolvedOdds = getFightFighterResolvedOdds(fighter, fight?.mode);
+        const importedWins = countsTowardRecord ? 0 : Math.max(0, Number(fighter?.recordWins ?? fighter?.wins ?? 0) || 0);
+        const importedLosses = countsTowardRecord ? 0 : Math.max(0, Number(fighter?.recordLosses ?? fighter?.losses ?? 0) || 0);
+        const importedAppearances = countsTowardRecord ? 1 : Math.max(0, Number(fighter?.appearances ?? 0) || 0);
+        const appearanceCount = countsTowardRecord ? 1 : importedAppearances;
+        const winsToAdd = countsTowardRecord ? (fighter?.won ? 1 : 0) : importedWins;
+        const lossesToAdd = countsTowardRecord ? (fighter?.won === false ? 1 : 0) : importedLosses;
         const previous = historyRows.get(nameKey);
         if(!previous){
           historyRows.set(nameKey, {
@@ -2198,7 +2480,9 @@
             name: displayName,
             rawName: displayName,
             odds: Number.isFinite(resolvedOdds) && resolvedOdds > 0 ? resolvedOdds : Number.POSITIVE_INFINITY,
-            appearances: 1,
+            appearances: appearanceCount,
+            wins: winsToAdd,
+            losses: lossesToAdd,
             latestSeenAt: fightTime,
             sortIndex: fightIndex * 1000 + fighterIndex,
             currentIds: [],
@@ -2207,7 +2491,9 @@
           });
           return;
         }
-        previous.appearances += 1;
+        previous.appearances += appearanceCount;
+        previous.wins += winsToAdd;
+        previous.losses += lossesToAdd;
         if(fightTime >= previous.latestSeenAt){
           previous.name = displayName || previous.name;
           previous.rawName = displayName || previous.rawName;
@@ -2242,6 +2528,8 @@
           rawName: String(fighter.name || ''),
           odds: resolvedOdds,
           appearances: 0,
+          wins: 0,
+          losses: 0,
           latestSeenAt: Number.MAX_SAFE_INTEGER - fighterIndex,
           sortIndex: -1 + (fighterIndex / 1000),
           currentIds: [fighter.id],
@@ -2266,6 +2554,8 @@
       name: row.name,
       rawName: row.rawName,
       odds: row.odds,
+      wins: Number(row.wins || 0),
+      losses: Number(row.losses || 0),
       currentIds: Array.isArray(row.currentIds) ? row.currentIds : [],
       removable: row.currentIds.length
         ? row.currentRemovables.every(Boolean)
@@ -2274,14 +2564,7 @@
       latestSeenAt: row.latestSeenAt,
       appearances: row.appearances,
       isHistoricalOnly: !row.currentIds.length
-    })).sort((a, b) => {
-      const aOdds = Number.isFinite(a.odds) ? a.odds : Number.POSITIVE_INFINITY;
-      const bOdds = Number.isFinite(b.odds) ? b.odds : Number.POSITIVE_INFINITY;
-      if(aOdds !== bOdds) return aOdds - bOdds;
-      if(a.name !== b.name) return a.name.localeCompare(b.name, currentLang());
-      if(a.latestSeenAt !== b.latestSeenAt) return b.latestSeenAt - a.latestSeenAt;
-      return a.sortIndex - b.sortIndex;
-    });
+    })).sort((a, b) => compareLeaderboardRows(a, b, getLeaderboardSortState()));
   }
 
   function renameFighterAcrossState(historyKey, nextName){
@@ -2381,7 +2664,68 @@
     renderAll({ historyMode: 'replace' });
   }
 
-  function renderLeaderboard(){
+  function renderLeaderboardControls(){
+    if(!els.leaderboardControls) return;
+    const sortState = getLeaderboardSortState();
+    const controls = [
+      { key: 'odds', label: t('leaderboardSortOdds') },
+      { key: 'wins', label: t('leaderboardSortWins') },
+      { key: 'losses', label: t('leaderboardSortLosses') }
+    ];
+    els.leaderboardControls.innerHTML = controls.map(control => {
+      const isActive = sortState.key === control.key;
+      const nextDirection = isActive ? (sortState.dir === 'asc' ? 'desc' : 'asc') : (control.key === 'odds' ? 'asc' : 'desc');
+      const directionLabel = t(nextDirection === 'asc' ? 'leaderboardSortAscending' : 'leaderboardSortDescending');
+      const arrow = isActive ? (sortState.dir === 'asc' ? '↑' : '↓') : '';
+      return `<button class="btn-secondary leaderboard-sort-btn ${isActive ? 'is-active' : ''}" type="button" data-role="leaderboard-sort" data-key="${control.key}" title="${escapeHtml(`${control.label} ${directionLabel}`)}" aria-label="${escapeHtml(`${control.label} ${directionLabel}`)}">${escapeHtml(control.label)}${arrow ? ` ${arrow}` : ''}</button>`;
+    }).join('');
+  }
+
+  function renderLeaderboardV2(){
+    if(!els.leaderboardList) return;
+    const rows = getLeaderboardRows();
+    renderLeaderboardControls();
+
+    els.leaderboardList.innerHTML = '';
+    if(!rows.length){
+      const empty = document.createElement('div');
+      empty.className = 'leaderboard-empty';
+      empty.textContent = t('leaderboardNoFighters');
+      els.leaderboardList.appendChild(empty);
+      return;
+    }
+
+    rows.forEach((row, index) => {
+      const item = document.createElement('div');
+      item.className = 'leaderboard-row';
+      item.dataset.rowKey = row.rowKey;
+      item.innerHTML = `
+        <div class="leaderboard-rank ${index === 0 ? 'top-rank' : ''}">${index + 1}.</div>
+        <div class="leaderboard-main">
+          <input class="leaderboard-name-input" type="text" data-role="fighter-name" data-key="${escapeHtml(row.historyKey)}" value="${escapeHtml(row.rawName || row.name)}" list="fighterSuggestions" autocomplete="off" title="${escapeHtml(t('leaderboardNameTooltip'))}" aria-label="${escapeHtml(t('leaderboardNameTooltip'))}">
+        </div>
+        <div class="leaderboard-stats">
+          <div class="leaderboard-stat">
+            <div class="k">${escapeHtml(t('leaderboardQuote'))}</div>
+            <div class="v">${escapeHtml(Number.isFinite(row.odds) && row.odds > 0 ? row.odds.toFixed(2) : t('oddsUnavailable'))}</div>
+          </div>
+          <div class="leaderboard-stat">
+            <div class="k">${escapeHtml(t('leaderboardWins'))}</div>
+            <div class="v">${escapeHtml(String(row.wins || 0))}</div>
+          </div>
+          <div class="leaderboard-stat">
+            <div class="k">${escapeHtml(t('leaderboardLosses'))}</div>
+            <div class="v">${escapeHtml(String(row.losses || 0))}</div>
+          </div>
+        </div>
+        <button class="icon-remove-btn" type="button" data-role="remove-fighter" data-key="${escapeHtml(row.historyKey)}" title="${t('remove')}" aria-label="${t('remove')}" ${row.removable ? '' : 'disabled'}><span>✕</span></button>
+      `;
+      els.leaderboardList.appendChild(item);
+    });
+  }
+
+  function renderLeaderboardLegacy(){
+    return renderLeaderboardV2();
     if(!els.leaderboardList) return;
     const rows = getLeaderboardRows();
 
@@ -2412,6 +2756,10 @@
       `;
       els.leaderboardList.appendChild(item);
     });
+  }
+
+  function renderLeaderboard(){
+    renderLeaderboardV2();
   }
 
   function animateModalOpen(modal, dialog){
@@ -3379,7 +3727,17 @@
     if(btn === els.importLeaderboardBtn){ els.leaderboardImportInput?.click(); return; }
     if(btn === els.resetLeaderboardBtn){ openLeaderboardResetConfirm(); return; }
     if(btn === els.cancelLeaderboardResetBtn){ closeLeaderboardResetConfirm(); return; }
-    if(btn === els.confirmLeaderboardResetBtn){ resetLeaderboardHistory(); return; }
+    if(btn === els.confirmLeaderboardResetBtn){
+      applyLeaderboardResetDialogPreference(Boolean(els.skipLeaderboardResetConfirmCheckbox?.checked));
+      resetLeaderboardHistory();
+      return;
+    }
+    if(role === 'leaderboard-sort' && key){
+      setLeaderboardSort(key);
+      renderLeaderboard();
+      saveState();
+      return;
+    }
     if(role === 'remove-fighter' && (id || key)){
       if(key){ removeLeaderboardFighter(key); return; }
       removeFighter(id);
