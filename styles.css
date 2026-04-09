@@ -420,40 +420,39 @@
       min-width:0;
     }
     .leaderboard-toolbar-stat{
-      display:grid;
-      gap:6px;
+      display:block;
       min-width:0;
-      align-items:end;
-    }
-    .leaderboard-toolbar-label{
-      font-size:.72rem;
-      color:var(--muted);
-      letter-spacing:.04em;
-      line-height:1.15;
-      text-align:right;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
     }
     .leaderboard-sort-btn{
-      min-height:36px;
-      height:36px;
-      min-width:36px;
-      width:36px;
-      padding:0;
-      border-radius:12px;
+      width:100%;
+      min-height:52px;
+      padding:10px 14px;
+      border-radius:14px;
       border:1px solid rgba(255,255,255,.08);
       background:rgba(255,255,255,.04);
       color:var(--text);
-      font-size:1rem;
+      font-size:.84rem;
       font-weight:800;
-      line-height:1;
-      justify-self:end;
-      display:inline-flex;
+      line-height:1.12;
+      display:flex;
       align-items:center;
-      justify-content:center;
+      justify-content:space-between;
+      gap:10px;
+      text-align:left;
     }
-    .leaderboard-sort-icon{pointer-events:none;transform:translateY(-.5px)}
+    .leaderboard-sort-copy{
+      min-width:0;
+      font-size:.74rem;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      line-height:1.18;
+    }
+    .leaderboard-sort-icon{
+      pointer-events:none;
+      flex:0 0 auto;
+      font-size:1rem;
+      transform:translateY(-.5px);
+    }
     .leaderboard-sort-btn.is-active{
       background:linear-gradient(180deg, rgba(255,94,69,.22), rgba(212,58,47,.18));
       border-color:rgba(255,94,69,.45);
@@ -606,13 +605,15 @@
       .leaderboard-toolbar-name,
       .leaderboard-toolbar-action{display:none}
       .leaderboard-toolbar-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
-      .leaderboard-toolbar-stat{justify-items:center}
-      .leaderboard-toolbar-label{
-        font-size:.64rem;
-        letter-spacing:.02em;
-        text-align:center;
+      .leaderboard-sort-btn{
+        min-height:50px;
+        padding:9px 10px;
+        gap:8px;
       }
-      .leaderboard-sort-btn{justify-self:center}
+      .leaderboard-sort-copy{
+        font-size:.63rem;
+        letter-spacing:.03em;
+      }
       .hero{padding:2px 0 0}
       .hero-top{padding:54px 0 2px}
       .hero-logo{width:min(100%,360px)}
@@ -642,7 +643,11 @@
       .aggregate-row,.result-line{gap:10px}
     }
     @media (max-width: 420px){
-      .leaderboard-toolbar-label{font-size:.61rem}
+      .leaderboard-sort-btn{
+        min-height:48px;
+        padding:8px;
+      }
+      .leaderboard-sort-copy{font-size:.59rem}
       .leaderboard-stat{
         min-height:52px;
         justify-content:center;
