@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#0b0c10" />
   <title>Bookie Bet Tool</title>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'" />
-  <link rel="stylesheet" href="styles.css?v=2026.04.09-v26-leaderboard-export-notice" />
+  <link rel="stylesheet" href="styles.css?v=2026.04.09-v27-panel-alignment" />
 </head>
 <body>
   <div class="wrap">
@@ -65,7 +65,7 @@
           </div>
         </section>
 
-        <section class="panel">
+        <section class="panel bets-panel" id="betsPanel">
           <div class="panel-title">
             <h2 id="betsTitle">Wetten erfassen</h2>
           </div>
@@ -82,7 +82,7 @@
 
       <div class="col">
         <div class="right-layout">
-          <section class="panel">
+          <section class="panel odds-panel" id="oddsPanel">
             <div class="panel-title">
               <h2 id="oddsTitle">Quoten & Sieger</h2>
             </div>
@@ -111,14 +111,16 @@
 
             <div class="odds-list" id="oddsGrid"></div>
 
-            <div class="winner-row" style="margin-top:14px">
-              <div class="field">
-                <label for="winnerSelect" id="winnerLabel">Sieger auswählen</label>
-                <select id="winnerSelect"></select>
+            <div class="winner-section">
+              <div class="winner-row">
+                <div class="field">
+                  <label for="winnerSelect" id="winnerLabel">Sieger auswählen</label>
+                  <select id="winnerSelect"></select>
+                </div>
+                <button class="btn-action-green" id="finishFightBtn">Fight abschließen</button>
               </div>
-              <button class="btn-action-green" id="finishFightBtn">Fight abschließen</button>
+              <div class="note-box" id="finishNote"></div>
             </div>
-            <div class="note-box" id="finishNote" style="margin-top:14px"></div>
           </section>
 
           <div class="right-side-stack">
@@ -402,6 +404,6 @@
       </div>
     </div>
   </div>
-<script src="app.js?v=2026.04.09-v26-leaderboard-export-notice" defer></script>
+<script src="app.js?v=2026.04.09-v27-panel-alignment" defer></script>
 </body>
 </html>

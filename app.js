@@ -1,5 +1,5 @@
 (() => {
-  const APP_BUILD_VERSION = '2026.04.09-v26-leaderboard-export-notice';
+  const APP_BUILD_VERSION = '2026.04.09-v27-panel-alignment';
   const APP_BUILD_STORAGE_KEY = 'bookie_bet_tool_html_build_version';
   const APP_BUILD_SESSION_KEY = 'bookie_bet_tool_html_build_reloaded';
 
@@ -610,6 +610,8 @@
     aggregateTotalStake: document.getElementById('aggregateTotalStake'),
     aggregateTotalPayout: document.getElementById('aggregateTotalPayout'),
     aggregateList: document.getElementById('aggregateList'),
+    betsPanel: document.getElementById('betsPanel'),
+    oddsPanel: document.getElementById('oddsPanel'),
     finishNote: document.getElementById('finishNote'),
     resultModal: document.getElementById('resultModal'),
     closeResultBtn: document.getElementById('closeResultBtn'),
@@ -3161,6 +3163,28 @@
     animateModalClose(els.guideModal, els.guideModal?.querySelector('.guide-dialog'));
   }
 
+  let primaryPanelSyncFrame = 0;
+  function syncPrimaryPanelHeights(){
+    if(!els.betsPanel || !els.oddsPanel) return;
+    els.oddsPanel.style.minHeight = '';
+    if(window.innerWidth <= 1180) return;
+    const betsRect = els.betsPanel.getBoundingClientRect();
+    const oddsRect = els.oddsPanel.getBoundingClientRect();
+    if(!betsRect.height || !oddsRect.height) return;
+    const targetHeight = Math.round(betsRect.bottom - oddsRect.top);
+    if(targetHeight > 0){
+      els.oddsPanel.style.minHeight = `${targetHeight}px`;
+    }
+  }
+
+  function queuePrimaryPanelSync(){
+    if(primaryPanelSyncFrame) cancelAnimationFrame(primaryPanelSyncFrame);
+    primaryPanelSyncFrame = requestAnimationFrame(() => {
+      primaryPanelSyncFrame = 0;
+      syncPrimaryPanelHeights();
+    });
+  }
+
   function openLeaderboard(){
     renderLeaderboard();
     animateModalOpen(els.leaderboardModal, els.leaderboardModal?.querySelector('.leaderboard-dialog'));
@@ -3186,6 +3210,7 @@
     renderGuideContent();
     refreshFighterSuggestions();
     applyDuplicateHighlights();
+    queuePrimaryPanelSync();
     if(persist) saveState({ historyMode });
   }
 
@@ -4038,6 +4063,7 @@
     state = loadState();
     renderAll({ persist: false });
   });
+  window.addEventListener('resize', queuePrimaryPanelSync);
 
   if(!state.bets.length) addBets(1);
   renderAll();
