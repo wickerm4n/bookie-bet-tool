@@ -1,5 +1,5 @@
 (() => {
-  const APP_BUILD_VERSION = '2026.04.09-v27-panel-alignment';
+  const APP_BUILD_VERSION = '2026.04.09-v28-panel-bottom-sync';
   const APP_BUILD_STORAGE_KEY = 'bookie_bet_tool_html_build_version';
   const APP_BUILD_SESSION_KEY = 'bookie_bet_tool_html_build_reloaded';
 
@@ -3167,21 +3167,24 @@
   function syncPrimaryPanelHeights(){
     if(!els.betsPanel || !els.oddsPanel) return;
     els.oddsPanel.style.minHeight = '';
+    els.oddsPanel.style.height = '';
     if(window.innerWidth <= 1180) return;
     const betsRect = els.betsPanel.getBoundingClientRect();
     const oddsRect = els.oddsPanel.getBoundingClientRect();
     if(!betsRect.height || !oddsRect.height) return;
     const targetHeight = Math.round(betsRect.bottom - oddsRect.top);
     if(targetHeight > 0){
-      els.oddsPanel.style.minHeight = `${targetHeight}px`;
+      els.oddsPanel.style.height = `${targetHeight}px`;
     }
   }
 
   function queuePrimaryPanelSync(){
     if(primaryPanelSyncFrame) cancelAnimationFrame(primaryPanelSyncFrame);
     primaryPanelSyncFrame = requestAnimationFrame(() => {
-      primaryPanelSyncFrame = 0;
-      syncPrimaryPanelHeights();
+      primaryPanelSyncFrame = requestAnimationFrame(() => {
+        primaryPanelSyncFrame = 0;
+        syncPrimaryPanelHeights();
+      });
     });
   }
 
@@ -4064,6 +4067,7 @@
     renderAll({ persist: false });
   });
   window.addEventListener('resize', queuePrimaryPanelSync);
+  window.addEventListener('load', queuePrimaryPanelSync);
 
   if(!state.bets.length) addBets(1);
   renderAll();
