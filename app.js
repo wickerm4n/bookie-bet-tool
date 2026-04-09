@@ -1,5 +1,5 @@
 (() => {
-  const APP_BUILD_VERSION = '2026.03.21-v15-modular';
+  const APP_BUILD_VERSION = '2026.04.09-v16-multifight';
   const APP_BUILD_STORAGE_KEY = 'bookie_bet_tool_html_build_version';
   const APP_BUILD_SESSION_KEY = 'bookie_bet_tool_html_build_reloaded';
 
@@ -51,6 +51,10 @@
   clearLegacyBrowserCaches();
 
   const STORAGE_KEY = 'bookie_bet_tool_simplified_manual_auto_history_v2_rounds';
+  const FIGHT_INDEX_KEY = `${STORAGE_KEY}_fight_index_v1`;
+  const FIGHT_STORAGE_PREFIX = `${STORAGE_KEY}_fight_`;
+  const HISTORY_STORAGE_KEY = `${STORAGE_KEY}_history_v1`;
+  const ACTIVE_FIGHT_SESSION_KEY = `${STORAGE_KEY}_active_fight_id`;
   const MAX_FIGHTERS = 20;
   const MAX_BETTORS = 100;
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -61,6 +65,19 @@
       heroTitle: 'Bookie Bet Tool',
       heroSub: '',
       langLabel: 'Sprache',
+      fightManagerTitle: 'Fight-Verwaltung',
+      fightSelectLabel: 'Aktiver Fight',
+      fightNameLabel: 'Fight-Name',
+      fightNamePlaceholder: 'Fight {number}',
+      createFightBtn: 'Neuen Fight anlegen',
+      deleteFightBtn: 'Fight lÃ¶schen',
+      fightCountTag: '{count} Fights aktiv',
+      fightManagerHint: 'Jeder Browser-Tab kann auf einen anderen Fight gestellt werden. So laufen mehrere KÃ¤mpfe parallel, ohne sich zu Ã¼berschreiben.',
+      fightDeleteLastTitle: 'Letzten Fight nicht lÃ¶schen',
+      fightDeleteLastText: 'Mindestens ein Fight muss bestehen bleiben.',
+      fightDeleteConfirmTitle: 'Fight lÃ¶schen?',
+      fightDeleteConfirmText: 'MÃ¶chtest du "{name}" wirklich lÃ¶schen? Der laufende Fight wird entfernt, die globale Historie bleibt erhalten.',
+      fightDeleteConfirmBtn: 'Fight lÃ¶schen',
       fightersTitle: 'Fighter',
       fighterCountLabel: 'Anzahl',
       addFighterBtn: 'Fighter hinzufügen',
@@ -77,7 +94,7 @@
       oddsModeAutoLabel: 'Automatische Quote',
       oddsModeManualLabel: 'Manuelle Quote',
       feePercentLabel: 'Bookie-/Fightclub-Anteil (%)',
-      feeAmountLabel: 'Bookie-/Fightclub-Anteil ({currency})',
+      feeAmountLabel: 'Bookie-/Fightclub-Anteil fÃ¼r Sieger ({currency})',
       winnerLabel: 'Sieger auswählen',
       finishFightBtn: 'Fight abschließen',
       finishNoteManual: 'Manuell: Neue Wetten übernehmen die aktuelle Fighter-Quote und behalten sie nach dem Platzieren.',
@@ -123,8 +140,8 @@
       resultFeeStatLabel: 'Bookie-Anteil',
       resultPayoutStatLabel: 'Gesamtauszahlung an Gewinner',
       resultActualPayoutLabel: 'Gewinnerseite',
-      resultActualPayoutHint: 'Auszahlung an alle Gewinner der Siegerseite.',
-      resultFighterShareLabel: 'Fighter-Anteil (basierend auf Quote)',
+      resultActualPayoutHint: 'Auszahlung an alle Gewinner der Siegerseite nach Abzug des Bookie-Anteils.',
+      resultFighterShareLabel: 'Brutto vor Bookie-Abzug',
       resultFighterShareHint: 'Anteil für den siegreichen Fighter aus dem Hausanteil · Quote {quote}.',
       resultFighterShareNoWinner: 'Kein Sieger ausgewählt',
       resultFighterShareNoOdds: 'Kein Fighter-Anteil verfügbar',
@@ -221,6 +238,19 @@
       heroTitle: 'Bookie Bet Tool',
       heroSub: '',
       langLabel: 'Language',
+      fightManagerTitle: 'Fight manager',
+      fightSelectLabel: 'Active fight',
+      fightNameLabel: 'Fight name',
+      fightNamePlaceholder: 'Fight {number}',
+      createFightBtn: 'Create new fight',
+      deleteFightBtn: 'Delete fight',
+      fightCountTag: '{count} active fights',
+      fightManagerHint: 'Each browser tab can stay on a different fight, so multiple fights can run in parallel without overwriting each other.',
+      fightDeleteLastTitle: 'Cannot delete last fight',
+      fightDeleteLastText: 'At least one fight must remain.',
+      fightDeleteConfirmTitle: 'Delete fight?',
+      fightDeleteConfirmText: 'Do you really want to delete "{name}"? The live fight will be removed, but the shared history will stay.',
+      fightDeleteConfirmBtn: 'Delete fight',
       fightersTitle: 'Fighters',
       fighterCountLabel: 'Count',
       addFighterBtn: 'Add fighter',
@@ -237,7 +267,7 @@
       oddsModeAutoLabel: 'Automatic odds',
       oddsModeManualLabel: 'Manual odds',
       feePercentLabel: 'Bookie / fight club share (%)',
-      feeAmountLabel: 'Bookie / fight club share ({currency})',
+      feeAmountLabel: 'Bookie / fight club share for winner ({currency})',
       winnerLabel: 'Choose winner',
       finishFightBtn: 'Finish fight',
       finishNoteManual: 'Manual: new bets take the current fighter odds and keep them once the bet is placed.',
@@ -378,8 +408,72 @@
     }
   };
 
+  Object.assign(I18N.de, {
+    fightManagerTitle: 'Fight-Verwaltung',
+    fightSelectLabel: 'Aktiver Fight',
+    fightNameLabel: 'Fight-Name',
+    fightNamePlaceholder: 'Fight {number}',
+    createFightBtn: 'Neuen Fight anlegen',
+    deleteFightBtn: 'Fight lÃ¶schen',
+    fightCountTag: '{count} Fights aktiv',
+    fightManagerHint: 'Jeder Browser-Tab kann auf einen anderen Fight gestellt werden. So laufen mehrere KÃ¤mpfe parallel, ohne sich zu Ã¼berschreiben.',
+    fightDeleteLastTitle: 'Letzten Fight nicht lÃ¶schen',
+    fightDeleteLastText: 'Mindestens ein Fight muss bestehen bleiben.',
+    fightDeleteConfirmTitle: 'Fight lÃ¶schen?',
+    fightDeleteConfirmText: 'MÃ¶chtest du "{name}" wirklich lÃ¶schen? Der laufende Fight wird entfernt, die globale Historie bleibt erhalten.',
+    fightDeleteConfirmBtn: 'Fight lÃ¶schen',
+    feeAmountLabel: 'Bookie-/Fightclub-Anteil fÃ¼r Sieger ({currency})',
+    resultActualPayoutHint: 'Auszahlung an alle Gewinner der Siegerseite nach Abzug des Bookie-Anteils.',
+    resultFighterShareLabel: 'Brutto vor Bookie-Abzug',
+    resultFighterShareHint: 'Summe aller Gewinn-Wetten vor {percent} % Bookie-Anteil.',
+    resultFighterShareNoOdds: 'Keine Gewinn-Wetten verfÃ¼gbar',
+    resultMeta: 'Einsatz {stake} Â· Tipp auf {pick} Â· Quote {quote} Â· Brutto {gross} Â· Bookie {fee} Â· Auszahlung {payout}'
+  });
+  Object.assign(I18N.en, {
+    fightManagerTitle: 'Fight manager',
+    fightSelectLabel: 'Active fight',
+    fightNameLabel: 'Fight name',
+    fightNamePlaceholder: 'Fight {number}',
+    createFightBtn: 'Create new fight',
+    deleteFightBtn: 'Delete fight',
+    fightCountTag: '{count} active fights',
+    fightManagerHint: 'Each browser tab can stay on a different fight, so multiple fights can run in parallel without overwriting each other.',
+    fightDeleteLastTitle: 'Cannot delete last fight',
+    fightDeleteLastText: 'At least one fight must remain.',
+    fightDeleteConfirmTitle: 'Delete fight?',
+    fightDeleteConfirmText: 'Do you really want to delete "{name}"? The live fight will be removed, but the shared history will stay.',
+    fightDeleteConfirmBtn: 'Delete fight',
+    feeAmountLabel: 'Bookie / fight club share for winner ({currency})',
+    resultActualPayoutHint: 'Payout to all winners on the winning side after the bookie share is deducted.',
+    resultFighterShareLabel: 'Gross before bookie share',
+    resultFighterShareHint: 'Total of all winning bets before the {percent}% bookie share.',
+    resultFighterShareNoOdds: 'No winning bets available',
+    resultMeta: 'Stake {stake} Â· Pick {pick} Â· Odds {quote} Â· Gross {gross} Â· Bookie {fee} Â· Payout {payout}'
+  });
+
+  Object.assign(I18N.de, {
+    deleteFightBtn: 'Fight loeschen',
+    fightManagerHint: 'Jeder Browser-Tab kann auf einen anderen Fight gestellt werden. So laufen mehrere Kaempfe parallel, ohne sich zu ueberschreiben.',
+    fightDeleteLastTitle: 'Letzten Fight nicht loeschen',
+    fightDeleteConfirmTitle: 'Fight loeschen?',
+    fightDeleteConfirmText: 'Moechtest du "{name}" wirklich loeschen? Der laufende Fight wird entfernt, die globale Historie bleibt erhalten.',
+    fightDeleteConfirmBtn: 'Fight loeschen',
+    feeAmountLabel: 'Bookie-/Fightclub-Anteil fuer Sieger ({currency})',
+    resultFighterShareNoOdds: 'Keine Gewinn-Wetten verfuegbar',
+    resultMeta: 'Einsatz {stake} - Tipp auf {pick} - Quote {quote} - Brutto {gross} - Bookie {fee} - Auszahlung {payout}'
+  });
+  Object.assign(I18N.en, {
+    resultMeta: 'Stake {stake} - Pick {pick} - Odds {quote} - Gross {gross} - Bookie {fee} - Payout {payout}'
+  });
+
   const els = {
     langSelect: document.getElementById('langSelect'),
+    fightSelect: document.getElementById('fightSelect'),
+    fightNameInput: document.getElementById('fightNameInput'),
+    createFightBtn: document.getElementById('createFightBtn'),
+    deleteFightBtn: document.getElementById('deleteFightBtn'),
+    fightCountTag: document.getElementById('fightCountTag'),
+    fightManagerHint: document.getElementById('fightManagerHint'),
     fightersGrid: document.getElementById('fightersGrid'),
     fighterAddCount: document.getElementById('fighterAddCount'),
     addFighterBtn: document.getElementById('addFighterBtn'),
@@ -467,17 +561,42 @@
     cancelLeaderboardResetBtn: document.getElementById('cancelLeaderboardResetBtn')
   };
 
-  const defaultState = () => ({
-    settings: { lang: 'de', currency: '$', feePercent: 8, oddsMode: 'auto', confirmReset: true, keepBettorsOnReset: false, keepFightersOnReset: false, leaderboardAutofill: false, leaderboardAutofillApplied: false, leaderboardAutofillPrevOddsMode: '' },
-    fighters: [
-      { id: uid(), key: 'A', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9, oddsAnchorName: '' },
-      { id: uid(), key: 'B', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9, oddsAnchorName: '' }
-    ],
-    bets: [],
-    winnerId: '',
-    history: [],
-    lastSettlementSignature: ''
-  });
+  function defaultSettings(){
+    return {
+      lang: 'de',
+      currency: '$',
+      feePercent: 8,
+      oddsMode: 'auto',
+      confirmReset: true,
+      keepBettorsOnReset: false,
+      keepFightersOnReset: false,
+      leaderboardAutofill: false,
+      leaderboardAutofillApplied: false,
+      leaderboardAutofillPrevOddsMode: ''
+    };
+  }
+
+  function defaultFightState(){
+    return {
+      settings: defaultSettings(),
+      fighters: [
+        { id: uid(), key: 'A', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9, oddsAnchorName: '' },
+        { id: uid(), key: 'B', name: '', removable: false, manualOdds: 1.9, openingOdds: 1.9, oddsAnchorName: '' }
+      ],
+      bets: [],
+      winnerId: '',
+      lastSettlementSignature: ''
+    };
+  }
+
+  function defaultState({ fightId = '', fightName = '' } = {}){
+    return {
+      fightId: String(fightId || ''),
+      fightName: typeof fightName === 'string' ? fightName : '',
+      ...defaultFightState(),
+      history: []
+    };
+  }
 
   let state = loadState();
   setTimeout(syncCountSelectors, 0);
@@ -602,11 +721,22 @@
     if(isBetOddsLocked(bet) && Number.isFinite(lockedOdds)) return lockedOdds;
     return getCurrentFighterOdds(bet?.fighterId, stats);
   }
-  function getBetPayoutAmount(bet, stats){
+  function getBetGrossPayoutAmount(bet, stats){
     const stake = Number(bet?.stake) || 0;
     const odds = getBetResolvedOdds(bet, stats);
     if(stake <= 0 || !Number.isFinite(odds) || odds <= 0) return 0;
     return stake * odds;
+  }
+  function getBetFeeAmount(bet, stats){
+    const grossPayout = getBetGrossPayoutAmount(bet, stats);
+    const feeRate = sanitizeFee(stats?.feePercent) / 100;
+    if(grossPayout <= 0 || feeRate <= 0) return 0;
+    return grossPayout * feeRate;
+  }
+  function getBetPayoutAmount(bet, stats){
+    const grossPayout = getBetGrossPayoutAmount(bet, stats);
+    if(grossPayout <= 0) return 0;
+    return Math.max(0, grossPayout - getBetFeeAmount(bet, stats));
   }
   function getAverageBetOdds(bets, stats, fallbackOdds = Number.NaN){
     const weighted = (Array.isArray(bets) ? bets : []).reduce((acc, bet) => {
@@ -621,18 +751,19 @@
     return fallbackOdds;
   }
   function getSettlementBreakdown(stats, winner, betSource){
-    const netPoolCents = toMoneyCents(stats?.safePayoutPool || 0);
-    const feeCents = toMoneyCents(stats?.feeAmount || 0);
     if(!winner){
       return {
         winnerPayoutAmount: 0,
+        winnerGrossAmount: 0,
+        feeAmount: 0,
         winnerPayoutText: t('resultNoWinnerPayout'),
         hasWinnerBets: false,
         fighterShareAmount: 0,
         fighterShareQuote: 0,
         fighterShareText: t('resultFighterShareNoWinner'),
-        netPoolAmount: fromMoneyCents(netPoolCents),
-        linePayouts: new Map()
+        linePayouts: new Map(),
+        lineGrossPayouts: new Map(),
+        lineFeeAmounts: new Map()
       };
     }
 
@@ -641,40 +772,40 @@
     });
     const winningBets = validBets.filter(b => b.fighterId === winner.id);
     const linePayouts = new Map();
+    const lineGrossPayouts = new Map();
+    const lineFeeAmounts = new Map();
+    const feeRate = sanitizeFee(stats?.feePercent) / 100;
     let winnerPayoutCents = 0;
+    let winnerGrossCents = 0;
+    let winnerFeeCents = 0;
+
     winningBets.forEach(bet => {
-      const payoutCents = toMoneyCents(getBetPayoutAmount(bet, stats));
+      const grossCents = toMoneyCents(getBetGrossPayoutAmount(bet, stats));
+      const feeCents = Math.max(0, Math.round(grossCents * feeRate));
+      const payoutCents = Math.max(0, grossCents - feeCents);
+      lineGrossPayouts.set(bet.id, grossCents);
+      lineFeeAmounts.set(bet.id, feeCents);
       linePayouts.set(bet.id, payoutCents);
+      winnerGrossCents += grossCents;
+      winnerFeeCents += feeCents;
       winnerPayoutCents += payoutCents;
     });
-    const currentWinnerOdds = Number(stats?.oddsByFighter?.[winner.id] || 0);
-    const quote = getAverageBetOdds(winningBets, stats, currentWinnerOdds);
-
-    const winnerTopUpFromFeeCents = Math.max(0, winnerPayoutCents - netPoolCents);
-    const remainingFeeCents = Math.max(0, feeCents - winnerTopUpFromFeeCents);
-
-    let fighterShareCents = 0;
-    let fighterShareQuote = 0;
-    let fighterShareText = t('resultFighterShareNoOdds');
-
-    if(Number.isFinite(quote) && quote > 0 && remainingFeeCents > 0){
-      fighterShareCents = Math.min(remainingFeeCents, Math.max(0, Math.round(remainingFeeCents / quote)));
-      fighterShareQuote = quote;
-      fighterShareText = formatMoney(fromMoneyCents(fighterShareCents));
-    }
 
     const winnerPayoutAmount = fromMoneyCents(winnerPayoutCents);
     const hasWinnerBets = winningBets.length > 0;
 
     return {
       winnerPayoutAmount,
+      winnerGrossAmount: fromMoneyCents(winnerGrossCents),
+      feeAmount: fromMoneyCents(winnerFeeCents),
       winnerPayoutText: formatPotentialPayoutDisplay(winner, winnerPayoutAmount, hasWinnerBets),
       hasWinnerBets,
-      fighterShareAmount: fromMoneyCents(fighterShareCents),
-      fighterShareQuote,
-      fighterShareText,
-      netPoolAmount: fromMoneyCents(netPoolCents),
-      linePayouts
+      fighterShareAmount: fromMoneyCents(winnerGrossCents),
+      fighterShareQuote: 0,
+      fighterShareText: hasWinnerBets ? formatMoney(fromMoneyCents(winnerGrossCents)) : t('resultFighterShareNoOdds'),
+      linePayouts,
+      lineGrossPayouts,
+      lineFeeAmounts
     };
   }
   function getWinnerPayoutSummary(stats, winner){
@@ -688,16 +819,231 @@
   function getWinnerFighterShare(stats, winner){
     const settlement = getSettlementBreakdown(stats, winner);
     return {
-      amount: settlement.fighterShareAmount,
-      quote: settlement.fighterShareQuote,
-      text: settlement.fighterShareText
+      amount: settlement.winnerGrossAmount,
+      quote: 0,
+      text: settlement.hasWinnerBets ? formatMoney(settlement.winnerGrossAmount) : settlement.fighterShareText
     };
   }
   function sanitizeFee(value){ return Math.min(100, Math.max(0, Number(value) || 0)); }
   function sanitizeManualOdds(value){ return Math.max(1.01, Number(value) || 1.9); }
   function clamp(value, min, max){ return Math.min(max, Math.max(min, value)); }
   function normalizeKey(value){ return String(value || '').trim().toLowerCase(); }
-  function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  function getFightStorageKey(fightId){
+    return `${FIGHT_STORAGE_PREFIX}${String(fightId || '')}`;
+  }
+  function readJsonStorage(key, fallback){
+    try{
+      const raw = localStorage.getItem(key);
+      if(!raw) return fallback;
+      const parsed = JSON.parse(raw);
+      return parsed ?? fallback;
+    }catch{
+      return fallback;
+    }
+  }
+  function writeJsonStorage(key, value){
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+  function getFallbackFightName(index = 0){
+    return `Fight ${Math.max(1, Number(index) + 1)}`;
+  }
+  function normalizeFightMeta(entry, index = 0){
+    const id = String(entry?.id || '').trim();
+    if(!id) return null;
+    return {
+      id,
+      name: typeof entry?.name === 'string' ? entry.name : '',
+      createdAt: String(entry?.createdAt || ''),
+      updatedAt: String(entry?.updatedAt || ''),
+      sortIndex: index
+    };
+  }
+  function getFightIndex(){
+    const parsed = readJsonStorage(FIGHT_INDEX_KEY, []);
+    return (Array.isArray(parsed) ? parsed : [])
+      .map((entry, index) => normalizeFightMeta(entry, index))
+      .filter(Boolean);
+  }
+  function saveFightIndex(index){
+    const normalized = (Array.isArray(index) ? index : [])
+      .map((entry, idx) => normalizeFightMeta(entry, idx))
+      .filter(Boolean)
+      .map(({ sortIndex, ...entry }) => entry);
+    writeJsonStorage(FIGHT_INDEX_KEY, normalized);
+    return normalized;
+  }
+  function getFightDisplayName(meta, index = 0){
+    const trimmed = String(meta?.name || '').trim();
+    return trimmed || getFallbackFightName(index);
+  }
+  function normalizeHistoryEntries(history){
+    return (Array.isArray(history) ? history : []).map((fight, index) => {
+      const fighters = Array.isArray(fight?.fighters) ? fight.fighters : [];
+      const lines = Array.isArray(fight?.lines) ? fight.lines : [];
+      const signature = String(fight?.signature || '');
+      const importKey = String(fight?.importKey || '');
+      const fallbackId = signature
+        || (fight?.imported ? `import:${importKey || index}` : `${String(fight?.createdAt || 'fight')}:${String(fight?.matchupKey || '')}:${index}`);
+      return {
+        ...fight,
+        id: String(fight?.id || fallbackId),
+        signature,
+        fighters,
+        lines
+      };
+    });
+  }
+  function mergeHistoryEntries(baseHistory, incomingHistory){
+    const merged = new Map();
+    normalizeHistoryEntries(baseHistory).forEach(entry => merged.set(String(entry.id || ''), entry));
+    normalizeHistoryEntries(incomingHistory).forEach(entry => merged.set(String(entry.id || ''), entry));
+    return [...merged.values()].sort((a, b) => {
+      const timeA = new Date(a?.createdAt || 0).getTime() || 0;
+      const timeB = new Date(b?.createdAt || 0).getTime() || 0;
+      return timeA - timeB;
+    });
+  }
+  function normalizeFightData(rawFight){
+    const merged = defaultFightState();
+    merged.settings = { ...merged.settings, ...(rawFight?.settings || {}) };
+    merged.settings.feePercent = sanitizeFee(merged.settings.feePercent);
+    merged.settings.oddsMode = merged.settings.oddsMode === 'manual' ? 'manual' : 'auto';
+    merged.settings.confirmReset = merged.settings.confirmReset !== false;
+    merged.settings.keepBettorsOnReset = Boolean(merged.settings.keepBettorsOnReset);
+    merged.settings.keepFightersOnReset = Boolean(merged.settings.keepFightersOnReset);
+    merged.settings.leaderboardAutofill = Boolean(merged.settings.leaderboardAutofill);
+    merged.settings.leaderboardAutofillApplied = Boolean(merged.settings.leaderboardAutofillApplied);
+    merged.settings.leaderboardAutofillPrevOddsMode = typeof merged.settings.leaderboardAutofillPrevOddsMode === 'string' ? merged.settings.leaderboardAutofillPrevOddsMode : '';
+    merged.fighters = Array.isArray(rawFight?.fighters)
+      ? rawFight.fighters.map((fighter, idx) => ({
+          id: fighter.id || uid(),
+          key: fighter.key || letters[idx] || String(idx + 1),
+          name: typeof fighter.name === 'string' ? fighter.name : '',
+          removable: idx >= 2,
+          manualOdds: sanitizeManualOdds(fighter.manualOdds),
+          openingOdds: sanitizeManualOdds(fighter.openingOdds || 1.9),
+          oddsAnchorName: typeof fighter.oddsAnchorName === 'string' ? fighter.oddsAnchorName : (typeof fighter.name === 'string' ? fighter.name : '')
+        })).slice(0, MAX_FIGHTERS)
+      : defaultFightState().fighters;
+    if(merged.fighters.length < 2) merged.fighters = defaultFightState().fighters;
+    merged.fighters[0].removable = false;
+    merged.fighters[1].removable = false;
+    merged.bets = Array.isArray(rawFight?.bets)
+      ? rawFight.bets.map(bet => createBetRecord({
+          id: bet.id || uid(),
+          name: bet.name,
+          fighterId: bet.fighterId,
+          stake: bet.stake,
+          lockedOdds: bet.lockedOdds,
+          oddsLocked: bet.oddsLocked
+        })).slice(0, MAX_BETTORS)
+      : [];
+    merged.winnerId = String(rawFight?.winnerId || '');
+    merged.lastSettlementSignature = String(rawFight?.lastSettlementSignature || '');
+    return merged;
+  }
+  function serializeCurrentFight(){
+    return {
+      settings: { ...(state?.settings || defaultSettings()) },
+      fighters: Array.isArray(state?.fighters) ? state.fighters.map((fighter, idx) => ({
+        id: fighter.id || uid(),
+        key: fighter.key || letters[idx] || String(idx + 1),
+        name: typeof fighter.name === 'string' ? fighter.name : '',
+        removable: idx >= 2,
+        manualOdds: sanitizeManualOdds(fighter.manualOdds),
+        openingOdds: sanitizeManualOdds(fighter.openingOdds || 1.9),
+        oddsAnchorName: typeof fighter.oddsAnchorName === 'string' ? fighter.oddsAnchorName : ''
+      })) : defaultFightState().fighters,
+      bets: Array.isArray(state?.bets) ? state.bets.map(bet => createBetRecord({
+        id: bet.id || uid(),
+        name: bet.name,
+        fighterId: bet.fighterId,
+        stake: bet.stake,
+        lockedOdds: bet.lockedOdds,
+        oddsLocked: bet.oddsLocked
+      })) : [],
+      winnerId: String(state?.winnerId || ''),
+      lastSettlementSignature: String(state?.lastSettlementSignature || '')
+    };
+  }
+  function readSharedHistory(){
+    return normalizeHistoryEntries(readJsonStorage(HISTORY_STORAGE_KEY, []));
+  }
+  function writeSharedHistory(history, mode = 'merge'){
+    const normalized = normalizeHistoryEntries(history);
+    const nextHistory = mode === 'replace' ? normalized : mergeHistoryEntries(readSharedHistory(), normalized);
+    writeJsonStorage(HISTORY_STORAGE_KEY, nextHistory);
+    if(state) state.history = nextHistory;
+    return nextHistory;
+  }
+  function writeCurrentFightState(){
+    const fightId = String(state?.fightId || '').trim();
+    if(!fightId) return;
+    writeJsonStorage(getFightStorageKey(fightId), serializeCurrentFight());
+  }
+  function readFightState(fightId){
+    const parsed = readJsonStorage(getFightStorageKey(fightId), null);
+    return normalizeFightData(parsed);
+  }
+  function ensureFightStore(){
+    if(getFightIndex().length) return;
+    const legacyState = readJsonStorage(STORAGE_KEY, null);
+    const initialFight = legacyState ? normalizeFightData(legacyState) : defaultFightState();
+    const initialHistory = legacyState ? normalizeHistoryEntries(legacyState.history) : [];
+    const createdAt = new Date().toISOString();
+    const meta = { id: uid(), name: getFallbackFightName(0), createdAt, updatedAt: createdAt };
+    saveFightIndex([meta]);
+    writeJsonStorage(getFightStorageKey(meta.id), initialFight);
+    writeJsonStorage(HISTORY_STORAGE_KEY, initialHistory);
+    try{
+      sessionStorage.setItem(ACTIVE_FIGHT_SESSION_KEY, meta.id);
+    }catch(_error){}
+  }
+  function resolveActiveFightId(index){
+    const fights = Array.isArray(index) ? index : [];
+    let activeFightId = '';
+    try{
+      activeFightId = String(sessionStorage.getItem(ACTIVE_FIGHT_SESSION_KEY) || '');
+    }catch(_error){}
+    if(fights.some(meta => meta.id === activeFightId)) return activeFightId;
+    const fallbackFightId = String(fights[0]?.id || '');
+    if(fallbackFightId){
+      try{
+        sessionStorage.setItem(ACTIVE_FIGHT_SESSION_KEY, fallbackFightId);
+      }catch(_error){}
+    }
+    return fallbackFightId;
+  }
+  function updateFightMeta(fightId, updates = {}){
+    const nextFightId = String(fightId || '').trim();
+    if(!nextFightId) return null;
+    const now = new Date().toISOString();
+    const index = getFightIndex();
+    const existingIndex = index.findIndex(meta => meta.id === nextFightId);
+    const baseMeta = existingIndex >= 0 ? index[existingIndex] : { id: nextFightId, name: '', createdAt: now, updatedAt: now };
+    const nextMeta = {
+      ...baseMeta,
+      ...updates,
+      id: nextFightId,
+      updatedAt: String(updates?.updatedAt || baseMeta.updatedAt || now)
+    };
+    if(existingIndex >= 0){
+      index[existingIndex] = nextMeta;
+    }else{
+      index.push(nextMeta);
+    }
+    saveFightIndex(index);
+    return nextMeta;
+  }
+  function saveState(options = {}){
+    const historyMode = options?.historyMode === 'replace' ? 'replace' : 'merge';
+    ensureFightStore();
+    writeCurrentFightState();
+    writeSharedHistory(state.history, historyMode);
+    try{
+      sessionStorage.setItem(ACTIVE_FIGHT_SESSION_KEY, String(state?.fightId || ''));
+    }catch(_error){}
+  }
 
   function collectDuplicateIds(items, getName, isRelevant){
     const idsByKey = new Map();
@@ -804,53 +1150,117 @@
 
   function loadState(){
     try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return defaultState();
-      const parsed = JSON.parse(raw);
-      if(!parsed || !Array.isArray(parsed.fighters) || !Array.isArray(parsed.bets)) return defaultState();
-      const merged = defaultState();
-      merged.settings = { ...merged.settings, ...(parsed.settings || {}) };
-      merged.settings.feePercent = sanitizeFee(merged.settings.feePercent);
-      merged.settings.oddsMode = merged.settings.oddsMode === 'manual' ? 'manual' : 'auto';
-      merged.settings.confirmReset = merged.settings.confirmReset !== false;
-      merged.settings.keepBettorsOnReset = Boolean(merged.settings.keepBettorsOnReset);
-      merged.settings.keepFightersOnReset = Boolean(merged.settings.keepFightersOnReset);
-      merged.settings.leaderboardAutofill = Boolean(merged.settings.leaderboardAutofill);
-      merged.settings.leaderboardAutofillApplied = Boolean(merged.settings.leaderboardAutofillApplied);
-      merged.settings.leaderboardAutofillPrevOddsMode = typeof merged.settings.leaderboardAutofillPrevOddsMode === 'string' ? merged.settings.leaderboardAutofillPrevOddsMode : '';
-      merged.fighters = parsed.fighters.map((f, idx) => ({
-        id: f.id || uid(),
-        key: f.key || letters[idx] || String(idx + 1),
-        name: typeof f.name === 'string' ? f.name : '',
-        removable: idx >= 2,
-        manualOdds: sanitizeManualOdds(f.manualOdds),
-        openingOdds: sanitizeManualOdds(f.openingOdds || 1.9),
-        oddsAnchorName: typeof f.oddsAnchorName === 'string' ? f.oddsAnchorName : (typeof f.name === 'string' ? f.name : '')
-      })).slice(0, MAX_FIGHTERS);
-      if(merged.fighters.length < 2) return defaultState();
-      merged.fighters[0].removable = false;
-      merged.fighters[1].removable = false;
-      merged.bets = parsed.bets.map(b => createBetRecord({
-        id: b.id || uid(),
-        name: b.name,
-        fighterId: b.fighterId,
-        stake: b.stake,
-        lockedOdds: b.lockedOdds,
-        oddsLocked: b.oddsLocked
-      })).slice(0, MAX_BETTORS);
-      merged.winnerId = String(parsed.winnerId || '');
-      merged.history = Array.isArray(parsed.history)
-        ? parsed.history.map(fight => ({
-            ...fight,
-            fighters: Array.isArray(fight?.fighters) ? fight.fighters : [],
-            lines: Array.isArray(fight?.lines) ? fight.lines : []
-          }))
-        : [];
-      merged.lastSettlementSignature = String(parsed.lastSettlementSignature || '');
-      return merged;
+      ensureFightStore();
+      const fightIndex = getFightIndex();
+      if(!fightIndex.length) return defaultState();
+      const activeFightId = resolveActiveFightId(fightIndex);
+      const activeIndex = Math.max(0, fightIndex.findIndex(meta => meta.id === activeFightId));
+      const activeMeta = fightIndex[activeIndex] || fightIndex[0];
+      const nextState = defaultState({
+        fightId: activeMeta?.id || '',
+        fightName: getFightDisplayName(activeMeta, activeIndex)
+      });
+      Object.assign(nextState, normalizeFightData(readFightState(activeMeta?.id || '')));
+      nextState.fightId = String(activeMeta?.id || '');
+      nextState.fightName = getFightDisplayName(activeMeta, activeIndex);
+      if(!nextState.bets.length){
+        nextState.bets = [createBetRecord({ fighterId: nextState.fighters[0]?.id || '', stake: 50 })];
+      }
+      nextState.history = readSharedHistory();
+      return nextState;
     }catch{
       return defaultState();
     }
+  }
+
+  function setActiveFightId(fightId){
+    try{
+      sessionStorage.setItem(ACTIVE_FIGHT_SESSION_KEY, String(fightId || ''));
+    }catch(_error){}
+  }
+
+  function renderFightManager(){
+    if(!els.fightSelect || !els.fightNameInput) return;
+    const fightIndex = getFightIndex();
+    const activeIndex = Math.max(0, fightIndex.findIndex(meta => meta.id === state.fightId));
+    els.fightSelect.innerHTML = fightIndex.map((meta, index) => {
+      const displayName = getFightDisplayName(meta, index);
+      return `<option value="${meta.id}" ${meta.id === state.fightId ? 'selected' : ''}>${escapeHtml(displayName)}</option>`;
+    }).join('');
+    els.fightNameInput.value = String(state.fightName || '');
+    els.fightNameInput.placeholder = t('fightNamePlaceholder', { number: String(activeIndex + 1) });
+    if(els.fightCountTag) els.fightCountTag.textContent = t('fightCountTag', { count: String(fightIndex.length) });
+    if(els.fightManagerHint) els.fightManagerHint.textContent = t('fightManagerHint');
+    if(els.deleteFightBtn){
+      const canDelete = fightIndex.length > 1;
+      els.deleteFightBtn.disabled = !canDelete;
+      els.deleteFightBtn.style.opacity = canDelete ? '1' : '.5';
+      els.deleteFightBtn.style.cursor = canDelete ? 'pointer' : 'default';
+    }
+  }
+
+  function switchActiveFight(fightId){
+    const nextFightId = String(fightId || '').trim();
+    if(!nextFightId || nextFightId === state.fightId) return;
+    setActiveFightId(nextFightId);
+    state = loadState();
+    renderAll();
+  }
+
+  function createFightSlot(){
+    ensureFightStore();
+    const fightIndex = getFightIndex();
+    const now = new Date().toISOString();
+    const nextFightState = defaultFightState();
+    nextFightState.settings = {
+      ...nextFightState.settings,
+      ...(state?.settings || {})
+    };
+    nextFightState.settings.leaderboardAutofillApplied = false;
+    nextFightState.settings.leaderboardAutofillPrevOddsMode = '';
+    const meta = {
+      id: uid(),
+      name: getFallbackFightName(fightIndex.length),
+      createdAt: now,
+      updatedAt: now
+    };
+    saveFightIndex([...fightIndex, meta]);
+    writeJsonStorage(getFightStorageKey(meta.id), nextFightState);
+    setActiveFightId(meta.id);
+    state = loadState();
+    renderAll();
+  }
+
+  function renameCurrentFight(nextName, options = {}){
+    const shouldRender = options?.render !== false;
+    if(!state?.fightId) return;
+    state.fightName = String(nextName || '');
+    updateFightMeta(state.fightId, { name: state.fightName });
+    saveState();
+    if(shouldRender) renderFightManager();
+  }
+
+  async function deleteCurrentFight(){
+    const fightIndex = getFightIndex();
+    if(fightIndex.length <= 1){
+      await appAlert(t('fightDeleteLastText'), { title: t('fightDeleteLastTitle') });
+      return;
+    }
+    const activeIndex = Math.max(0, fightIndex.findIndex(meta => meta.id === state.fightId));
+    const activeMeta = fightIndex[activeIndex] || fightIndex[0];
+    const fightName = getFightDisplayName(activeMeta, activeIndex);
+    const confirmed = await appConfirm(
+      t('fightDeleteConfirmText', { name: fightName }),
+      { title: t('fightDeleteConfirmTitle'), okText: t('fightDeleteConfirmBtn') }
+    );
+    if(!confirmed) return;
+    localStorage.removeItem(getFightStorageKey(state.fightId));
+    const nextFightIndex = fightIndex.filter(meta => meta.id !== state.fightId);
+    saveFightIndex(nextFightIndex);
+    const fallbackFightId = nextFightIndex[Math.min(activeIndex, nextFightIndex.length - 1)]?.id || nextFightIndex[0]?.id || '';
+    setActiveFightId(fallbackFightId);
+    state = loadState();
+    renderAll();
   }
 
   function fighterOptionsHtml(selectedId){
@@ -915,8 +1325,6 @@
     });
     const totalStake = activeBets.reduce((sum, b) => sum + (Number(b.stake) || 0), 0);
     const feePercent = sanitizeFee(state.settings.feePercent);
-    const feeAmount = totalStake * (feePercent / 100);
-    const netPool = Math.max(0, totalStake - feeAmount);
     const stakesByFighter = Object.fromEntries(state.fighters.map(f => [f.id, 0]));
     activeBets.forEach(b => {
       if (stakesByFighter[b.fighterId] != null) stakesByFighter[b.fighterId] += Number(b.stake) || 0;
@@ -930,11 +1338,12 @@
     const openingOddsByFighter = {};
     const poolOddsByFighter = {};
     const oddsByFighter = {};
+    const grossPayoutByFighter = {};
+    const feeByFighter = {};
     const payoutByFighter = {};
     const bookieResultByFighter = {};
     const historyBiasByFighter = {};
     const totalBetsCount = activeBets.length;
-    const safePayoutPool = Math.max(0, netPool);
 
     const fighterRows = state.fighters.map(f => {
       const key = getFighterOddsAnchorKey(f);
@@ -1005,20 +1414,48 @@
         poolOddsByFighter[row.fighter.id] = fairOdds;
         oddsByFighter[row.fighter.id] = liveOdds;
       }
+      grossPayoutByFighter[row.fighter.id] = 0;
+      feeByFighter[row.fighter.id] = 0;
       payoutByFighter[row.fighter.id] = 0;
     });
 
     activeBets.forEach(bet => {
       if(!(Number(bet?.stake) > 0) || !state.fighters.some(fighter => fighter.id === bet?.fighterId)) return;
-      payoutByFighter[bet.fighterId] = (Number(payoutByFighter[bet.fighterId]) || 0) + getBetPayoutAmount(bet, { oddsByFighter, mode });
+      const grossPayout = getBetGrossPayoutAmount(bet, { oddsByFighter, mode, feePercent });
+      const feeAmount = getBetFeeAmount(bet, { oddsByFighter, mode, feePercent });
+      const payoutAmount = Math.max(0, grossPayout - feeAmount);
+      grossPayoutByFighter[bet.fighterId] = (Number(grossPayoutByFighter[bet.fighterId]) || 0) + grossPayout;
+      feeByFighter[bet.fighterId] = (Number(feeByFighter[bet.fighterId]) || 0) + feeAmount;
+      payoutByFighter[bet.fighterId] = (Number(payoutByFighter[bet.fighterId]) || 0) + payoutAmount;
     });
 
     state.fighters.forEach(fighter => {
       bookieResultByFighter[fighter.id] = totalStake - (Number(payoutByFighter[fighter.id]) || 0);
     });
 
+    const selectedWinnerId = String(state.winnerId || '');
+    const feeAmount = selectedWinnerId ? (Number(feeByFighter[selectedWinnerId]) || 0) : 0;
+    const grossPayoutAmount = selectedWinnerId ? (Number(grossPayoutByFighter[selectedWinnerId]) || 0) : 0;
     const worstCaseResult = state.fighters.reduce((worst, f) => Math.min(worst, Number(bookieResultByFighter[f.id] || 0)), Number.POSITIVE_INFINITY);
-    return { totalStake, totalBetsCount, feePercent, feeAmount, netPool, safePayoutPool, stakesByFighter, openingOddsByFighter, poolOddsByFighter, oddsByFighter, payoutByFighter, bookieResultByFighter, historyBiasByFighter, marketWeight, worstCaseResult: Number.isFinite(worstCaseResult) ? worstCaseResult : 0, mode };
+    return {
+      totalStake,
+      totalBetsCount,
+      feePercent,
+      feeAmount,
+      grossPayoutAmount,
+      stakesByFighter,
+      openingOddsByFighter,
+      poolOddsByFighter,
+      oddsByFighter,
+      grossPayoutByFighter,
+      feeByFighter,
+      payoutByFighter,
+      bookieResultByFighter,
+      historyBiasByFighter,
+      marketWeight,
+      worstCaseResult: Number.isFinite(worstCaseResult) ? worstCaseResult : 0,
+      mode
+    };
   }
 
 
@@ -1226,7 +1663,7 @@
 
   function applyStaticTexts(){
     const ids = [
-      'eyebrowText','heroTitle','heroSub','langLabel','fightersTitle','fighterCountLabel','addFighterBtn',
+      'eyebrowText','heroTitle','heroSub','langLabel','fightManagerTitle','fightSelectLabel','fightNameLabel','fightersTitle','fighterCountLabel','addFighterBtn',
       'betsTitle','betCountLabel','addBetBtn','oddsTitle','oddsModeAutoLabel','oddsModeManualLabel',
       'feePercentLabel','winnerLabel','finishFightBtn','quickSummaryTitle','openLeaderboardBtn','openGuideBtn','leaderboardAutofillLabel','leaderboardAutofillHint','guideTitle','summaryFightersLabel',
       'summaryBetsLabel','summaryStakeLabel','summaryFeeLabel','summaryPayoutLabel','summaryWinnerLabel','summaryWorstCaseLabel','summaryMarketWeightLabel',
@@ -1239,6 +1676,10 @@
       const el = document.getElementById(id);
       if(el) el.textContent = t(id);
     });
+    if(els.createFightBtn) els.createFightBtn.textContent = t('createFightBtn');
+    if(els.deleteFightBtn) els.deleteFightBtn.textContent = t('deleteFightBtn');
+    if(els.fightNameInput) els.fightNameInput.placeholder = t('fightNamePlaceholder', { number: '1' });
+    if(els.fightManagerHint) els.fightManagerHint.textContent = t('fightManagerHint');
     if(els.startNewFightBtn) els.startNewFightBtn.textContent = t('resetTitle');
     if(els.resetConfirmTitle) els.resetConfirmTitle.textContent = t('resetConfirmTitle');
     if(els.resetConfirmText) els.resetConfirmText.textContent = getResetConfirmMessage();
@@ -1331,7 +1772,7 @@
       oddsField.className = 'field';
       oddsField.innerHTML = `
         <label>${betOddsLabel}</label>
-        <input type="text" readonly value="${escapeHtml(formatOdds(betOdds))}">
+        <input type="number" inputmode="decimal" min="1.01" step="0.01" data-role="bet-odds" data-id="${b.id}" value="${Number.isFinite(Number(betOdds)) && Number(betOdds) > 0 ? Number(betOdds).toFixed(2) : ''}">
       `;
       row.insertBefore(oddsField, row.querySelector('button[data-role="remove-bet"]'));
       els.betList.appendChild(row);
@@ -1340,6 +1781,7 @@
 
   function renderOdds(){
     const stats = getPoolStats();
+    const selectedWinner = state.fighters.find(fighter => fighter.id === state.winnerId);
     els.oddsGrid.innerHTML = '';
     state.fighters.forEach(f => {
       const openingOdds = stats.openingOddsByFighter[f.id];
@@ -1386,7 +1828,7 @@
       `<option value="${f.id}" ${currentWinner === f.id ? 'selected' : ''}>${escapeHtml(fighterDisplayName(f))}</option>`
     ).join('');
     els.feePercent.value = stats.feePercent.toFixed(1);
-    els.feeAmount.value = formatMoney(stats.feeAmount);
+    els.feeAmount.value = selectedWinner ? formatMoney(stats.feeAmount) : t('oddsUnavailable');
     els.finishNote.textContent = t(stats.mode === 'manual' ? 'finishNoteManual' : 'finishNoteAuto');
   }
 
@@ -1397,7 +1839,9 @@
     els.summaryFighterCount.textContent = String(state.fighters.length);
     els.summaryBetCount.textContent = String(state.bets.length);
     els.summaryTotalStake.textContent = formatMoney(stats.totalStake);
-    els.summaryFeeAmount.textContent = t('feeWithPercent', { money: formatMoney(stats.feeAmount), percent: formatPercent(stats.feePercent) });
+    els.summaryFeeAmount.textContent = winner
+      ? t('feeWithPercent', { money: formatMoney(stats.feeAmount), percent: formatPercent(stats.feePercent) })
+      : t('oddsUnavailable');
     els.summaryPayoutAmount.textContent = winnerPayout.hasBets ? formatMoney(winnerPayout.amount) : (winner ? t('resultNoWinnerBets', { name: fighterDisplayName(winner) }) : '—');
     els.summaryWinner.textContent = winner ? fighterDisplayName(winner) : '—';
     if(els.summaryPayoutPreview){
@@ -1426,18 +1870,21 @@
     state.history = (Array.isArray(state.history) ? state.history : []).map(fight => {
       const nextLines = Array.isArray(fight.lines) ? fight.lines.filter(line => String(line.name || '').trim().toLowerCase() !== normalized) : [];
       const nextTotalStake = nextLines.reduce((sum, line) => sum + (Number(line.stake) || 0), 0);
+      const nextGrossPayout = nextLines.reduce((sum, line) => sum + (Number(line.grossPayout) || 0), 0);
+      const nextFeeAmount = nextLines.reduce((sum, line) => sum + (Number(line.feeAmount) || 0), 0);
       const nextTotalPayout = nextLines.reduce((sum, line) => sum + (Number(line.payout) || 0), 0);
-      const feePercent = sanitizeFee(fight.feePercent);
       return {
         ...fight,
         lines: nextLines,
         totalStake: nextTotalStake,
         totalPayout: nextTotalPayout,
-        feeAmount: nextTotalStake * (feePercent / 100)
+        grossPayout: nextGrossPayout,
+        feeAmount: nextFeeAmount,
+        bookieNet: nextTotalStake - nextTotalPayout
       };
     }).filter(fight => Array.isArray(fight.lines) && fight.lines.length);
     renderAggregate();
-    saveState();
+    saveState({ historyMode: 'replace' });
   }
 
   function renderAggregate(){
@@ -1730,7 +2177,7 @@
   function resetLeaderboardHistory(){
     state.history = [];
     state.lastSettlementSignature = '';
-    renderAll();
+    renderAll({ historyMode: 'replace' });
     closeLeaderboardResetConfirm();
   }
 
@@ -1931,7 +2378,7 @@
     }
 
     removeFighterFromHistory(targetKey);
-    renderAll();
+    renderAll({ historyMode: 'replace' });
   }
 
   function renderLeaderboard(){
@@ -2196,10 +2643,13 @@
     animateModalClose(els.leaderboardModal, els.leaderboardModal?.querySelector('.leaderboard-dialog'));
   }
 
-  function renderAll(){
+  function renderAll(options = {}){
+    const persist = options?.persist !== false;
+    const historyMode = options?.historyMode === 'replace' ? 'replace' : 'merge';
     syncCountSelectors();
     maybeAutofillOddsFromLeaderboard();
     applyStaticTexts();
+    renderFightManager();
     renderFighters();
     renderBets();
     renderOdds();
@@ -2209,7 +2659,7 @@
     renderGuideContent();
     refreshFighterSuggestions();
     applyDuplicateHighlights();
-    saveState();
+    if(persist) saveState({ historyMode });
   }
 
   function addFighters(count){
@@ -2280,7 +2730,195 @@
     renderAll();
   }
 
+  function buildResultsV2(){
+    if(!validateNoDuplicateNames({ fighters: true, bettors: true })) return null;
+    if(!state.winnerId){
+      openWarningModal(t('noWinnerDialogTitle'), t('noWinnerDialogText'));
+      return null;
+    }
+    const stats = getPoolStats();
+    const validBets = state.bets.filter(b => (b.name || '').trim() && Number(b.stake) > 0 && state.fighters.some(f => f.id === b.fighterId));
+    if(!validBets.length){
+      appAlert(t('noBets'));
+      return null;
+    }
+    if(stats.mode === 'manual' && state.fighters.some(f => !Number.isFinite(Number(f.manualOdds)) || Number(f.manualOdds) <= 1)){
+      appAlert(t('invalidManualOdds'));
+      return null;
+    }
+    validBets.forEach(bet => {
+      if(!isBetOddsLocked(bet)) lockBetOdds(bet, stats);
+    });
+    const winner = state.fighters.find(f => f.id === state.winnerId);
+    const settlement = getSettlementBreakdown(stats, winner, validBets);
+    const totalPayout = settlement.winnerPayoutAmount;
+    const totalGrossPayout = settlement.winnerGrossAmount;
+    const lines = validBets.map(bet => {
+      const fighter = state.fighters.find(f => f.id === bet.fighterId);
+      const won = bet.fighterId === state.winnerId;
+      const odds = getBetResolvedOdds(bet, stats);
+      const payout = won ? fromMoneyCents(settlement.linePayouts.get(bet.id) || 0) : 0;
+      const grossPayout = won ? fromMoneyCents(settlement.lineGrossPayouts.get(bet.id) || 0) : 0;
+      const feeAmount = won ? fromMoneyCents(settlement.lineFeeAmounts.get(bet.id) || 0) : 0;
+      return {
+        name: (bet.name || '').trim() || t('unnamedBettor'),
+        fighter: fighter ? fighterDisplayName(fighter) : 'â€”',
+        stake: Number(bet.stake),
+        odds,
+        grossPayout,
+        feeAmount,
+        payout,
+        net: payout - Number(bet.stake),
+        won
+      };
+    });
+
+    const signature = JSON.stringify({
+      fightId: state.fightId,
+      winnerId: state.winnerId,
+      mode: stats.mode,
+      feePercent: stats.feePercent,
+      fighters: state.fighters.map(fighter => ({
+        id: fighter.id,
+        name: fighterDisplayName(fighter),
+        manualOdds: Number(fighter.manualOdds || 0),
+        openingOdds: Number(fighter.openingOdds || 0),
+        oddsAnchorName: String(fighter.oddsAnchorName || '')
+      })),
+      bets: validBets.map(bet => ({
+        name: (bet.name || '').trim(),
+        fighterId: bet.fighterId,
+        stake: Number(bet.stake),
+        lockedOdds: Number(getStoredBetOdds(bet) || 0),
+        oddsLocked: isBetOddsLocked(bet)
+      }))
+    });
+
+    const validNamedFighters = state.fighters
+      .filter(fighter => hasValidFighterName(fighter?.name))
+      .map(fighter => ({
+        name: String(fighter.name || '').trim(),
+        stake: Number(stats.stakesByFighter[fighter.id] || 0),
+        won: fighter.id === state.winnerId,
+        openingOdds: Number(stats.openingOddsByFighter[fighter.id] || 0),
+        liveOdds: Number(stats.oddsByFighter[fighter.id] || 0),
+        manualOdds: Number(sanitizeManualOdds(fighter.manualOdds || stats.oddsByFighter[fighter.id] || 1.9))
+      }));
+
+    return {
+      signature,
+      winner,
+      lines,
+      matchupKey: buildMatchupKey(validNamedFighters.map(fighter => fighter.name)),
+      fighters: validNamedFighters,
+      totalStake: stats.totalStake,
+      feeAmount: settlement.feeAmount,
+      feePercent: stats.feePercent,
+      grossPayout: totalGrossPayout,
+      totalPayout,
+      fighterShareAmount: totalGrossPayout,
+      fighterShareQuote: 0,
+      fighterShareText: settlement.hasWinnerBets ? formatMoney(totalGrossPayout) : settlement.fighterShareText,
+      winnerPayoutText: settlement.winnerPayoutText,
+      winnerHasBets: settlement.hasWinnerBets,
+      bookieNet: stats.totalStake - totalPayout,
+      mode: stats.mode,
+      createdAt: new Date().toISOString()
+    };
+  }
+
+  function persistFightResultV2(result){
+    if(!result) return;
+    if(result.signature !== state.lastSettlementSignature){
+      const priorRounds = (Array.isArray(state.history) ? state.history : []).filter(fight => String(fight.matchupKey || '') === String(result.matchupKey || '')).length;
+      state.history.push({
+        id: result.signature,
+        signature: result.signature,
+        createdAt: result.createdAt,
+        winner: fighterDisplayName(result.winner),
+        matchupKey: result.matchupKey,
+        roundNo: priorRounds + 1,
+        totalStake: result.totalStake,
+        grossPayout: result.grossPayout,
+        feeAmount: result.feeAmount,
+        feePercent: result.feePercent,
+        totalPayout: result.totalPayout,
+        fighterShareAmount: result.fighterShareAmount,
+        fighterShareQuote: result.fighterShareQuote,
+        bookieNet: result.bookieNet,
+        mode: result.mode,
+        fighters: result.fighters,
+        lines: result.lines
+      });
+      state.lastSettlementSignature = result.signature;
+      saveState();
+    }
+  }
+
+  function openResultsV2(){
+    const result = buildResultsV2();
+    if(!result) return;
+    persistFightResultV2(result);
+    renderBets();
+    renderOdds();
+    renderQuickSummary();
+    renderAggregate();
+    renderLeaderboard();
+
+    els.resultWinnerStat.textContent = fighterDisplayName(result.winner);
+    els.resultStakeStat.textContent = formatMoney(result.totalStake);
+    els.resultFeeStat.textContent = t('feeWithPercent', { money: formatMoney(result.feeAmount), percent: formatPercent(result.feePercent) });
+    els.resultPayoutStat.textContent = result.winnerHasBets ? formatMoney(result.totalPayout) : result.winnerPayoutText;
+    const winningBetsCount = result.lines.filter(line => line.won).length;
+    if(els.resultActualPayoutValue){
+      if(!result.winner){
+        els.resultActualPayoutValue.textContent = 'â€”';
+      } else if(winningBetsCount <= 0){
+        els.resultActualPayoutValue.textContent = t('resultWinningSideNoBets', { name: fighterDisplayName(result.winner) });
+      } else if(winningBetsCount === 1){
+        els.resultActualPayoutValue.textContent = t('resultWinningSideValueSingular', { name: fighterDisplayName(result.winner) });
+      } else {
+        els.resultActualPayoutValue.textContent = t('resultWinningSideValue', { name: fighterDisplayName(result.winner), count: String(winningBetsCount) });
+      }
+    }
+    if(els.resultActualPayoutHint) els.resultActualPayoutHint.textContent = t('resultActualPayoutHint');
+    if(els.resultFighterShareValue){
+      els.resultFighterShareValue.textContent = result.winnerHasBets ? formatMoney(result.grossPayout) : result.fighterShareText;
+    }
+    if(els.resultFighterShareHint){
+      els.resultFighterShareHint.textContent = result.winnerHasBets
+        ? t('resultFighterShareHint', { percent: formatPercent(result.feePercent) })
+        : result.fighterShareText;
+    }
+    els.resultLines.innerHTML = '';
+    result.lines.forEach(line => {
+      const item = document.createElement('div');
+      item.className = 'result-line';
+      item.innerHTML = `
+        <div class="result-line-main">
+          <div class="result-line-name">${escapeHtml(line.name)}</div>
+          <div class="result-line-meta">${escapeHtml(t('resultMeta', {
+            stake: formatMoney(line.stake),
+            pick: line.fighter,
+            quote: formatOdds(line.odds),
+            gross: formatMoney(line.grossPayout),
+            fee: formatMoney(line.feeAmount),
+            payout: formatMoney(line.payout)
+          }))}</div>
+        </div>
+        <div class="result-line-status">${line.won ? t('win') : t('lost')}</div>
+        <div class="result-line-financials">
+          <div class="result-line-payout ${line.payout <= 0 ? 'zero' : ''}">${formatMoney(line.payout)}</div>
+          <div class="result-line-net ${line.net >= 0 ? 'pos' : 'neg'}">${t('resultNet')}: ${line.net >= 0 ? '+' : ''}${formatMoney(line.net)}</div>
+        </div>
+      `;
+      els.resultLines.appendChild(item);
+    });
+    animateModalOpen(els.resultModal, els.resultModal?.querySelector('.result-dialog'));
+  }
+
   function buildResults(){
+    return buildResultsV2();
     if(!validateNoDuplicateNames({ fighters: true, bettors: true })) return null;
     if(!state.winnerId){
       openWarningModal(t('noWinnerDialogTitle'), t('noWinnerDialogText'));
@@ -2376,6 +3014,7 @@
   }
 
   function persistFightResult(result){
+    return persistFightResultV2(result);
     if(!result) return;
     if(result.signature !== state.lastSettlementSignature){
       const priorRounds = (Array.isArray(state.history) ? state.history : []).filter(fight => String(fight.matchupKey || '') === String(result.matchupKey || '')).length;
@@ -2401,6 +3040,7 @@
   }
 
   function openResults(){
+    return openResultsV2();
     const result = buildResults();
     if(!result) return;
     persistFightResult(result);
@@ -2469,6 +3109,11 @@
     const id = target.dataset.id;
     const key = target.dataset.key;
 
+    if(target === els.fightNameInput){
+      renameCurrentFight(target.value, { render: false });
+      return;
+    }
+
     if(target === els.feePercent){
       return;
     }
@@ -2499,7 +3144,7 @@
       saveState();
       return;
     }
-    if(role === 'manual-odds' || role === 'opening-odds' || role === 'bet-stake'){
+    if(role === 'manual-odds' || role === 'opening-odds' || role === 'bet-stake' || role === 'bet-odds'){
       return;
     }
     if(role === 'bet-name'){
@@ -2516,6 +3161,14 @@
     const role = target.dataset.role;
     const id = target.dataset.id;
 
+    if(target === els.fightSelect){
+      switchActiveFight(target.value);
+      return;
+    }
+    if(target === els.fightNameInput){
+      renameCurrentFight(target.value);
+      return;
+    }
     if(target === els.langSelect){
       state.settings.lang = target.value;
       renderAll();
@@ -2576,12 +3229,14 @@
     }
     if(target === els.winnerSelect){
       state.winnerId = target.value;
+      renderOdds();
       renderQuickSummary();
       saveState();
       return;
     }
     if(target === els.feePercent){
       state.settings.feePercent = sanitizeFee(String(target.value).replace(',', '.'));
+      renderBets();
       renderOdds();
       renderQuickSummary();
       renderLeaderboard();
@@ -2651,6 +3306,25 @@
       saveState();
       return;
     }
+    if(role === 'bet-odds' && id){
+      const bet = state.bets.find(b => b.id === id);
+      if(bet){
+        const rawValue = String(target.value || '').trim().replace(',', '.');
+        if(!rawValue){
+          clearBetOddsLock(bet);
+          if(canLockBetOdds(bet)) lockBetOdds(bet, getPoolStats({ excludeBetId: bet.id }));
+        } else {
+          bet.lockedOdds = sanitizeManualOdds(rawValue);
+          bet.oddsLocked = true;
+        }
+      }
+      renderBets();
+      renderOdds();
+      renderQuickSummary();
+      renderLeaderboard();
+      saveState();
+      return;
+    }
     if(role === 'bet-fighter' && id){
       const bet = state.bets.find(b => b.id === id);
       if(bet){
@@ -2674,6 +3348,8 @@
     const id = btn.dataset.id;
     const key = btn.dataset.key;
 
+    if(btn === els.createFightBtn){ createFightSlot(); return; }
+    if(btn === els.deleteFightBtn){ deleteCurrentFight(); return; }
     if(btn === els.addFighterBtn){ addFighters(els.fighterAddCount.value); return; }
     if(btn === els.addBetBtn){ addBets(els.betAddCount.value); return; }
     if(btn === els.openGuideBtn){ openGuide(); return; }
@@ -2804,6 +3480,17 @@
       return;
     }
     if(els.resultModal.classList.contains('open')) closeResults();
+  });
+
+  window.addEventListener('storage', (event) => {
+    const changedKey = String(event?.key || '');
+    if(!changedKey) return;
+    const isFightStorageChange = changedKey === FIGHT_INDEX_KEY
+      || changedKey === HISTORY_STORAGE_KEY
+      || changedKey === getFightStorageKey(state?.fightId || '');
+    if(!isFightStorageChange) return;
+    state = loadState();
+    renderAll({ persist: false });
   });
 
   if(!state.bets.length) addBets(1);

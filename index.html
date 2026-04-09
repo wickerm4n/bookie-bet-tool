@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#0b0c10" />
   <title>Bookie Bet Tool</title>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'" />
-  <link rel="stylesheet" href="styles.css?v=2026.03.21-v15-modular" />
+  <link rel="stylesheet" href="styles.css?v=2026.04.09-v16-multifight" />
 </head>
 <body>
   <div class="wrap">
@@ -26,6 +26,26 @@
           </select>
         </div>
       </div>
+    </section>
+
+    <section class="panel fight-manager-panel">
+      <div class="panel-title">
+        <h2 id="fightManagerTitle">Fight-Verwaltung</h2>
+        <span class="tag" id="fightCountTag">1 Fight</span>
+      </div>
+      <div class="fight-manager-grid">
+        <div class="field">
+          <label for="fightSelect" id="fightSelectLabel">Aktiver Fight</label>
+          <select id="fightSelect" aria-label="Aktiver Fight"></select>
+        </div>
+        <div class="field">
+          <label for="fightNameInput" id="fightNameLabel">Fight-Name</label>
+          <input id="fightNameInput" type="text" placeholder="Fight 1" autocomplete="off">
+        </div>
+        <button class="btn-primary" id="createFightBtn">Neuen Fight anlegen</button>
+        <button class="btn-danger" id="deleteFightBtn">Fight löschen</button>
+      </div>
+      <div class="note-box fight-manager-note" id="fightManagerHint"></div>
     </section>
 
     <div class="grid">
@@ -366,6 +386,6 @@
       </div>
     </div>
   </div>
-<script src="app.js?v=2026.03.21-v15-modular" defer></script>
+<script src="app.js?v=2026.04.09-v16-multifight" defer></script>
 </body>
 </html>
