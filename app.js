@@ -1,5 +1,5 @@
 (() => {
-  const APP_BUILD_VERSION = '2026.04.09-v22-leaderboard-header-grid';
+  const APP_BUILD_VERSION = '2026.04.09-v23-leaderboard-header-labels';
   const APP_BUILD_STORAGE_KEY = 'bookie_bet_tool_html_build_version';
   const APP_BUILD_SESSION_KEY = 'bookie_bet_tool_html_build_reloaded';
 
@@ -2791,8 +2791,8 @@
       const icon = isActive ? (sortState.dir === 'asc' ? '&uarr;' : '&darr;') : '&harr;';
       return `
         <div class="leaderboard-toolbar-stat">
+          <div class="leaderboard-toolbar-label">${escapeHtml(control.heading)}</div>
           <button class="btn-secondary leaderboard-sort-btn ${isActive ? 'is-active' : ''}" type="button" data-role="leaderboard-sort" data-key="${control.key}" title="${escapeHtml(`${control.label} ${directionLabel}`)}" aria-label="${escapeHtml(`${control.label} ${directionLabel}`)}">
-            <span class="leaderboard-sort-copy">${escapeHtml(control.heading)}</span>
             <span class="leaderboard-sort-icon" aria-hidden="true">${icon}</span>
           </button>
         </div>

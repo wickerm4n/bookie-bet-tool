@@ -425,35 +425,38 @@
       min-width:0;
     }
     .leaderboard-toolbar-stat{
-      display:block;
+      display:grid;
+      gap:8px;
       min-width:0;
+      align-items:start;
     }
-    .leaderboard-sort-btn{
-      width:100%;
-      min-height:52px;
-      padding:10px 14px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.08);
-      background:rgba(255,255,255,.04);
-      color:var(--text);
-      font-size:.84rem;
-      font-weight:800;
-      line-height:1.12;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      text-align:left;
-    }
-    .leaderboard-sort-copy{
+    .leaderboard-toolbar-label{
       min-width:0;
-      font-size:.74rem;
-      letter-spacing:.06em;
+      color:var(--muted);
+      font-size:.72rem;
+      letter-spacing:.09em;
       text-transform:uppercase;
       line-height:1.18;
+      text-align:center;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+    }
+    .leaderboard-sort-btn{
+      width:44px;
+      min-width:44px;
+      min-height:44px;
+      padding:0;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      font-weight:800;
+      line-height:1;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      justify-self:center;
     }
     .leaderboard-sort-icon{
       pointer-events:none;
@@ -626,13 +629,13 @@
       .leaderboard-toolbar-name,
       .leaderboard-toolbar-action{display:none}
       .leaderboard-sort-btn{
-        min-height:50px;
-        padding:9px 9px;
-        gap:8px;
+        width:42px;
+        min-width:42px;
+        min-height:42px;
       }
-      .leaderboard-sort-copy{
+      .leaderboard-toolbar-label{
         font-size:.63rem;
-        letter-spacing:.03em;
+        letter-spacing:.05em;
       }
       .hero{padding:2px 0 0}
       .hero-top{padding:54px 0 2px}
@@ -666,7 +669,7 @@
         min-height:48px;
         padding:8px;
       }
-      .leaderboard-sort-copy{font-size:.59rem}
+      .leaderboard-toolbar-label{font-size:.59rem}
       .leaderboard-stat{
         min-height:52px;
         justify-content:center;
