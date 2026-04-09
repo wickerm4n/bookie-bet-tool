@@ -99,6 +99,7 @@
       pointer-events:none;
     }
     .bets-panel,.odds-panel{display:flex;flex-direction:column}
+    .odds-panel{padding-bottom:20px}
     .panel-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
     .panel-title h2,.panel-title h3{margin:0;font-size:1rem;letter-spacing:.1em;text-transform:uppercase}
     .tag{padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);font-size:.72rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
@@ -213,10 +214,10 @@
     .odds-list{display:grid;gap:12px}
     .odds-row{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:12px}
     .winner-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}
-    .winner-section{display:grid;gap:16px;margin-top:18px;padding-bottom:10px}
+    .winner-section{display:grid;gap:16px;margin-top:18px}
     .winner-section .field{gap:12px}
     .winner-section .field label{margin-block:4px 0}
-    .winner-section .note-box{margin-top:0;padding-bottom:16px}
+    .winner-section .note-box{margin-top:0}
     .summary-card{padding:14px;border-radius:16px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.06);min-width:0;overflow:hidden;display:grid;align-content:start}
     .summary-card .k{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.11em;line-height:1.2;overflow-wrap:anywhere;word-break:break-word;hyphens:auto}
     .summary-card .v{font-size:clamp(1.1rem,1.2vw + .55rem,1.9rem);font-weight:800;margin-top:8px;text-align:left;line-height:1.12;overflow-wrap:anywhere;word-break:break-word;hyphens:auto;max-width:100%}

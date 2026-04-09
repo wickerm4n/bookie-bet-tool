@@ -3174,7 +3174,7 @@
     if(!betsRect.height || !oddsRect.height) return;
     const targetHeight = Math.round(betsRect.bottom - oddsRect.top);
     if(targetHeight > 0){
-      els.oddsPanel.style.height = `${targetHeight}px`;
+      els.oddsPanel.style.minHeight = `${targetHeight}px`;
     }
   }
 
