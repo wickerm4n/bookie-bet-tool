@@ -1433,7 +1433,12 @@
     ensureFightStore();
     const fightIndex = getFightIndex();
     const now = new Date().toISOString();
-    const nextFightName = normalizeFightNameValue(getFallbackFightName(fightIndex.length));
+    const typedFightName = normalizeFightNameValue(els.fightNameInput?.value || '');
+    const currentFightName = normalizeFightNameValue(state?.fightName || '');
+    const shouldUseTypedFightName = Boolean(typedFightName) && normalizeFightNameKey(typedFightName) !== normalizeFightNameKey(currentFightName);
+    const nextFightName = shouldUseTypedFightName
+      ? typedFightName
+      : normalizeFightNameValue(getFallbackFightName(fightIndex.length));
     const nameAlreadyExists = findExistingFightNames(nextFightName).length > 0;
     if(nameAlreadyExists){
       const confirmed = await appConfirm(
